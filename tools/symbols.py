@@ -53,7 +53,6 @@ def header(data):
     out = [
         f"/* Generated from the symbols file for OSOS {firmware['version']}. */",
         "#pragma once",
-        "#include <stdint.h>",
         "",
         f'#define OSOS_VERSION "{firmware["version"]}"',
         f"#define OSOS_RUNTIME_BASE 0x{firmware['runtime_base']:08x}",
@@ -61,6 +60,9 @@ def header(data):
         f"#define OSOS_NATIVE_HEAP_BASE 0x{firmware['native_heap_base']:08x}",
         "",
     ]
+    out.append("#ifndef __ASSEMBLER__")
+    out.append("#include <stdint.h>")
+    out.append("")
     structs = set()
     for table in ("functions", "data"):
         for entry in data.get(table, {}).values():
@@ -75,6 +77,7 @@ def header(data):
     out.append("")
     for name, entry in data.get("data", {}).items():
         out.append(f"extern {entry['c']};")
+    out.append("#endif")
     out.append("")
     for name, entry in data.get("sites", {}).items():
         out.append(f"#define SITE_{name} 0x{entry['at']:08x}")

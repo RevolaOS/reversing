@@ -1,11 +1,13 @@
 /* Generated from the symbols file for OSOS 2.0.5. */
 #pragma once
-#include <stdint.h>
 
 #define OSOS_VERSION "2.0.5"
 #define OSOS_RUNTIME_BASE 0x08000000
 #define OSOS_RUNTIME_FILE_OFFSET 0x0000b798
 #define OSOS_NATIVE_HEAP_BASE 0x08b3b1b0
+
+#ifndef __ASSEMBLER__
+#include <stdint.h>
 
 struct MediaEntry;
 struct MediaItem;
@@ -175,6 +177,7 @@ extern const uint32_t EQ_PresetIds[];
 extern uint8_t BrowserRegistry[];
 extern uint32_t MainMenuSettingsRows[];
 extern uint32_t MusicMenuSettingsRows[];
+#endif
 
 #define SITE_Preferences_LoadFile_call 0x08058808
 #define SITE_ResourceBlockList_AppendBorrowedBlock_call 0x0817a88c
