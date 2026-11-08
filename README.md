@@ -15,8 +15,8 @@ What is known about Apple's iPod Classic firmware, and the symbols the RevolaOS 
 
 | Table | Entry | Generated as |
 |---|---|---|
-| `[functions]` | `Name = { at, c, thumb }` | linker symbol (bit 0 set for Thumb) and the prototype `c` |
-| `[data]` | `Name = { at, c }` | linker symbol and `extern c` |
+| `[functions]` | `Name = { at, c, thumb }` | linker symbol (bit 0 set for Thumb), the prototype `c`, and `#define ADDR_Name` for patch declarations |
+| `[data]` | `Name = { at, c }` | linker symbol, `extern c` and `#define ADDR_Name` |
 | `[sites]` | `Name = { at, kind, in }` | `#define SITE_Name` |
 | `[offsets.Struct]` | `field = value` | `#define Struct_field` |
 | `[constants]`, `[resources]` | `Name = value` | `#define Name`, `#define RES_Name` |

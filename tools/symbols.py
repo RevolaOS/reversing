@@ -79,6 +79,10 @@ def header(data):
         out.append(f"extern {entry['c']};")
     out.append("#endif")
     out.append("")
+    for table in ("functions", "data"):
+        for name, entry in data.get(table, {}).items():
+            out.append(f"#define ADDR_{name} 0x{entry['at']:08x}")
+    out.append("")
     for name, entry in data.get("sites", {}).items():
         out.append(f"#define SITE_{name} 0x{entry['at']:08x}")
     out.append("")
