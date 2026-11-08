@@ -32,6 +32,12 @@ def keep(rule, properties):
     return False
 
 
+def sort_key(record):
+    locations = record.get("locations") or [{}]
+    address = locations[0].get("physicalLocation", {}).get("address", {})
+    return address.get("absoluteAddress", 0), json.dumps(record, sort_keys=True)
+
+
 def analysis_directory(spec, analysis):
     return analysis / str(Path(spec["path"]).with_suffix(""))
 
@@ -74,8 +80,16 @@ def trim(results, spec, header, destination):
     groups = defaultdict(list)
     for result in results:
         rule = result["ruleId"].lower()
-        if keep(rule, result["properties"]["additionalProperties"]):
+        properties = result["properties"]["additionalProperties"]
+        if keep(rule, properties):
+            if rule == "memory_map":
+                # Offset into the SARIF byte stream, which is never published.
+                properties.pop("location", None)
             groups[rule].append(result)
+    for rule, records in groups.items():
+        # Data types stay in Ghidra's order; definitions can depend on it.
+        if rule != "datatype":
+            records.sort(key=sort_key)
     destination.mkdir(parents=True, exist_ok=True)
     for old in destination.glob("*.jsonl"):
         old.unlink()
