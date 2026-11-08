@@ -4,15 +4,38 @@ What is known about Apple's iPod Classic firmware, and the symbols the RevolaOS 
 
 | Path | Contents |
 |---|---|
-| `symbols/` | One file per firmware version: name, address, ARM or Thumb state, C prototype. Source of truth for every address used in code |
+| `symbols/` | One file per firmware version plus its generated linker script and C header |
 | `docs/<version>/` | One file per Apple subsystem |
 | `ghidra/` | Headless scripts for import, export and verification, and the exported analysis (names, comments, types) |
+| `tools/` | `symbols.py` |
 
-Addresses appear only in the symbols files. Prose uses symbol names.
+## Symbols
+
+`symbols/osos-2.0.5.toml` is the source of truth for every address RevolaOS code uses. Prose in `docs/` uses the names from it, never raw addresses.
+
+| Table | Entry | Generated as |
+|---|---|---|
+| `[functions]` | `Name = { at, c, thumb }` | linker symbol (bit 0 set for Thumb) and the prototype `c` |
+| `[data]` | `Name = { at, c }` | linker symbol and `extern c` |
+| `[sites]` | `Name = { at, kind, in }` | `#define SITE_Name` |
+| `[offsets.Struct]` | `field = value` | `#define Struct_field` |
+| `[constants]`, `[resources]` | `Name = value` | `#define Name`, `#define RES_Name` |
+
+Site kinds: `call` (a `BL` to redirect), `slot` (a pointer in a vtable or table), `word` (a constant), `entry` (a function start for a jump hook), `literal` (an address held in a literal pool). `in` names the containing function and offset; `verify` checks it.
+
+```sh
+python tools/symbols.py generate symbols/osos-2.0.5.toml
+python tools/symbols.py check symbols/osos-2.0.5.toml
+python tools/symbols.py verify symbols/osos-2.0.5.toml --ghidra <analysis>/2.0.5/osos
+```
+
+`generate` writes `osos-2.0.5.ld` and `osos-2.0.5.h` next to the source; both are committed. `check` fails when they are stale. `verify` compares every function and site with the Ghidra export and lists functions Ghidra has not defined yet.
+
+Code links against the linker script with `-Wl,--just-symbols=osos-2.0.5.ld` and includes the header. Functions without a prototype exist only so sites can name them.
 
 Apple firmware bytes are never committed. Analysis is reproduced from the user's own decrypted inputs.
 
-TODO: generator for the linker script and C header, and the Ghidra sync scripts.
+TODO: Ghidra scripts that refresh the symbols file from a project and push names back into it.
 
 ## What drives development
 
