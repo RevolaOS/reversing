@@ -629,6 +629,7 @@ extern uint16_t ATA_Identify[256];
 #define Notify_All 0x2a2a2a2a
 #define Resource_BMap 0x424d6170
 #define Resource_Draw 0x44726177
+#define Resource_SORC 0x534f5243
 #define Service_Settings 0x8900
 #define Service_NowPlaying 0x7f00
 #define ActionSupportQuery 0xdeadbeef
@@ -647,6 +648,7 @@ extern uint16_t ATA_Identify[256];
 #define RES_Settings_Brightness_Image 0x0dad0bff
 #define RES_Settings_MainMenu_Item 0x0dad0c91
 #define RES_Settings_MusicMenu_Item 0x0dad0c94
+#define RES_SettingsMenu_Legal_Item 0x0dad0c7b
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
 #define RES_Menu_Reset_Bitmap 0x0dad0125
 #define RES_CoverFlow_Backside_Border_Color 0x0dad05d8
