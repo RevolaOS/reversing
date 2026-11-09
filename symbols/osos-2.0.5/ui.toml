@@ -50,7 +50,7 @@ ArtistsController_ShowContextMenu = { at = 0x0821fe9c }
 UI_InitializeEventTimer = { at = 0x0810635c, c = "void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue)" }
 Timer_Start = { at = 0x08121268, c = "void Timer_Start(void *timer)" }
 UITask_Create = { at = 0x081391b8 }
-UITask_Main = { at = 0x08139118 }
+UITask_Main = { at = 0x08139118, c = "void UITask_Main(void)" }
 Timer_SetPeriod = { at = 0x0812195c, c = "void Timer_SetPeriod(void *timer, uint32_t milliseconds)" }
 Controller_ExecuteNavigatorAction = { at = 0x08129998, c = "int Controller_ExecuteNavigatorAction(void *controller, void *action, int action_context, uint8_t *stop_dispatch)" }
 Navigator_PopTop = { at = 0x082896b8, c = "void Navigator_PopTop(uint32_t flags)" }
@@ -60,6 +60,7 @@ Navigator_PopToPixoMainScreen = { at = 0x08289768, c = "void Navigator_PopToPixo
 ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts)" }
 UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
+ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 UI_CreateTemplateFromResource = { at = 0x081df580 }
 View_FindViewById = { at = 0x08292580, c = "void *View_FindViewById(void *view, uint32_t id)" }
@@ -113,6 +114,7 @@ notify_method = 0x58
 push_method = 0xd0
 pop_method = 0xbc
 switch_layout_method = 0x120
+show_layout_method = 0x124
 action_method = 0x114
 vtable_bytes = 0x128
 screen = 0xb4

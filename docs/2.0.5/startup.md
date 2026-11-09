@@ -14,4 +14,6 @@ The NOR loader passes a boot-info record. `Platform_ImportBootSysInfo` checks it
 
 `System_CreateAndStartConfiguredTasks` walks a table of 21 task descriptors twice: first it creates every task, then it starts them. The table includes the graphics manager, so UI code can run before startup returns.
 
+One of the configured tasks runs `UITask_Main`. It registers the built-in view factories and calls `UI_InitResourceProviders` before it builds the UI. Code hooked into `UI_InitResourceProviders` therefore runs inside the UI task, after all configured tasks have started.
+
 Tasks created through `Thread_Create` get a `ThreadRecord_bytes` record holding the task name and `ThreadRecord_stack_base`; `Thread_GetCurrentRecord` returns the calling task's record. The UI task's stack is `UITask_stack_bytes` long and grows down from `ThreadRecord_stack_base + UITask_stack_bytes`.

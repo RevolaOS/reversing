@@ -61,6 +61,7 @@ struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index);
 void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode);
 void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags);
 struct MediaEntry *MediaList_GetEntryByOrderIndex(struct MediaList *list, int order_mode, uint32_t reverse, uint32_t index);
+int MediaList_GetEntryOrderIndex(void *entry, uint32_t order_mode, uint32_t reverse);
 int MediaList_BuildOrderIndex(struct MediaList *list, uint32_t order);
 void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse);
 int MediaListController_AddSelectionToOnTheGo(void *controller);
@@ -224,6 +225,7 @@ int NestedPlaylists_DispatchAction(void *controller, const char *action, uint32_
 int Genius_DispatchAction(void *controller, const char *action, uint32_t argument);
 void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue);
 void Timer_Start(void *timer);
+void UITask_Main(void);
 void Timer_SetPeriod(void *timer, uint32_t milliseconds);
 int Controller_ExecuteNavigatorAction(void *controller, void *action, int action_context, uint8_t *stop_dispatch);
 void Navigator_PopTop(uint32_t flags);
@@ -530,6 +532,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_ExtrasMenu_DispatchAction 0x0811a664
 #define ADDR_UI_ConstructScreenDefinition 0x0813ca44
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
+#define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
 #define ADDR_View_FindViewById 0x08292580
@@ -847,6 +850,7 @@ extern void *const AlbumsController_vtable[];
 #define ScreenController_push_method 0xd0
 #define ScreenController_pop_method 0xbc
 #define ScreenController_switch_layout_method 0x120
+#define ScreenController_show_layout_method 0x124
 #define ScreenController_action_method 0x114
 #define ScreenController_vtable_bytes 0x128
 #define ScreenController_screen 0xb4

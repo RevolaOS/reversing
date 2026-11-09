@@ -15,7 +15,7 @@ PlaybackList_GetEntryByIndex = { at = 0x0829cab8, c = "struct MediaEntry *Playba
 MediaList_InvalidateOrderCache = { at = 0x080d1928, c = "void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode)" }
 MediaList_CopyEntryAtPosition = { at = 0x0803bbf0, c = "void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags)" }
 MediaList_GetEntryByOrderIndex = { at = 0x08047870, c = "struct MediaEntry *MediaList_GetEntryByOrderIndex(struct MediaList *list, int order_mode, uint32_t reverse, uint32_t index)" }
-MediaList_GetEntryOrderIndex = { at = 0x080497ac }
+MediaList_GetEntryOrderIndex = { at = 0x080497ac, c = "int MediaList_GetEntryOrderIndex(void *entry, uint32_t order_mode, uint32_t reverse)" }
 MediaList_BuildOrderIndex = { at = 0x080d438c, c = "int MediaList_BuildOrderIndex(struct MediaList *list, uint32_t order)" }
 MediaList_ResolveOrderMode = { at = 0x080a9ab0, c = "void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse)" }
 MediaListController_AddSelectionToOnTheGo = { at = 0x0820f8d4, c = "int MediaListController_AddSelectionToOnTheGo(void *controller)" }
