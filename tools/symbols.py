@@ -30,6 +30,7 @@ ANALYSIS = ROOT / "ghidra/analysis/2.0.5/osos"
 
 IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 STRUCT = re.compile(r"\bstruct\s+([A-Za-z_][A-Za-z0-9_]*)")
+SPDX = "/* SPDX-License-Identifier: GPL-3.0-only */"
 
 
 def load(path):
@@ -49,7 +50,8 @@ def load(path):
 
 def linker_script(data):
     lines = [
-        f"/* Generated from the symbols file for OSOS {data['firmware']['version']}. */"
+        SPDX,
+        f"/* Generated from the symbols file for OSOS {data['firmware']['version']}. */",
     ]
     for name, entry in data.get("functions", {}).items():
         address = entry["at"] | (1 if entry.get("thumb") else 0)
@@ -62,6 +64,7 @@ def linker_script(data):
 def header(data):
     firmware = data["firmware"]
     out = [
+        SPDX,
         f"/* Generated from the symbols file for OSOS {firmware['version']}. */",
         "#pragma once",
         "",

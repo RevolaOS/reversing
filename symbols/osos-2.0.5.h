@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
 /* Generated from the symbols file for OSOS 2.0.5. */
 #pragma once
 
