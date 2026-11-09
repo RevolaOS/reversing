@@ -14,3 +14,13 @@ SongText_CompareUtf16 = { at = 0x0803a574, c = "int SongText_CompareUtf16(void *
 StringCache_ReadToken = { at = 0x080a94ec, c = "int StringCache_ReadToken(void *cache, uint32_t token, void *destination, uint32_t *bytes, uint32_t maximum_bytes)" }
 StringCache_ReleaseToken = { at = 0x080bb0c8, c = "int StringCache_ReleaseToken(void *cache, uint32_t token)" }
 StringCache_GetTokenView = { at = 0x08093598, c = "int StringCache_GetTokenView(void *cache, uint32_t token, void **data, uint32_t *bytes)" }
+
+[constants]
+StringInputStream_ResourceMode = 0xc
+StringInputStream_DestroyComplete = 0x2
+
+[offsets.CppString]
+bytes = 0x4
+
+[offsets.StringInputStream]
+bytes = 0x7c

@@ -14,7 +14,7 @@ Each controller factory builds its screen definition with `UI_ConstructScreenDef
 
 ## Menu rows
 
-A list's rows are blocks in an `ITEM` resource (`RES_SettingsMenu_Items` for Settings). Row fields: `MenuRow_id`, `MenuRow_style` (2 = text row without arrow or chosen event), `MenuRow_visible`, `MenuRow_title` (a `SORC` id or property source) and `MenuRow_title_from_model`. `MenuItem_SetVisible` finds a row by id in the menu registry, so it only reaches rows that were in the `ITEM` table when the list loaded.
+A list's rows are blocks in an `ITEM` resource (`RES_SettingsMenu_Items` for Settings). Row fields: `MenuRow_id`, `MenuRow_style` (2 = text row without arrow or chosen event), `MenuRow_visible`, `MenuRow_title` (a `SORC` id or property source) and `MenuRow_title_from_model`. `MenuItem_SetVisible` finds a row by id in the menu registry, so it only reaches rows that were in the `ITEM` table when the list loaded. A row id is not unique: 47 stock rows have `MenuRow_id` 0, most of them the only row of a one-row `ITEM` table. Such rows cannot be addressed by id.
 
 `MenuList_RebuildVisibleItems` drops rows whose `MenuRow_visible` is 0 and subscribes to the Settings-style sources of rows with `MenuRow_title_from_model` set. The last such row is the list's dynamic row: `MenuList_QueryProperty` reports the row count as the visible rows minus one plus that row's provider's answer to `Property_Count` for its property. A model-backed last row therefore has to answer `Property_Count` with 1, or it disappears; answering N expands it into N rows.
 
@@ -43,6 +43,7 @@ UI resources are a 32-bit count followed by blocks of `{bytes, kind, data}`, eac
 | `Resource_SLyt` | layout id | blocks; word 0 of each is an `SSin` id |
 | `Resource_SSin` | instance list id | blocks: `SsinInstance_view_bindings` (a `VCvs` id), `SsinInstance_template`, `SsinInstance_substitute` (loaded as the instance's `VLyt` id), `SsinInstance_flags` |
 | `Resource_VCvs` | instance id | blocks whose kind is a view id, each holding option blocks; a `Resource_SORC` option is a 32-bit source id. Kind `ViewBinding_ItemTable` binds a list to an `ITEM` table at `ItemTableBinding_item_table` |
+| `Resource_VCrv` | instance id (the `VCvs` id) | one block of four edge constraints (`ViewDescriptor` frame layout) that `UI_ApplyInstanceResources` applies to the template's container in the `VCvs` pass; a block of another size aborts. Without it the template keeps its own frame |
 | `Resource_View` | template id | view descriptors, one block per view, kind = view type |
 | `Resource_TMLT` | template id | template parameters, copied unchanged when a template is cloned |
 | `Resource_VLyt` | view layout id | `ViewLayout_title` is the title source |
@@ -60,7 +61,7 @@ Event tables are resources of type `Resource_TEVT` (template), `Resource_SEVT` (
 
 The stock Settings rows bind `list.pid.<row id>.chosen` and `delayedselected` in the `CEVT` of `RES_SettingsMenu_Main_Screen`; the layout's `SEVT` carries only named controller events. For a binding without an action, the screen controller's action slot receives the handler string. It is first asked with `ActionSupportQuery`, where a nonzero return means supported, and then called with an object pointer as the argument.
 
-`UI_GetLayoutEventTable` loads a layout's tables once through site `UI_LoadLayoutEvents_call`. A hook there can call the original and then read more event streams into `Layout_events` with `UIEventMap_ReadStream`, which is how bindings are added at run time.
+`UI_GetLayoutEventTable` loads a layout's tables once through site `UI_LoadLayoutEvents_call`. A hook there can call the original and then read more event streams into `Layout_events` with `UIEventMap_ReadStream`, which is how bindings are added at run time. The stream is a `StringInputStream_bytes` object, initialised with `StringInputStream_Init` from a `CppString_bytes` string in `StringInputStream_ResourceMode` and destroyed with `StringInputStream_Destroy(stream, StringInputStream_DestroyComplete, NULL)`, which does not free the storage. This is how `UI_LoadLayoutEventTables` reads its own tables.
 
 ## Views
 
@@ -99,7 +100,7 @@ The selection model's current row index comes from its vtable slot `SelectionMod
 | `navigator.SwitchLayout` | layout name | `ScreenController_switch_layout_method` |
 | `navigator.PushLayout` | layout name | `ScreenController_switch_layout_method` with push set |
 
-Transitions are `Transition_Standard` (`standard`), `Transition_ForegroundPush` (`foregroundpush`) and `Transition_ScreenPush` (`screenpush`). A binding may carry both a handler and an action. Pops reach a screen through several paths, so a screen learns that it left from its controller's `ScreenController_deactivate_method`.
+Transitions are `Transition_Standard` (`standard`), `Transition_ForegroundPush` (`foregroundpush`) and `Transition_ScreenPush` (`screenpush`). A binding may carry both a handler and an action. Pops reach a screen through several paths, so a screen learns that it left from its controller's `ScreenController_deactivate_method`. Its second argument is 0 when another screen is pushed on top and nonzero when the screen is popped (checked in the emulator with Settings and About). Each class's deactivate function appears in exactly one vtable: `ScreenController_Deactivate_slot` holds `ResourceScreen_Deactivate`, and `SettingsMenuListController_Deactivate_slot` holds `SettingsMenuListController_Deactivate`. Vtables are in writable DRAM, so a slot can be patched in place, but the patch then runs for every controller of that class (Settings lists include About), and it must call the original for controllers it does not own.
 
 `UI_CreateScreenController` reads the class name from the screen's `SCST` and calls the registered factory. `ScreenController_CreateNamed` builds the plain resource screen (`TSilverCntlr`, `ResourceScreenController_bytes`, vtable `ScreenController_vtable`) and stores the controller name. The Settings list controller is `SettingsMenuListController_bytes` with vtable `SettingsMenuListController_vtable`; both vtables are `ScreenController_vtable_bytes` long and are preceded by `CxxVtable_prefix_bytes` of offset-to-top and type info.
 

@@ -60,6 +60,7 @@ Navigator_PopToPixoMainScreen = { at = 0x08289768, c = "void Navigator_PopToPixo
 ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts)" }
 UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
+SettingsMenuListController_Deactivate = { at = 0x083a4a90, c = "uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving)" }
 ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 UI_CreateTemplateFromResource = { at = 0x081df580 }
@@ -83,6 +84,8 @@ UI_LoadLayoutEvents_call = { at = 0x081d63f8, kind = "call", in = "UI_GetLayoutE
 UI_TemplateEventsGet_call = { at = 0x081d6218, kind = "call", in = "UI_LoadLayoutEventTables+0x68" }
 UI_LayoutEventsGet_call = { at = 0x081d62b4, kind = "call", in = "UI_LoadLayoutEventTables+0x104" }
 UI_ControllerEventsGet_call = { at = 0x081d634c, kind = "call", in = "UI_LoadLayoutEventTables+0x19c" }
+ScreenController_Deactivate_slot = { at = 0x0899d4ec, kind = "slot" }
+SettingsMenuListController_Deactivate_slot = { at = 0x089a3bd0, kind = "slot" }
 NowPlaying_Action_slot = { at = 0x0899be50, kind = "slot" }
 NowPlaying_SecondaryAction_slot = { at = 0x089a2e00, kind = "slot" }
 Music_Action_slot = { at = 0x089a940c, kind = "slot" }

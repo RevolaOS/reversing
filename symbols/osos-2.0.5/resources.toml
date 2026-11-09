@@ -38,6 +38,7 @@ Resource_SLst = 0x534c7374
 Resource_SLyt = 0x534c7974
 Resource_SSin = 0x5353696e
 Resource_VCvs = 0x56437673
+Resource_VCrv = 0x56437276
 Resource_VLyt = 0x564c7974
 Resource_View = 0x56696577
 Resource_TMLT = 0x544d4c54

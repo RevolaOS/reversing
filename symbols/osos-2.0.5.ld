@@ -273,6 +273,7 @@ Navigator_PopToPixoMainScreen = 0x08289768;
 ExtrasMenu_DispatchAction = 0x0811a664;
 UI_ConstructScreenDefinition = 0x0813ca44;
 UI_LoadScreenLayouts = 0x0813c91c;
+SettingsMenuListController_Deactivate = 0x083a4a90;
 ScreenController_ShowLayout = 0x08398a94;
 ControllerLayoutCache_GetOrInsert = 0x0813ca2c;
 UI_CreateTemplateFromResource = 0x081df580;

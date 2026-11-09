@@ -234,6 +234,7 @@ void Navigator_PopToPixoMainScreen(void);
 int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument);
 void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
 void UI_LoadScreenLayouts(void *definition);
+uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
@@ -532,6 +533,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_ExtrasMenu_DispatchAction 0x0811a664
 #define ADDR_UI_ConstructScreenDefinition 0x0813ca44
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
+#define ADDR_SettingsMenuListController_Deactivate 0x083a4a90
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
@@ -701,6 +703,8 @@ extern void *const AlbumsController_vtable[];
 #define SITE_UI_TemplateEventsGet_call 0x081d6218
 #define SITE_UI_LayoutEventsGet_call 0x081d62b4
 #define SITE_UI_ControllerEventsGet_call 0x081d634c
+#define SITE_ScreenController_Deactivate_slot 0x0899d4ec
+#define SITE_SettingsMenuListController_Deactivate_slot 0x089a3bd0
 #define SITE_NowPlaying_Action_slot 0x0899be50
 #define SITE_NowPlaying_SecondaryAction_slot 0x089a2e00
 #define SITE_Music_Action_slot 0x089a940c
@@ -846,6 +850,8 @@ extern void *const AlbumsController_vtable[];
 #define MenuSettingsRow_preference 0xc
 #define MenuSettingsRow_visible 0x10
 #define MenuSettingsRow_bytes 0x14
+#define CppString_bytes 0x4
+#define StringInputStream_bytes 0x7c
 #define Model_notify_method 0x58
 #define ScreenController_push_method 0xd0
 #define ScreenController_pop_method 0xbc
@@ -958,6 +964,7 @@ extern void *const AlbumsController_vtable[];
 #define Resource_SLyt 0x534c7974
 #define Resource_SSin 0x5353696e
 #define Resource_VCvs 0x56437673
+#define Resource_VCrv 0x56437276
 #define Resource_VLyt 0x564c7974
 #define Resource_View 0x56696577
 #define Resource_TMLT 0x544d4c54
@@ -965,6 +972,8 @@ extern void *const AlbumsController_vtable[];
 #define Resource_VSlt 0x56536c74
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
+#define StringInputStream_ResourceMode 0xc
+#define StringInputStream_DestroyComplete 0x2
 #define AnchorMode_Top 0x1
 #define AnchorMode_Left 0x2
 #define AnchorMode_Bottom 0x3
