@@ -138,6 +138,7 @@ char *ResourceService_GetString(void *service, uint32_t id);
 void *ResourceService_GetBitmap(void *service, uint32_t id);
 void *UI_GetResourceBank(void);
 void *UI_GetResourceService(void);
+uint32_t ResourceName_GetId(void *name);
 void *Heap_AllocateZeroed(uint32_t byte_count);
 void Heap_Free(void *allocation);
 void *Runtime_OperatorNew(uint32_t byte_count);
@@ -218,6 +219,10 @@ int Genius_DispatchAction(void *controller, const char *action, uint32_t argumen
 void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue);
 void Timer_Start(void *timer);
 void Timer_SetPeriod(void *timer, uint32_t milliseconds);
+int Controller_ExecuteNavigatorAction(void *controller, void *action, int action_context, uint8_t *stop_dispatch);
+void Navigator_PopTop(uint32_t flags);
+void Navigator_PopToMainScreen(void);
+void Navigator_PopToPixoMainScreen(void);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
@@ -232,6 +237,7 @@ extern uint32_t MainMenuSettingsRows[];
 extern uint32_t MusicMenuSettingsRows[];
 extern void *const ScreenController_vtable[];
 extern void *const View_vtable[];
+extern void *const SettingsMenuListController_vtable[];
 #endif
 
 #define ADDR_ArtworkDatabase_Import 0x08059000
@@ -385,6 +391,7 @@ extern void *const View_vtable[];
 #define ADDR_UI_GetResourceService 0x08268d34
 #define ADDR_UI_InitResourceProviders 0x081c7e68
 #define ADDR_UI_InitializeViewTemplates 0x081af5b4
+#define ADDR_ResourceName_GetId 0x08286e74
 #define ADDR_Heap_AllocateZeroed 0x0805232c
 #define ADDR_Heap_Free 0x080521c0
 #define ADDR_Runtime_OperatorNew 0x082a17e0
@@ -491,6 +498,11 @@ extern void *const View_vtable[];
 #define ADDR_UITask_Create 0x081391b8
 #define ADDR_UITask_Main 0x08139118
 #define ADDR_Timer_SetPeriod 0x0812195c
+#define ADDR_Controller_ExecuteNavigatorAction 0x08129998
+#define ADDR_Navigator_PopTop 0x082896b8
+#define ADDR_Navigator_PopToScreen 0x08289728
+#define ADDR_Navigator_PopToMainScreen 0x08289714
+#define ADDR_Navigator_PopToPixoMainScreen 0x08289768
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_WheelState 0x089d2b8c
@@ -504,6 +516,7 @@ extern void *const View_vtable[];
 #define ADDR_MusicMenuSettingsRows 0x08a81898
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
+#define ADDR_SettingsMenuListController_vtable 0x089a3ae0
 
 #define SITE_ArtworkDatabase_Import_call 0x0804d458
 #define SITE_ArtworkDatabase_ReadImageThumbs_call 0x08074f34
@@ -782,6 +795,11 @@ extern void *const View_vtable[];
 #define MenuSettingsRow_visible 0x10
 #define MenuSettingsRow_bytes 0x14
 #define Model_notify_method 0x58
+#define ScreenController_push_method 0xd0
+#define ScreenController_pop_method 0xbc
+#define ScreenController_switch_layout_method 0x120
+#define ScreenController_action_method 0x114
+#define ScreenController_vtable_bytes 0x128
 #define ScreenController_screen 0xb4
 #define ScreenController_settings_model 0xb0
 #define ScreenController_event_method 0x30
@@ -811,6 +829,25 @@ extern void *const View_vtable[];
 #define Layout_screen 0x58
 #define LayoutInstance_id 0x8
 #define LayoutScreen_id 0x4
+#define ResourceScreenController_screen_definition 0xb0
+#define ResourceScreenController_bytes 0xec
+#define SettingsMenuListController_screen_definition 0xc0
+#define SettingsMenuListController_bytes 0xfc
+#define ScreenDefinition_layout 0x30
+#define ScreenDefinition_transition 0x36
+#define SsinInstance_view_bindings 0x0
+#define SsinInstance_template 0x4
+#define SsinInstance_substitute 0x8
+#define SsinInstance_flags 0x10
+#define ViewDescriptor_frame 0x0
+#define ViewDescriptor_id 0x30
+#define ViewDescriptor_type 0x4c
+#define ViewDescriptor_options_bytes 0x5c
+#define ItemTableBinding_item_table 0x4
+#define ViewLayout_title 0x24
+#define SourceBinding_service 0x0
+#define SourceBinding_property 0x4
+#define SourceBinding_destination 0x8
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
@@ -831,6 +868,15 @@ extern void *const View_vtable[];
 #define Resource_TEVT 0x54455654
 #define Resource_SEVT 0x53455654
 #define Resource_CEVT 0x43455654
+#define Resource_SCST 0x53435354
+#define Resource_SLst 0x534c7374
+#define Resource_SLyt 0x534c7974
+#define Resource_SSin 0x5353696e
+#define Resource_VCvs 0x56437673
+#define Resource_VLyt 0x564c7974
+#define Resource_View 0x56696577
+#define Resource_TMLT 0x544d4c54
+#define Resource_String 0x53747220
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
 #define Property_String 0x53747220
@@ -842,6 +888,13 @@ extern void *const View_vtable[];
 #define ActionSupportQuery 0xdeadbeef
 #define Event_Timer 0xf
 #define EventPayload_Timer 0xd00
+#define Transition_Standard 0x0
+#define Transition_ForegroundPush 0x2
+#define Transition_ScreenPush 0x3
+#define CxxVtable_prefix_bytes 0x8
+#define ViewBinding_ItemTable 0x3f1
+#define Service_String 0x80
+#define SourceDestination_Title 0x1
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
@@ -874,3 +927,8 @@ extern void *const View_vtable[];
 #define RES_NowPlaying_ChapterArt_BackgroundImage_View 0x0dad092d
 #define RES_RentalInfo_White_Background_View 0x0dad09ae
 #define RES_Search_Input_Text 0x0dad0ddc
+#define RES_Notes_List_Screen_Alt 0x0dad09fa
+#define RES_Notes_List_Screen_Alt_Default 0x0dad09fb
+#define RES_Settings_Legal_Template 0x0dad0041
+#define RES_StatusBarWhite_Template 0x0dad01a1
+#define RES_StatusBarWhite_Text 0x0dad01a6

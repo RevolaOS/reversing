@@ -48,10 +48,16 @@ Timer_Start = { at = 0x08121268, c = "void Timer_Start(void *timer)" }
 UITask_Create = { at = 0x081391b8 }
 UITask_Main = { at = 0x08139118 }
 Timer_SetPeriod = { at = 0x0812195c, c = "void Timer_SetPeriod(void *timer, uint32_t milliseconds)" }
+Controller_ExecuteNavigatorAction = { at = 0x08129998, c = "int Controller_ExecuteNavigatorAction(void *controller, void *action, int action_context, uint8_t *stop_dispatch)" }
+Navigator_PopTop = { at = 0x082896b8, c = "void Navigator_PopTop(uint32_t flags)" }
+Navigator_PopToScreen = { at = 0x08289728 }
+Navigator_PopToMainScreen = { at = 0x08289714, c = "void Navigator_PopToMainScreen(void)" }
+Navigator_PopToPixoMainScreen = { at = 0x08289768, c = "void Navigator_PopToPixoMainScreen(void)" }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
 View_vtable = { at = 0x089ad8ec, c = "void *const View_vtable[]" }
+SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const SettingsMenuListController_vtable[]" }
 
 [sites]
 UI_LoadLayoutEvents_call = { at = 0x081d63f8, kind = "call", in = "UI_GetLayoutEventTable+0x18" }
@@ -83,6 +89,11 @@ UITask_StackShift_word = { at = 0x081391dc, kind = "word", in = "UITask_Create+0
 notify_method = 0x58
 
 [offsets.ScreenController]
+push_method = 0xd0
+pop_method = 0xbc
+switch_layout_method = 0x120
+action_method = 0x114
+vtable_bytes = 0x128
 screen = 0xb4
 settings_model = 0xb0
 event_method = 0x30
@@ -107,6 +118,13 @@ Service_NowPlaying = 0x7f00
 ActionSupportQuery = 0xdeadbeef
 Event_Timer = 0xf
 EventPayload_Timer = 0xd00
+Transition_Standard = 0x0
+Transition_ForegroundPush = 0x2
+Transition_ScreenPush = 0x3
+CxxVtable_prefix_bytes = 0x8
+ViewBinding_ItemTable = 0x3f1
+Service_String = 0x80
+SourceDestination_Title = 0x1
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
@@ -117,6 +135,11 @@ NowPlaying_Idle_Template = 0x0dad0925
 NowPlaying_ChapterArt_BackgroundImage_View = 0x0dad092d
 RentalInfo_White_Background_View = 0x0dad09ae
 Search_Input_Text = 0x0dad0ddc
+Notes_List_Screen_Alt = 0x0dad09fa
+Notes_List_Screen_Alt_Default = 0x0dad09fb
+Settings_Legal_Template = 0x0dad0041
+StatusBarWhite_Template = 0x0dad01a1
+StatusBarWhite_Text = 0x0dad01a6
 
 [offsets.EventTimer]
 period = 0x4
@@ -153,3 +176,38 @@ id = 0x8
 
 [offsets.LayoutScreen]
 id = 0x4
+
+[offsets.ResourceScreenController]
+screen_definition = 0xb0
+bytes = 0xec
+
+[offsets.SettingsMenuListController]
+screen_definition = 0xc0
+bytes = 0xfc
+
+[offsets.ScreenDefinition]
+layout = 0x30
+transition = 0x36
+
+[offsets.SsinInstance]
+view_bindings = 0x0
+template = 0x4
+substitute = 0x8
+flags = 0x10
+
+[offsets.ViewDescriptor]
+frame = 0x0
+id = 0x30
+type = 0x4c
+options_bytes = 0x5c
+
+[offsets.ItemTableBinding]
+item_table = 0x4
+
+[offsets.ViewLayout]
+title = 0x24
+
+[offsets.SourceBinding]
+service = 0x0
+property = 0x4
+destination = 0x8

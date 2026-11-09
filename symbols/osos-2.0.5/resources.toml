@@ -14,6 +14,7 @@ UI_GetResourceBank = { at = 0x0819579c, c = "void *UI_GetResourceBank(void)" }
 UI_GetResourceService = { at = 0x08268d34, c = "void *UI_GetResourceService(void)" }
 UI_InitResourceProviders = { at = 0x081c7e68 }
 UI_InitializeViewTemplates = { at = 0x081af5b4 }
+ResourceName_GetId = { at = 0x08286e74, c = "uint32_t ResourceName_GetId(void *name)" }
 
 [data]
 ResourceNameMap = { at = 0x08ae02c4, c = "uint8_t ResourceNameMap[]" }
@@ -31,6 +32,15 @@ Resource_ITEM = 0x4954454d
 Resource_TEVT = 0x54455654
 Resource_SEVT = 0x53455654
 Resource_CEVT = 0x43455654
+Resource_SCST = 0x53435354
+Resource_SLst = 0x534c7374
+Resource_SLyt = 0x534c7974
+Resource_SSin = 0x5353696e
+Resource_VCvs = 0x56437673
+Resource_VLyt = 0x564c7974
+Resource_View = 0x56696577
+Resource_TMLT = 0x544d4c54
+Resource_String = 0x53747220
 
 [offsets.ResourceBlock]
 bytes = 0x0
