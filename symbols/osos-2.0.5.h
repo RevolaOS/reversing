@@ -804,6 +804,9 @@ extern void *const AlbumsController_vtable[];
 #define ArtworkThumb_size 0x1c
 #define ArtworkThumb_file 0x20
 #define ArtworkThumb_bytes 0x24
+#define BootDescriptor_flags 0x10
+#define BootDescriptor_sysinfo_magic 0x18
+#define BootDescriptor_sysinfo 0x1c
 #define GraphicsContext_bytes 0x44
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
@@ -1008,6 +1011,8 @@ extern void *const AlbumsController_vtable[];
 #define DRAM_END 0xc000000
 #define DRAM_UNCACHED_ALIAS 0x80000000
 #define IRAM_BASE 0x22000000
+#define BOOT_DESCRIPTOR 0x2203ff00
+#define BOOT_SYSINFO_MAGIC 0x53797349
 #define MMIO_BASE 0x38000000
 #define MMU_TRANSLATION_TABLE 0x2200c000
 #define WheelButton_Center 0x1

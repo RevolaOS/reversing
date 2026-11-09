@@ -13,4 +13,18 @@ The loader runs at `IRAM_BASE`. Its first 0x100 bytes are the ARM exception vect
 3. `PrepareDramResourcesAndEnterDxe` adds DRAM resource HOBs (`InitializeHobMemoryRange` sets up the list), loads DXE, prepares its stack and enters it through `EnterDxeWithStack`. That stub sets SP, passes the HOB list in r0 and jumps without a return address.
 4. DxeMain dispatches drivers (Ata, DxeSst25, SystemConfig, ROM, Aes, IpodFirmwareFS and others) as their protocol dependencies appear, and finally Bds, which loads OSOS.
 
-TODO: re-check the Bds image loader and OSOS handoff (load address, uncached alias, boot-info copies, entry mode) against the 2.0.5 Bds module.
+## Handoff to OSOS
+
+`Bds_SelectAndBootFirmware` picks an image from the firmware directory by name:
+- `diag`, `disk` or `scan` for the special boot modes;
+- `aupd` when an update is pending;
+- otherwise, when there is no `dfup` image and an `rsrc` image exists, `osr3` or else `osos`.
+
+It starts the chosen image with `Bds_LoadAndStartImage(image, flags, argument)`; for OSOS the flags are 0. That function:
+
+1. Reads the 0x800-byte image header into pool memory and verifies it.
+2. Allocates pages at the load address given by the directory entry, then reads and decrypts the body through `DRAM_UNCACHED_ALIAS` (load address OR the alias bit).
+3. Writes `BOOT_SYSINFO_MAGIC` and a pointer to `BOOT_DESCRIPTOR + BootDescriptor_sysinfo_magic` and `BootDescriptor_sysinfo`, copies SysInfo to that pointer, and stores the flags at `BootDescriptor_flags`.
+4. Sets CPSR to 0xd3 (SVC mode, IRQ and FIQ masked) and branches by register to the load address, so OSOS starts in ARM state with interrupts off.
+
+`Platform_ImportBootSysInfo` reads the same descriptor slot. If the header fails verification and the third argument is 0, a second verifier handles the image instead.
