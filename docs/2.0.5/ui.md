@@ -48,6 +48,35 @@ Settings > EQ is `TCSettings_EQ` on `RES_Settings_EQ_Screen`. Its `VSlt` binds t
 
 The current preset is highlighted from the controller's event slot. When `UI_TransitionToLayout` has shown the layout, the controller receives an `Event_Notification` whose `Notification_code` (at `Event_notification`) is `Notification_LayoutShown`; `UI_DisplayPreparedLayout` sends `Notification_LayoutChanged`. `SettingsEQ_HandleEvent` then calls `SettingsEQ_SelectCurrentRow`, unless the controller's deferred flag is set. That function finds the list with `SelectionModel_find_view_method(RES_SettingsList_View)`, takes its `Interface_List` with `Object_GetInterface`, and calls `ListInterface_select_method(list, index)` with the current preset. Backlight does the same (`SettingsBacklight_SelectCurrentRow`). A clone can do this in its event slot on the same notification. Right after the push the layout is not shown yet and the list view may not exist.
 
+### Row style catalogue
+
+The row-style table holds one object per style, 2 to 27 and 31. Every style draws the title (destination 1). The other cells and the destinations they read come from the objects in emulator memory. The looks come from stock screens on the 20k library. Styles that share a vtable come in pairs, and the second of a pair adds the arrow or the indent.
+
+| Style | Pair | Destinations besides the title | Stock example | Looks |
+|---|---|---|---|---|
+| `MenuRowStyle_ModelLayout` (1) | | asks `Property_Layout` per row | Settings > Main Menu | the style the model answers |
+| `MenuRowStyle_Text` (2) | 5 | 8, 9, 19, 20 | Settings > EQ, Songs (one line) | one line |
+| `MenuRowStyle_Check` (3) | 4 | 8, 9, 12 | Main Menu rows | one line, bitmap on the right |
+| `MenuRowStyle_CheckIndented` (4) | 3 | 8, 9, 12 | Main Menu rows | indented, bitmap on the right |
+| `MenuRowStyle_Submenu` (5) | 2 | 8, 9, 19, 20 | Artists, Extras | one line, arrow when selected |
+| `MenuRowStyle_TwoLine` (6) | 7 | 8, 9, 10, 19, 20 | Songs (two lines) | title, grey line from destination 10 |
+| `MenuRowStyle_TwoLineSubmenu` (7) | 6 | 8, 9, 10, 19, 20 | Genres | two lines, arrow when selected |
+| 8, 9 | | 8, 9, 10, 13 to 16 | none | not seen |
+| 10, 11 | | 8, 9, 10, 17 to 20 | Podcast episodes (10) | not seen |
+| `MenuRowStyle_InlineValue` (12) | | 8, 9, 10 | Settings > Shuffle | title left, value right |
+| `MenuRowStyle_Artwork` (13) | 14 | 8, 9, 10, 12, 19, 20 | Songs (artwork layout), Movies | not seen |
+| `MenuRowStyle_ArtworkSubmenu` (14) | 13 | 8, 9, 10, 12, 19, 20 | Albums, TV Shows, Games | artwork from destination 12 on the left, two lines, arrow when selected |
+| 15 to 18 | | 8, 9, (10,) 17 to 20 | none | not seen |
+| 19, 20 | | 8, 9, 12, 17 to 20 | Genius | not seen |
+| 21, 22 | | 8, 9, 10, 12, 13 to 16 | none | not seen |
+| 23, 24 | | 8, 9, 10, 12, 17, 18 | Podcasts (24) | not seen |
+| 25 | | 8, 9, 10 | none | not seen |
+| 26 | | 8 | none | not seen |
+| 27 | | 8, 9, 10 | none | not seen |
+| 31 | | 8 to 13, 32 | none | not seen |
+
+Destination 10 is the second line or the right-hand value, depending on the style, and destination 12 is the right-hand check or the left-hand artwork. What destinations 8, 9, 13 to 20 and 32 draw has not been mapped; Artists and Songs carry destination-8 bindings that are never asked for. Only styles 1 to 4, 6 and 12 have been used with `Service_Settings` sources so far.
+
 ## Settings preview pane
 
 Every row of `RES_SettingsMenu_Main_Screen` has its own layout. The row's `delayedselected` binding runs a `ShowSetting_*` handler and the action `navigator.SwitchLayout` with that row's layout name, so the pane follows the highlighted row through layout switches. Each layout has four instances:
