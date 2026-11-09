@@ -20,3 +20,16 @@ WheelButton_Next = 0x2
 WheelButton_Previous = 0x4
 WheelButton_Play = 0x8
 WheelButton_Menu = 0x10
+InputEvent_ButtonDown = 0x6
+InputEvent_ButtonUp = 0xd
+InputEvent_Wheel = 0x15
+UIKey_Play = 0x10
+UIKey_Previous = 0x59
+UIKey_Next = 0x5a
+UIKey_Menu = 0x6e
+UIKey_Center = 0x6f
+
+[offsets.InputEvent]
+kind = 0x4
+wheel_delta = 0xc
+key = 0x10

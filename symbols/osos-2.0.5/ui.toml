@@ -104,6 +104,10 @@ deactivate_method = 0xf0
 interface_method = 0x14
 
 [offsets.View]
+destroy_method = 0x4
+bytes = 0xa4
+options_bytes = 0x5c
+vtable_bytes = 0x114
 draw_method = 0x74
 bounds = 0x80
 graphics_options = 0x4c
@@ -125,6 +129,10 @@ CxxVtable_prefix_bytes = 0x8
 ViewBinding_ItemTable = 0x3f1
 Service_String = 0x80
 SourceDestination_Title = 0x1
+Property_Control = 0x436e746c
+SourceDestination_InlineValue = 0xa
+ViewType_Progress = 0x70676f67
+ViewType_Text = 0x74657874
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
@@ -211,3 +219,12 @@ title = 0x24
 service = 0x0
 property = 0x4
 destination = 0x8
+
+[offsets.SelectionModel]
+current_index_method = 0x168
+
+[offsets.ControlRange]
+value = 0x0
+minimum = 0x4
+maximum = 0x8
+bytes = 0xc

@@ -67,6 +67,18 @@ Settings_MainMenu_Screen = 0x0dad0c90
 Settings_MainMenu_Layout = 0x0dad0c92
 Settings_Legal_Screen = 0x0dad0cb3
 Settings_Legal_Layout = 0x0dad0cb4
+Settings_EQ_Items = 0x00000047
+Settings_Brightness_Screen = 0x0dad0c98
+Settings_Brightness_Screen_Default = 0x0dad0c99
+Settings_Brightness_Template = 0x0dad0c5a
+Settings_Brightness_Bar = 0x0dad0c60
+Settings_Brightness_Value_Text = 0x0dad0c61
+SettingsMenus_Brightness_Layout = 0x0dad0c84
+SettingsMenus_Legal_Layout = 0x0dad0c8e
+SettingsInfo_Template_Brightness_Layout = 0x0dad0c39
+SettingsInfo_Template_Legal_Layout = 0x0dad0c40
+Settings_Icon_View = 0x0dad0c30
+Settings_InfoDetail_View = 0x0dad0c31
 
 [offsets.MenuSettingsRow]
 item = 0x0

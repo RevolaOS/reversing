@@ -50,6 +50,20 @@ The stock Settings rows bind `list.pid.<row id>.chosen` and `delayedselected` in
 
 `UI_GetLayoutEventTable` loads a layout's tables once through site `UI_LoadLayoutEvents_call`. A hook there can call the original and then read more event streams into `Layout_events` with `UIEventMap_ReadStream`, which is how bindings are added at run time.
 
+## Views
+
+`UI_RegisterViewFactory` maps a view type (the descriptor's `ViewDescriptor_type`) to `create(owner, parent, event_target, descriptor)`. A custom view fills `ViewDescriptor_options_bytes` of options with `View_InitOptionsFromDescriptor`, allocates `View_bytes`, calls `View_Construct` and installs its own vtable: a copy of `View_vtable` (`View_vtable_bytes`, the last four slots null) with `View_draw_method` replaced. `View_destroy_method` is the deleting destructor. A full redraw is `View_InvalidateRect(UI_GetRootView(), root + View_bounds)`.
+
+Settings > Brightness is the slider prototype: its template has a `ViewType_Progress` bar (`RES_Settings_Brightness_Bar`) and a `ViewType_Text` value (`RES_Settings_Brightness_Value_Text`). Bound to a Settings property, the bar asks for type `Property_Control` and reads three signed words (`ControlRange_*`); the text asks for `Property_String`.
+
+A row whose `SORC` has a second binding with destination `SourceDestination_InlineValue` shows that source as the blue value beside the title (the Sound Check row, `RES_SettingsMenu_SoundCheck_Item`).
+
+The selection model's current row index comes from its vtable slot `SelectionModel_current_index_method` (see `UI_GetSelectionModel`).
+
+## Input events
+
+`InputEvent_kind` is `InputEvent_ButtonDown`, kinds 7 and 8 for further button phases, `InputEvent_ButtonUp` or `InputEvent_Wheel`. For a wheel event, `WheelEvent_DecodeMotion` fills `InputEvent_wheel_delta`. For a button, `ButtonEvent_GetUIKeyCode` returns the key from `InputEvent_key`: `UIKey_Menu`, `UIKey_Center`, `UIKey_Next`, `UIKey_Previous` or `UIKey_Play`.
+
 ## Navigation
 
 `Controller_ExecuteNavigatorAction` runs the action of an event binding on the screen controller:

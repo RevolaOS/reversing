@@ -702,6 +702,9 @@ extern void *const SettingsMenuListController_vtable[];
 #define ArtworkThumb_bytes 0x24
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
+#define InputEvent_kind 0x4
+#define InputEvent_wheel_delta 0xc
+#define InputEvent_key 0x10
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
 #define MediaBrowser_library 0xf64
@@ -806,6 +809,10 @@ extern void *const SettingsMenuListController_vtable[];
 #define ScreenController_activate_method 0xec
 #define ScreenController_deactivate_method 0xf0
 #define Service_interface_method 0x14
+#define View_destroy_method 0x4
+#define View_bytes 0xa4
+#define View_options_bytes 0x5c
+#define View_vtable_bytes 0x114
 #define View_draw_method 0x74
 #define View_bounds 0x80
 #define View_graphics_options 0x4c
@@ -848,6 +855,11 @@ extern void *const SettingsMenuListController_vtable[];
 #define SourceBinding_service 0x0
 #define SourceBinding_property 0x4
 #define SourceBinding_destination 0x8
+#define SelectionModel_current_index_method 0x168
+#define ControlRange_value 0x0
+#define ControlRange_minimum 0x4
+#define ControlRange_maximum 0x8
+#define ControlRange_bytes 0xc
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
@@ -860,6 +872,14 @@ extern void *const SettingsMenuListController_vtable[];
 #define WheelButton_Previous 0x4
 #define WheelButton_Play 0x8
 #define WheelButton_Menu 0x10
+#define InputEvent_ButtonDown 0x6
+#define InputEvent_ButtonUp 0xd
+#define InputEvent_Wheel 0x15
+#define UIKey_Play 0x10
+#define UIKey_Previous 0x59
+#define UIKey_Next 0x5a
+#define UIKey_Menu 0x6e
+#define UIKey_Center 0x6f
 #define AlbumArtist_order_mode 0x2d
 #define Resource_BMap 0x424d6170
 #define Resource_Draw 0x44726177
@@ -895,6 +915,10 @@ extern void *const SettingsMenuListController_vtable[];
 #define ViewBinding_ItemTable 0x3f1
 #define Service_String 0x80
 #define SourceDestination_Title 0x1
+#define Property_Control 0x436e746c
+#define SourceDestination_InlineValue 0xa
+#define ViewType_Progress 0x70676f67
+#define ViewType_Text 0x74657874
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
@@ -919,6 +943,18 @@ extern void *const SettingsMenuListController_vtable[];
 #define RES_Settings_MainMenu_Layout 0x0dad0c92
 #define RES_Settings_Legal_Screen 0x0dad0cb3
 #define RES_Settings_Legal_Layout 0x0dad0cb4
+#define RES_Settings_EQ_Items 0x00000047
+#define RES_Settings_Brightness_Screen 0x0dad0c98
+#define RES_Settings_Brightness_Screen_Default 0x0dad0c99
+#define RES_Settings_Brightness_Template 0x0dad0c5a
+#define RES_Settings_Brightness_Bar 0x0dad0c60
+#define RES_Settings_Brightness_Value_Text 0x0dad0c61
+#define RES_SettingsMenus_Brightness_Layout 0x0dad0c84
+#define RES_SettingsMenus_Legal_Layout 0x0dad0c8e
+#define RES_SettingsInfo_Template_Brightness_Layout 0x0dad0c39
+#define RES_SettingsInfo_Template_Legal_Layout 0x0dad0c40
+#define RES_Settings_Icon_View 0x0dad0c30
+#define RES_Settings_InfoDetail_View 0x0dad0c31
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
 #define RES_Menu_Reset_Bitmap 0x0dad0125
 #define RES_CoverFlow_Backside_Border_Color 0x0dad05d8
