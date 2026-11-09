@@ -45,6 +45,8 @@ int GraphicsContext_GetFontDescent(void *context);
 void Surface_FillRect(void *surface, const int32_t *rect, const uint8_t *rgba, uint32_t mode, void *clip);
 void GLES_ClearColorx(int red, int green, int blue, int alpha);
 uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight);
+int Wheel_DispatchButtonChanges(int force_center);
+void Input_HandleButton(uint32_t button, uint32_t pressed);
 void *MediaPlayer_GetInstance(void);
 int MediaPlayer_ClearPreparedTrack(void *player);
 int MediaPlayer_RebuildArtwork(void *player);
@@ -218,6 +220,8 @@ void Timer_SetPeriod(void *timer, uint32_t milliseconds);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
+extern uint8_t WheelState[];
+extern const uint8_t ButtonKeyCodes[5];
 extern uint8_t BrowserRegistry[];
 extern void *BlockCache;
 extern void *MainHeap;
@@ -272,6 +276,10 @@ extern void *const View_vtable[];
 #define ADDR_IAP_VerifyDeviceSignatureAlternate 0x081592fc
 #define ADDR_IAP_HandleDeviceAuthenticationSignature 0x081892b8
 #define ADDR_IAP_SetAccessoryAuthState 0x08185e18
+#define ADDR_Wheel_HandleInterrupt 0x0805f688
+#define ADDR_Wheel_RunTask 0x0805f738
+#define ADDR_Wheel_DispatchButtonChanges 0x0807443c
+#define ADDR_Input_HandleButton 0x08056900
 #define ADDR_MediaPlayer_GetInstance 0x08172824
 #define ADDR_MediaPlayer_ClearPreparedTrack 0x0817190c
 #define ADDR_MediaPlayer_RebuildArtwork 0x08170238
@@ -483,6 +491,8 @@ extern void *const View_vtable[];
 #define ADDR_Timer_SetPeriod 0x0812195c
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
+#define ADDR_WheelState 0x089d2b8c
+#define ADDR_ButtonKeyCodes 0x089d2ec5
 #define ADDR_BrowserRegistry 0x08a1a6dc
 #define ADDR_BlockCache 0x089d380c
 #define ADDR_MainHeap 0x089d2c78
@@ -675,6 +685,8 @@ extern void *const View_vtable[];
 #define ArtworkThumb_size 0x1c
 #define ArtworkThumb_file 0x20
 #define ArtworkThumb_bytes 0x24
+#define WheelState_reported_buttons 0x18
+#define WheelState_buttons 0x20
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
 #define MediaBrowser_library 0xf64
@@ -804,6 +816,11 @@ extern void *const View_vtable[];
 #define IRAM_BASE 0x22000000
 #define MMIO_BASE 0x38000000
 #define MMU_TRANSLATION_TABLE 0x2200c000
+#define WheelButton_Center 0x1
+#define WheelButton_Next 0x2
+#define WheelButton_Previous 0x4
+#define WheelButton_Play 0x8
+#define WheelButton_Menu 0x10
 #define AlbumArtist_order_mode 0x2d
 #define Resource_BMap 0x424d6170
 #define Resource_Draw 0x44726177

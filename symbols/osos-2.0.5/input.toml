@@ -1,0 +1,22 @@
+# Click wheel and buttons.
+
+[functions]
+Wheel_HandleInterrupt = { at = 0x0805f688 }
+Wheel_RunTask = { at = 0x0805f738 }
+Wheel_DispatchButtonChanges = { at = 0x0807443c, c = "int Wheel_DispatchButtonChanges(int force_center)" }
+Input_HandleButton = { at = 0x08056900, c = "void Input_HandleButton(uint32_t button, uint32_t pressed)" }
+
+[data]
+WheelState = { at = 0x089d2b8c, c = "uint8_t WheelState[]" }
+ButtonKeyCodes = { at = 0x089d2ec5, c = "const uint8_t ButtonKeyCodes[5]" }
+
+[offsets.WheelState]
+reported_buttons = 0x18
+buttons = 0x20
+
+[constants]
+WheelButton_Center = 0x1
+WheelButton_Next = 0x2
+WheelButton_Previous = 0x4
+WheelButton_Play = 0x8
+WheelButton_Menu = 0x10
