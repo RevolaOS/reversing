@@ -1128,6 +1128,9 @@ extern void *const AlbumsController_vtable[];
 #define RES_SettingsMenu_Main_Layout 0x0dad0c7f
 #define RES_Settings_MainMenu_Screen 0x0dad0c90
 #define RES_Settings_MainMenu_Layout 0x0dad0c92
+#define RES_Settings_MusicMenu_Screen 0x0dad0c93
+#define RES_Settings_MusicMenu_Layout 0x0dad0c95
+#define RES_Settings_MusicMenu_Items 0x00000043
 #define RES_Settings_Legal_Screen 0x0dad0cb3
 #define RES_Settings_Legal_Layout 0x0dad0cb4
 #define RES_Settings_EQ_Items 0x00000047
