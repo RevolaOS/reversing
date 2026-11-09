@@ -2,7 +2,7 @@
 
 ## Sleep
 
-`Power_EnterLightSleep(mode)` stops playback-side work, spins the disk down, sleeps the CPU and returns after wake with a set of wake flags. Two controller paths call it:
+`Power_EnterLightSleep(mode)` puts the device into light sleep and returns after wake with a set of wake flags. Two controller paths call it:
 
 | Caller | Mode | Trigger |
 |---|---|---|
