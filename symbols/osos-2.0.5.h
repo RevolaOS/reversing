@@ -761,6 +761,12 @@ extern void *const View_vtable[];
 #define Preferences_set_method 0xd4
 #define DirectoryIterator_bytes 0x44
 #define NativePath_bytes 0x8
+#define MenuSettingsRow_item 0x0
+#define MenuSettingsRow_title 0x4
+#define MenuSettingsRow_layout_kind 0x8
+#define MenuSettingsRow_preference 0xc
+#define MenuSettingsRow_visible 0x10
+#define MenuSettingsRow_bytes 0x14
 #define Model_notify_method 0x58
 #define ScreenController_screen 0xb4
 #define ScreenController_settings_model 0xb0
@@ -834,6 +840,13 @@ extern void *const View_vtable[];
 #define RES_Settings_MusicMenu_Item 0x0dad0c94
 #define RES_SettingsMenu_Legal_Item 0x0dad0c7b
 #define RES_SettingsMenu_Items 0x00000041
+#define RES_SettingsMenu_SoundCheck_Item 0x0dad0c76
+#define RES_SettingsMenu_Main_Screen 0x0dad0c6a
+#define RES_SettingsMenu_Main_Layout 0x0dad0c7f
+#define RES_Settings_MainMenu_Screen 0x0dad0c90
+#define RES_Settings_MainMenu_Layout 0x0dad0c92
+#define RES_Settings_Legal_Screen 0x0dad0cb3
+#define RES_Settings_Legal_Layout 0x0dad0cb4
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
 #define RES_Menu_Reset_Bitmap 0x0dad0125
 #define RES_CoverFlow_Backside_Border_Color 0x0dad05d8

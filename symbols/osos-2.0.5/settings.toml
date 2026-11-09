@@ -60,3 +60,18 @@ Settings_MainMenu_Item = 0x0dad0c91
 Settings_MusicMenu_Item = 0x0dad0c94
 SettingsMenu_Legal_Item = 0x0dad0c7b
 SettingsMenu_Items = 0x00000041
+SettingsMenu_SoundCheck_Item = 0x0dad0c76
+SettingsMenu_Main_Screen = 0x0dad0c6a
+SettingsMenu_Main_Layout = 0x0dad0c7f
+Settings_MainMenu_Screen = 0x0dad0c90
+Settings_MainMenu_Layout = 0x0dad0c92
+Settings_Legal_Screen = 0x0dad0cb3
+Settings_Legal_Layout = 0x0dad0cb4
+
+[offsets.MenuSettingsRow]
+item = 0x0
+title = 0x4
+layout_kind = 0x8
+preference = 0xc
+visible = 0x10
+bytes = 0x14
