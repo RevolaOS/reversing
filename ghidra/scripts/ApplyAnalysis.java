@@ -29,7 +29,9 @@ public class ApplyAnalysis extends GhidraScript {
     JsonObject run =
         JsonParser.parseString(new String(bytes)).getAsJsonObject().getAsJsonArray("runs").get(0)
             .getAsJsonObject();
-    createFunctions(run);
+    // New functions can call code auto-analysis never reached; analyse the
+    // changes so their callees exist before the annotations are checked.
+    if (createFunctions(run)) analyzeChanges(currentProgram);
     try (var provider = new FileByteProvider(file.toFile(), null, AccessMode.READ)) {
       new ProgramSarifMgr(provider, new MessageLog()).read(currentProgram, monitor);
     }
@@ -58,7 +60,8 @@ public class ApplyAnalysis extends GhidraScript {
   // Auto-analysis misses some saved functions, often ones reached only through
   // tables or folded into a neighbour. The SARIF reader does not create them.
   // Saved names win over names already in the program.
-  private void createFunctions(JsonObject run) throws Exception {
+  private boolean createFunctions(JsonObject run) throws Exception {
+    boolean created = false;
     for (JsonElement element : run.getAsJsonArray("results")) {
       JsonObject row = element.getAsJsonObject();
       if (!row.get("ruleId").getAsString().equals("FUNCTIONS")) continue;
@@ -70,6 +73,7 @@ public class ApplyAnalysis extends GhidraScript {
         Function owner = getFunctionContaining(entry);
         if (getInstructionAt(entry) == null) disassemble(entry);
         function = createFunction(entry, null);
+        created |= function != null;
         if (function == null) {
           printerr("cannot create " + name + " at " + entry
               + (owner == null ? "" : " inside " + owner.getName()));
@@ -84,6 +88,7 @@ public class ApplyAnalysis extends GhidraScript {
         function.setName(name, SourceType.valueOf(p.get("sourceType").getAsString()));
       }
     }
+    return created;
   }
 
   private Address location(JsonObject row) {
