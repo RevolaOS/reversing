@@ -210,6 +210,7 @@ SongText_CompareUtf16 = 0x0803a574;
 StringCache_ReadToken = 0x080a94ec;
 StringCache_ReleaseToken = 0x080bb0c8;
 StringCache_GetTokenView = 0x08093598;
+ControllerRegistry_InvokeScreenFactory = 0x081d5a40;
 UI_FindServiceById = 0x081c7d44;
 UI_GetRootView = 0x08113600;
 UI_GetSelectionModel = 0x0817dde4;

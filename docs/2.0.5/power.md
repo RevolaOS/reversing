@@ -19,8 +19,4 @@ Light sleep is entered only on battery or USB power. On the power adapter the iP
 
 `Disk_GetPowerState` reports whether the ATA block is powered. Unpowered means the disk is not spinning; powered does not prove it is, because a powered disk can be in standby. The PATA standby command is only sent while the block is powered.
 
-## Timers
-
-Native UI timers deliver events to a controller on the UI task. `UI_InitializeEventTimer` binds a timer to a controller and event queue, and `Timer_Start` arms it once; the handler re-arms it for periodic work. The controller receives event kind 0x0f carrying the timer pointer.
-
-TODO: measure the units of the timer period.
+UI timers are described in [ui.md](ui.md).

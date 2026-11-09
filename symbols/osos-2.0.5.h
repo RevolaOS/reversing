@@ -184,6 +184,7 @@ int SongText_CompareUtf16(void *collation, const uint16_t *left, uint32_t left_u
 int StringCache_ReadToken(void *cache, uint32_t token, void *destination, uint32_t *bytes, uint32_t maximum_bytes);
 int StringCache_ReleaseToken(void *cache, uint32_t token);
 int StringCache_GetTokenView(void *cache, uint32_t token, void **data, uint32_t *bytes);
+void *ControllerRegistry_InvokeScreenFactory(void *registry, const char *class_name, const char *controller_name, uint32_t screen_id, uint32_t layout_id, uint32_t transition);
 void *UI_FindServiceById(uint32_t service_id);
 void *UI_GetRootView(void);
 void *UI_GetSelectionModel(void);
@@ -443,6 +444,7 @@ extern void *const View_vtable[];
 #define ADDR_StringCache_ReadToken 0x080a94ec
 #define ADDR_StringCache_ReleaseToken 0x080bb0c8
 #define ADDR_StringCache_GetTokenView 0x08093598
+#define ADDR_ControllerRegistry_InvokeScreenFactory 0x081d5a40
 #define ADDR_UI_FindServiceById 0x081c7d44
 #define ADDR_UI_GetRootView 0x08113600
 #define ADDR_UI_GetSelectionModel 0x0817dde4
