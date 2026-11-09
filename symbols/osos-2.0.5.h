@@ -232,6 +232,7 @@ int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t arg
 void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
 void UI_LoadScreenLayouts(void *definition);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
+void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
 void UI_DisplayPreparedLayout(void *manager, void *layout);
 
@@ -248,6 +249,7 @@ extern uint32_t MainMenuSettingsRows[];
 extern uint32_t MusicMenuSettingsRows[];
 extern void *const ScreenController_vtable[];
 extern void *const View_vtable[];
+extern void *const TemplateView_vtable[];
 extern void *const SettingsMenuListController_vtable[];
 extern void *const ExtrasMenuController_vtable[];
 extern void *const ArtistsController_vtable[];
@@ -528,6 +530,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
+#define ADDR_View_FindViewById 0x08292580
 #define ADDR_UI_FindTemplateView 0x081af514
 #define ADDR_UI_DisplayPreparedLayout 0x08174464
 #define ADDR_UI_ApplyInstanceResources 0x081781c0
@@ -545,6 +548,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_MusicMenuSettingsRows 0x08a81898
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
+#define ADDR_TemplateView_vtable 0x08997824
 #define ADDR_SettingsMenuListController_vtable 0x089a3ae0
 #define ADDR_ExtrasMenuController_vtable 0x0899cb30
 #define ADDR_ArtistsController_vtable 0x089a40e4
@@ -855,7 +859,9 @@ extern void *const AlbumsController_vtable[];
 #define View_vtable_bytes 0x114
 #define View_draw_method 0x74
 #define View_bounds 0x80
-#define View_graphics_options 0x4c
+#define View_id 0x4c
+#define View_find_view_method 0xe4
+#define View_linked_view_method 0xfc
 #define EventTimer_period 0x4
 #define EventTimer_recipient 0x24
 #define EventTimer_event_queue 0x28

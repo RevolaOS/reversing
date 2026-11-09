@@ -61,6 +61,7 @@ UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenD
 UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 UI_CreateTemplateFromResource = { at = 0x081df580 }
+View_FindViewById = { at = 0x08292580, c = "void *View_FindViewById(void *view, uint32_t id)" }
 UI_FindTemplateView = { at = 0x081af514, c = "void *UI_FindTemplateView(void *owner, uint32_t template_id)" }
 UI_DisplayPreparedLayout = { at = 0x08174464, c = "void UI_DisplayPreparedLayout(void *manager, void *layout)" }
 UI_ApplyInstanceResources = { at = 0x081781c0 }
@@ -69,6 +70,7 @@ View_ApplyPropertyBindings = { at = 0x08175b7c }
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
 View_vtable = { at = 0x089ad8ec, c = "void *const View_vtable[]" }
+TemplateView_vtable = { at = 0x08997824, c = "void *const TemplateView_vtable[]" }
 SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const SettingsMenuListController_vtable[]" }
 ExtrasMenuController_vtable = { at = 0x0899cb30, c = "void *const ExtrasMenuController_vtable[]" }
 ArtistsController_vtable = { at = 0x089a40e4, c = "void *const ArtistsController_vtable[]" }
@@ -128,7 +130,9 @@ options_bytes = 0x5c
 vtable_bytes = 0x114
 draw_method = 0x74
 bounds = 0x80
-graphics_options = 0x4c
+id = 0x4c
+find_view_method = 0xe4
+linked_view_method = 0xfc
 
 [constants]
 Property_String = 0x53747220
