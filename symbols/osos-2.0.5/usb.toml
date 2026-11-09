@@ -1,0 +1,37 @@
+# USB device: control endpoint dispatch and the device task.
+
+[functions]
+USB_HandleSetupPacket = { at = 0x0828a404, c = "void USB_HandleSetupPacket(void *usb)" }
+USB_DispatchControlRead = { at = 0x0828a7d4, c = "void *USB_DispatchControlRead(void *usb, uint32_t *inout_length)" }
+USB_HandleVendorDeviceRead = { at = 0x0828a27c, c = "void *USB_HandleVendorDeviceRead(void *usb, uint32_t *inout_length)" }
+USB_DispatchNoDataRequest = { at = 0x0828a780, c = "int USB_DispatchNoDataRequest(void *usb)" }
+USB_HandleAppleVendorCommand = { at = 0x0828a054, c = "int USB_HandleAppleVendorCommand(void *usb, uint32_t setup0, uint32_t setup1)" }
+USB_GetControlWriteBuffer = { at = 0x0828a8f8, c = "void *USB_GetControlWriteBuffer(void *usb, uint32_t length)" }
+USB_StartControlTransfer = { at = 0x0828a3b4, c = "void USB_StartControlTransfer(void *usb, uint32_t endpoint, void *buffer, uint32_t length)" }
+USB_RunDeviceLoop = { at = 0x0828afd8 }
+USB_SelectConfigurationOrder = { at = 0x0828b668 }
+USBDeviceTask_Run = { at = 0x0813e598 }
+USB_IsAccessoryMode = { at = 0x0813e560, c = "int USB_IsAccessoryMode(void)" }
+SCSI_AcquireMedium = { at = 0x080ed98c, c = "void SCSI_AcquireMedium(void *out_result, void *context, int set_sense)" }
+
+[sites]
+USB_HandleVendorDeviceRead_call = { at = 0x0828a820, kind = "call", in = "USB_DispatchControlRead+0x4c" }
+USB_DispatchNoDataRequest_call = { at = 0x0828a458, kind = "call", in = "USB_HandleSetupPacket+0x54" }
+USB_GetControlWriteBuffer_call = { at = 0x0828a434, kind = "call", in = "USB_HandleSetupPacket+0x30" }
+
+[offsets.USBDevice]
+controller = 0x34
+interfaces = 0x38
+configuration_set = 0x5c
+setup = 0x90
+request_type = 0x90
+request = 0x91
+value = 0x92
+index = 0x94
+length = 0x96
+max_packet = 0xa0
+ep0_buffer = 0xb4
+host_to_device = 0xb8
+data_length = 0xbc
+configuration = 0xc4
+bytes = 0xd0

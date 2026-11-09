@@ -1,0 +1,25 @@
+# LCD display pipe: three layers composited by the display controller.
+
+[data]
+DisplayLayerOrders = { at = 0x083f35ec, c = "const uint8_t DisplayLayerOrders[]" }
+
+[constants]
+DISPLAY_PIPE_BASE = 0x38900000
+DisplayLayerEnable_Layer0 = 0x40
+DisplayLayerEnable_Layer1 = 0x20
+DisplayLayerEnable_Layer2 = 0x10
+DisplayFormat_RGB565 = 3
+DisplayFormat_ARGB8888 = 7
+
+[offsets.DisplayPipe]
+control = 0x8
+slot0 = 0x58
+slot_step = 0x18
+order = 0xd4
+
+[offsets.DisplaySlot]
+stride = 0x0
+format = 0x4
+source = 0x8
+size = 0xc
+position = 0x14

@@ -5,6 +5,10 @@ Wheel_HandleInterrupt = { at = 0x0805f688 }
 Wheel_RunTask = { at = 0x0805f738 }
 Wheel_DispatchButtonChanges = { at = 0x0807443c, c = "int Wheel_DispatchButtonChanges(int force_center)" }
 Input_HandleButton = { at = 0x08056900, c = "void Input_HandleButton(uint32_t button, uint32_t pressed)" }
+Event_Signal = { at = 0x0802cfa8, c = "void Event_Signal(uint32_t event)" }
+IRQ_RestoreState = { at = 0x083924d8, c = "void IRQ_RestoreState(uint32_t cpsr)" }
+IRQ_DisableSave = { at = 0x083924e0, c = "uint32_t IRQ_DisableSave(void)" }
+InputWheel_AccumulateMotion = { at = 0x08093718 }
 
 [data]
 WheelState = { at = 0x089d2b8c, c = "uint8_t WheelState[]" }
@@ -13,6 +17,14 @@ ButtonKeyCodes = { at = 0x089d2ec5, c = "const uint8_t ButtonKeyCodes[5]" }
 [offsets.WheelState]
 reported_buttons = 0x18
 buttons = 0x20
+skip_packet = 0x1
+threshold = 0x4
+motion = 0x8
+position = 0xc
+touch_down_position = 0x10
+touch_count = 0x14
+previous_touch = 0x1c
+touch = 0x24
 
 [constants]
 WheelButton_Center = 0x1
@@ -28,6 +40,9 @@ UIKey_Previous = 0x59
 UIKey_Next = 0x5a
 UIKey_Menu = 0x6e
 UIKey_Center = 0x6f
+WheelPositions = 96
+WheelTouch_Down = 0x40000000
+WheelEvent_Signal = 5
 
 [offsets.InputEvent]
 kind = 0x4

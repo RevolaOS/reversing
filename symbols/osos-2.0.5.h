@@ -47,6 +47,9 @@ void GLES_ClearColorx(int red, int green, int blue, int alpha);
 uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight);
 int Wheel_DispatchButtonChanges(int force_center);
 void Input_HandleButton(uint32_t button, uint32_t pressed);
+void Event_Signal(uint32_t event);
+void IRQ_RestoreState(uint32_t cpsr);
+uint32_t IRQ_DisableSave(void);
 void *MediaPlayer_GetInstance(void);
 int MediaPlayer_ClearPreparedTrack(void *player);
 int MediaPlayer_RebuildArtwork(void *player);
@@ -129,6 +132,23 @@ void EAppBlocks_Acquire(void *manager);
 void EAppBlocks_Release(void *manager);
 uint32_t Power_EnterLightSleep(int mode);
 int Disk_GetPowerState(uint32_t *out_powered);
+void *StorageArbiter_Get(void);
+void StorageArbiter_Register(void *arbiter, void *owner);
+void StorageArbiter_SetOwner(void *arbiter, void *client);
+void StorageArbiter_Request(void *arbiter, void *client);
+void StorageArbiter_Release(void *arbiter, void *client);
+int DiskClient_Yield(void *client);
+void *ScsiDiskClient_Create(void *memory, void *scsi_context);
+void ScsiDiskClient_Request(void *client);
+void HardwareEvent_Post(uint32_t source);
+void HardwareEvent_PostArgument(uint32_t source, uint32_t argument);
+int HardwareEvent_MapSource(uint32_t source, uint8_t *out_index);
+int HardwareEvent_Dispatch(uint32_t index, uint32_t *argument);
+void App_HandleUsbConnected(void *app);
+void App_PollDiskModeEntry(void *app);
+void App_EnterDiskMode(void *app);
+void App_ExitDiskMode(void *app);
+void System_PrepareDiskMode(void *system);
 void ResourceBank_InitOverrides(void *bank);
 void ResourceBank_SetResource(void *bank, uint32_t type, uint32_t id, const void *data, uint32_t bytes);
 void *ResourceBank_GetResource(void *bank, uint32_t type, uint32_t id, uint32_t *out_bytes);
@@ -164,6 +184,9 @@ void DirectoryIterator_Destroy(struct DirectoryIterator *iterator);
 struct NativePath *NativePath_InitEmpty(struct NativePath *path);
 struct NativePath *NativePath_Destroy(struct NativePath *path);
 void *Thread_GetCurrentRecord(void);
+void *IRQ_Dispatch(uint32_t *frame);
+uint32_t Clock_GetMicroseconds(void);
+void Timer_Stop(void *timer);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
 int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
 int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out);
@@ -261,6 +284,7 @@ int WheelInput_QuantizeMotion(uint32_t motion, int threshold);
 uint32_t WheelEvent_GetSpeed(void *event);
 int ScreenController_PopSelf(void *controller, uint32_t flags);
 void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t property, uint32_t index);
+int MenuList_GetRowProperty(void *list_model, uint32_t type, uint32_t property, int index, void *out);
 void MenuItems_RegisterAll(void);
 void BitmapView_LoadBitmap(void *view);
 void *Object_GetInterface(void *object, uint32_t interface);
@@ -269,16 +293,35 @@ void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
 void UI_DisplayPreparedLayout(void *manager, void *layout);
+void *Navigator_Get(void);
+void *UI_GetRootOwner(void);
+void TextView_DrawString(void *view, const char *text, void *argument);
+void USB_HandleSetupPacket(void *usb);
+void *USB_DispatchControlRead(void *usb, uint32_t *inout_length);
+void *USB_HandleVendorDeviceRead(void *usb, uint32_t *inout_length);
+int USB_DispatchNoDataRequest(void *usb);
+int USB_HandleAppleVendorCommand(void *usb, uint32_t setup0, uint32_t setup1);
+void *USB_GetControlWriteBuffer(void *usb, uint32_t length);
+void USB_StartControlTransfer(void *usb, uint32_t endpoint, void *buffer, uint32_t length);
+int USB_IsAccessoryMode(void);
+void SCSI_AcquireMedium(void *out_result, void *context, int set_sense);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
+extern const uint8_t DisplayLayerOrders[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
 extern uint8_t BrowserRegistry[];
 extern void *BlockCache;
 extern void *MainHeap;
 extern uint16_t ATA_Identify[256];
+extern uint8_t StorageArbiter[];
+extern uint8_t DiskClient[];
+extern void *const DiskClient_vtable[];
+extern void *const ScsiDiskClient_vtable[];
+extern void *App;
 extern uint8_t ResourceNameMap[];
+extern uint8_t IRQ_Nesting;
 extern uint32_t MainMenuSettingsRows[];
 extern uint32_t MusicMenuSettingsRows[];
 extern void *const ScreenController_vtable[];
@@ -288,6 +331,11 @@ extern void *const SettingsMenuListController_vtable[];
 extern void *const ExtrasMenuController_vtable[];
 extern void *const ArtistsController_vtable[];
 extern void *const AlbumsController_vtable[];
+extern uint8_t Navigator[];
+extern void *const TextView_vtable[];
+extern void *const SelectedRowTextView_vtable[];
+extern void *const MenuList_vtable[];
+extern void *const MenuListModel_vtable[];
 #endif
 
 #define ADDR_ArtworkDatabase_Import 0x08059000
@@ -337,6 +385,10 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_Wheel_RunTask 0x0805f738
 #define ADDR_Wheel_DispatchButtonChanges 0x0807443c
 #define ADDR_Input_HandleButton 0x08056900
+#define ADDR_Event_Signal 0x0802cfa8
+#define ADDR_IRQ_RestoreState 0x083924d8
+#define ADDR_IRQ_DisableSave 0x083924e0
+#define ADDR_InputWheel_AccumulateMotion 0x08093718
 #define ADDR_MediaPlayer_GetInstance 0x08172824
 #define ADDR_MediaPlayer_ClearPreparedTrack 0x0817190c
 #define ADDR_MediaPlayer_RebuildArtwork 0x08170238
@@ -428,6 +480,25 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_PowerController_HandleRequestedSleep 0x0819bb18
 #define ADDR_System_SaveAll 0x080638d8
 #define ADDR_Disk_GetPowerState 0x082b3630
+#define ADDR_StorageArbiter_Get 0x0807bf3c
+#define ADDR_StorageArbiter_Register 0x0815dde4
+#define ADDR_StorageArbiter_SetOwner 0x0815dc00
+#define ADDR_StorageArbiter_Request 0x0815dcec
+#define ADDR_StorageArbiter_Release 0x0815dc58
+#define ADDR_DiskClient_OnGranted 0x081d8248
+#define ADDR_DiskClient_Yield 0x081d8258
+#define ADDR_ScsiDiskClient_Create 0x08130648
+#define ADDR_ScsiDiskClient_Request 0x08130620
+#define ADDR_HardwareEvent_Post 0x0807c5b4
+#define ADDR_HardwareEvent_PostArgument 0x0807c5bc
+#define ADDR_HardwareEvent_MapSource 0x080d9f18
+#define ADDR_HardwareEvent_Dispatch 0x081dc214
+#define ADDR_App_HandleUsbConnected 0x0810b6e8
+#define ADDR_App_PollDiskModeEntry 0x081089ec
+#define ADDR_App_EnterDiskMode 0x08106854
+#define ADDR_App_ExitDiskMode 0x0810b5e0
+#define ADDR_System_PrepareDiskMode 0x0805df34
+#define ADDR_SystemUI_DispatchSystemEvent 0x0810acd0
 #define ADDR_ResourceBank_InitOverrides 0x08111f00
 #define ADDR_ResourceBank_SetResource 0x08111e20
 #define ADDR_ResourceBank_GetResource 0x08111d74
@@ -475,6 +546,10 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_NativePath_Destroy 0x0826fcf4
 #define ADDR_Thread_Create 0x0804b4f4
 #define ADDR_Thread_GetCurrentRecord 0x0804b744
+#define ADDR_IRQ_Entry 0x22003080
+#define ADDR_IRQ_Dispatch 0x22008150
+#define ADDR_Clock_GetMicroseconds 0x0804b7ac
+#define ADDR_Timer_Stop 0x081219d0
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
 #define ADDR_SettingsModel_GetProperty 0x081e11f4
@@ -605,15 +680,38 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_UI_DisplayPreparedLayout 0x08174464
 #define ADDR_UI_ApplyInstanceResources 0x081781c0
 #define ADDR_View_ApplyPropertyBindings 0x08175b7c
+#define ADDR_Navigator_Get 0x08104d00
+#define ADDR_UI_GetRootOwner 0x0813e204
+#define ADDR_TextView_DrawString 0x082883f8
+#define ADDR_TextView_DrawTextLayout 0x082872f8
+#define ADDR_USB_HandleSetupPacket 0x0828a404
+#define ADDR_USB_DispatchControlRead 0x0828a7d4
+#define ADDR_USB_HandleVendorDeviceRead 0x0828a27c
+#define ADDR_USB_DispatchNoDataRequest 0x0828a780
+#define ADDR_USB_HandleAppleVendorCommand 0x0828a054
+#define ADDR_USB_GetControlWriteBuffer 0x0828a8f8
+#define ADDR_USB_StartControlTransfer 0x0828a3b4
+#define ADDR_USB_RunDeviceLoop 0x0828afd8
+#define ADDR_USB_SelectConfigurationOrder 0x0828b668
+#define ADDR_USBDeviceTask_Run 0x0813e598
+#define ADDR_USB_IsAccessoryMode 0x0813e560
+#define ADDR_SCSI_AcquireMedium 0x080ed98c
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
+#define ADDR_DisplayLayerOrders 0x083f35ec
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
 #define ADDR_BrowserRegistry 0x08a1a6dc
 #define ADDR_BlockCache 0x089d380c
 #define ADDR_MainHeap 0x089d2c78
 #define ADDR_ATA_Identify 0x08ae087c
+#define ADDR_StorageArbiter 0x08a7e8f8
+#define ADDR_DiskClient 0x08a7e920
+#define ADDR_DiskClient_vtable 0x08996b78
+#define ADDR_ScsiDiskClient_vtable 0x0898c96c
+#define ADDR_App 0x089d2cb4
 #define ADDR_ResourceNameMap 0x08ae02c4
+#define ADDR_IRQ_Nesting 0x22008af4
 #define ADDR_MainMenuSettingsRows 0x08a815f0
 #define ADDR_MusicMenuSettingsRows 0x08a81898
 #define ADDR_ScreenController_vtable 0x0899d3fc
@@ -623,6 +721,11 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_ExtrasMenuController_vtable 0x0899cb30
 #define ADDR_ArtistsController_vtable 0x089a40e4
 #define ADDR_AlbumsController_vtable 0x089a3514
+#define ADDR_Navigator 0x08a822cc
+#define ADDR_TextView_vtable 0x089af07c
+#define ADDR_SelectedRowTextView_vtable 0x08993504
+#define ADDR_MenuList_vtable 0x08992c60
+#define ADDR_MenuListModel_vtable 0x08992c70
 
 #define SITE_ArtworkDatabase_Import_call 0x0804d458
 #define SITE_ArtworkDatabase_ReadImageThumbs_call 0x08074f34
@@ -677,6 +780,8 @@ extern void *const AlbumsController_vtable[];
 #define SITE_Sleep_Idle_call 0x0819b32c
 #define SITE_Sleep_Request_call 0x0819bba8
 #define SITE_Preferences_FlushIfDirty_call 0x0806392c
+#define SITE_DiskClient_Yield_slot 0x08996ba0
+#define SITE_App_HandleUsbConnected_call 0x0810ad54
 #define SITE_ResourceBlockList_AppendBorrowedBlock_call 0x0817a88c
 #define SITE_ResourceBank_InitOverrides_call 0x081c7ea8
 #define SITE_ResourceBank_NextTemplate_call 0x081af75c
@@ -687,6 +792,7 @@ extern void *const AlbumsController_vtable[];
 #define SITE_Abort_entry 0x0802606c
 #define SITE_RegionalVolumeResult_word 0x0804b188
 #define SITE_Runtime_ReportUncaughtException_entry 0x0825de34
+#define SITE_IRQ_Dispatch_entry 0x22008150
 #define SITE_Settings_Action_slot 0x089a3bf4
 #define SITE_Settings_SecondaryAction_slot 0x089a7c3c
 #define SITE_SettingsMainMenu_Action_slot 0x089a00f4
@@ -795,6 +901,12 @@ extern void *const AlbumsController_vtable[];
 #define SITE_Extras_Action_slot 0x0899cc44
 #define SITE_Artists_Action_slot 0x089a41f8
 #define SITE_Albums_Action_slot 0x089a3628
+#define SITE_TextView_DrawTextWithColor_call 0x08288514
+#define SITE_TextView_DrawTextLayout_call 0x082884a8
+#define SITE_TextView_DrawString_entry 0x082883f8
+#define SITE_USB_HandleVendorDeviceRead_call 0x0828a820
+#define SITE_USB_DispatchNoDataRequest_call 0x0828a458
+#define SITE_USB_GetControlWriteBuffer_call 0x0828a434
 
 #define ArtworkDatabase_image_count 0x8
 #define ArtworkDatabase_first_image 0xc
@@ -815,10 +927,24 @@ extern void *const AlbumsController_vtable[];
 #define ArtworkThumb_size 0x1c
 #define ArtworkThumb_file 0x20
 #define ArtworkThumb_bytes 0x24
+#define DisplayPipe_control 0x8
+#define DisplayPipe_slot0 0x58
+#define DisplayPipe_slot_step 0x18
+#define DisplayPipe_order 0xd4
+#define DisplaySlot_stride 0x0
+#define DisplaySlot_format 0x4
+#define DisplaySlot_source 0x8
+#define DisplaySlot_size 0xc
+#define DisplaySlot_position 0x14
 #define BootDescriptor_flags 0x10
 #define BootDescriptor_sysinfo_magic 0x18
 #define BootDescriptor_sysinfo 0x1c
 #define GraphicsContext_bytes 0x44
+#define GraphicsContext_color 0x10
+#define GraphicsContext_clip_top 0x28
+#define GraphicsContext_clip_left 0x30
+#define GraphicsContext_clip_bottom 0x34
+#define GraphicsContext_clip_right 0x38
 #define BMap_format 0x0
 #define BMap_stride 0x4
 #define BMap_depth 0x6
@@ -827,6 +953,14 @@ extern void *const AlbumsController_vtable[];
 #define BMap_payload 0x1c
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
+#define WheelState_skip_packet 0x1
+#define WheelState_threshold 0x4
+#define WheelState_motion 0x8
+#define WheelState_position 0xc
+#define WheelState_touch_down_position 0x10
+#define WheelState_touch_count 0x14
+#define WheelState_previous_touch 0x1c
+#define WheelState_touch 0x24
 #define InputEvent_kind 0x4
 #define InputEvent_wheel_delta 0xc
 #define InputEvent_wheel_speed 0x14
@@ -909,6 +1043,16 @@ extern void *const AlbumsController_vtable[];
 #define MainHeap_free_bytes 0x0
 #define MainHeap_total_bytes 0x4
 #define MainHeap_used_bytes 0x8
+#define App_disk_mode_requested 0x4cc
+#define App_usb_connected 0x4d2
+#define App_in_disk_mode 0x4d3
+#define StorageArbiter_active 0x10
+#define StorageArbiter_clients 0x14
+#define StorageArbiter_owner 0x20
+#define StorageArbiter_pending 0x24
+#define ScsiDiskClient_context 0x8
+#define ScsiDiskClient_wanted 0xc
+#define ScsiDiskClient_state 0xd
 #define ResourceBlock_bytes 0x0
 #define ResourceBlock_kind 0x4
 #define ResourceBlock_data 0x8
@@ -922,6 +1066,11 @@ extern void *const AlbumsController_vtable[];
 #define ThreadRecord_name 0xc
 #define ThreadRecord_stack_base 0x40
 #define ThreadRecord_bytes 0x44
+#define IRQFrame_spsr 0x0
+#define IRQFrame_r0 0x4
+#define IRQFrame_lr 0x38
+#define IRQFrame_pc 0x3c
+#define IRQFrame_bytes 0x40
 #define MenuSettingsRow_item 0x0
 #define MenuSettingsRow_title 0x4
 #define MenuSettingsRow_layout_kind 0x8
@@ -958,6 +1107,10 @@ extern void *const AlbumsController_vtable[];
 #define View_id 0x4c
 #define View_find_view_method 0xe4
 #define View_linked_view_method 0xfc
+#define View_flags 0x48
+#define View_children 0xa8
+#define View_child_count 0xac
+#define View_child_items 0xb0
 #define EventTimer_period 0x4
 #define EventTimer_recipient 0x24
 #define EventTimer_event_queue 0x28
@@ -1024,7 +1177,31 @@ extern void *const AlbumsController_vtable[];
 #define ContextMenuItem_flags 0x8
 #define ContextMenuItem_bytes 0xc
 #define MediaListController_show_context_menu_method 0x148
+#define Navigator_top_controller 0x4
+#define TextView_context 0xa4
+#define TextView_text 0xf8
+#define USBDevice_controller 0x34
+#define USBDevice_interfaces 0x38
+#define USBDevice_configuration_set 0x5c
+#define USBDevice_setup 0x90
+#define USBDevice_request_type 0x90
+#define USBDevice_request 0x91
+#define USBDevice_value 0x92
+#define USBDevice_index 0x94
+#define USBDevice_length 0x96
+#define USBDevice_max_packet 0xa0
+#define USBDevice_ep0_buffer 0xb4
+#define USBDevice_host_to_device 0xb8
+#define USBDevice_data_length 0xbc
+#define USBDevice_configuration 0xc4
+#define USBDevice_bytes 0xd0
 
+#define DISPLAY_PIPE_BASE 0x38900000
+#define DisplayLayerEnable_Layer0 0x40
+#define DisplayLayerEnable_Layer1 0x20
+#define DisplayLayerEnable_Layer2 0x10
+#define DisplayFormat_RGB565 0x3
+#define DisplayFormat_ARGB8888 0x7
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
 #define DRAM_UNCACHED_ALIAS 0x80000000
@@ -1033,6 +1210,8 @@ extern void *const AlbumsController_vtable[];
 #define BOOT_SYSINFO_MAGIC 0x53797349
 #define MMIO_BASE 0x38000000
 #define MMU_TRANSLATION_TABLE 0x2200c000
+#define IRAM_END 0x22040000
+#define IRQ_STACK_TOP 0x8b3b1b0
 #define BMapFormat_Indexed8 0x64
 #define BMapFormat_RGB565 0x565
 #define BMapFormat_BGRA8888 0x1888
@@ -1049,7 +1228,17 @@ extern void *const AlbumsController_vtable[];
 #define UIKey_Next 0x5a
 #define UIKey_Menu 0x6e
 #define UIKey_Center 0x6f
+#define WheelPositions 0x60
+#define WheelTouch_Down 0x40000000
+#define WheelEvent_Signal 0x5
 #define AlbumArtist_order_mode 0x2d
+#define HardwareSource_DiskModeRequest 0x8
+#define HardwareSource_DiskGranted 0x9
+#define AppMessage_DiskModeRequest 0x63800003
+#define AppMessage_DiskGranted 0x63800004
+#define ScsiDiskClientState_Refused 0x0
+#define ScsiDiskClientState_Pending 0x1
+#define ScsiDiskClientState_Granted 0x2
 #define Resource_BMap 0x424d6170
 #define Resource_Draw 0x44726177
 #define Resource_SORC 0x534f5243

@@ -75,7 +75,7 @@ WheelInput_QuantizeMotion = { at = 0x08289794, c = "int WheelInput_QuantizeMotio
 WheelEvent_GetSpeed = { at = 0x082894e8, c = "uint32_t WheelEvent_GetSpeed(void *event)" }
 ScreenController_PopSelf = { at = 0x081034f0, c = "int ScreenController_PopSelf(void *controller, uint32_t flags)" }
 ResourceService_GetIndexedResource = { at = 0x08138dd8, c = "void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t property, uint32_t index)" }
-MenuList_GetRowProperty = { at = 0x08194ecc }
+MenuList_GetRowProperty = { at = 0x08194ecc, c = "int MenuList_GetRowProperty(void *list_model, uint32_t type, uint32_t property, int index, void *out)" }
 MenuList_HandleNotification = { at = 0x08195120 }
 MenuItems_RegisterAll = { at = 0x081951cc, c = "void MenuItems_RegisterAll(void)" }
 BitmapView_LoadBitmap = { at = 0x08100020, c = "void BitmapView_LoadBitmap(void *view)" }
@@ -90,6 +90,10 @@ UI_FindTemplateView = { at = 0x081af514, c = "void *UI_FindTemplateView(void *ow
 UI_DisplayPreparedLayout = { at = 0x08174464, c = "void UI_DisplayPreparedLayout(void *manager, void *layout)" }
 UI_ApplyInstanceResources = { at = 0x081781c0 }
 View_ApplyPropertyBindings = { at = 0x08175b7c }
+Navigator_Get = { at = 0x08104d00, c = "void *Navigator_Get(void)" }
+UI_GetRootOwner = { at = 0x0813e204, c = "void *UI_GetRootOwner(void)" }
+TextView_DrawString = { at = 0x082883f8, c = "void TextView_DrawString(void *view, const char *text, void *argument)" }
+TextView_DrawTextLayout = { at = 0x082872f8 }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
@@ -99,6 +103,11 @@ SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const Settings
 ExtrasMenuController_vtable = { at = 0x0899cb30, c = "void *const ExtrasMenuController_vtable[]" }
 ArtistsController_vtable = { at = 0x089a40e4, c = "void *const ArtistsController_vtable[]" }
 AlbumsController_vtable = { at = 0x089a3514, c = "void *const AlbumsController_vtable[]" }
+Navigator = { at = 0x08a822cc, c = "uint8_t Navigator[]" }
+TextView_vtable = { at = 0x089af07c, c = "void *const TextView_vtable[]" }
+SelectedRowTextView_vtable = { at = 0x08993504, c = "void *const SelectedRowTextView_vtable[]" }
+MenuList_vtable = { at = 0x08992c60, c = "void *const MenuList_vtable[]" }
+MenuListModel_vtable = { at = 0x08992c70, c = "void *const MenuListModel_vtable[]" }
 
 [sites]
 UI_LoadLayoutEvents_call = { at = 0x081d63f8, kind = "call", in = "UI_GetLayoutEventTable+0x18" }
@@ -130,6 +139,9 @@ UITask_StackShift_word = { at = 0x081391dc, kind = "word", in = "UITask_Create+0
 Extras_Action_slot = { at = 0x0899cc44, kind = "slot" }
 Artists_Action_slot = { at = 0x089a41f8, kind = "slot" }
 Albums_Action_slot = { at = 0x089a3628, kind = "slot" }
+TextView_DrawTextWithColor_call = { at = 0x08288514, kind = "call", in = "TextView_DrawString+0x11c" }
+TextView_DrawTextLayout_call = { at = 0x082884a8, kind = "call", in = "TextView_DrawString+0xb0" }
+TextView_DrawString_entry = { at = 0x082883f8, kind = "entry" }
 
 [offsets.Model]
 notify_method = 0x58
@@ -166,6 +178,10 @@ bounds = 0x80
 id = 0x4c
 find_view_method = 0xe4
 linked_view_method = 0xfc
+flags = 0x48
+children = 0xa8
+child_count = 0xac
+child_items = 0xb0
 
 [constants]
 AnchorMode_Top = 1
@@ -428,3 +444,10 @@ bytes = 0xc
 
 [offsets.MediaListController]
 show_context_menu_method = 0x148
+
+[offsets.Navigator]
+top_controller = 0x4
+
+[offsets.TextView]
+context = 0xa4
+text = 0xf8

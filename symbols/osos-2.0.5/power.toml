@@ -6,8 +6,61 @@ PowerController_HandleIdleSleep = { at = 0x0819b28c }
 PowerController_HandleRequestedSleep = { at = 0x0819bb18 }
 System_SaveAll = { at = 0x080638d8 }
 Disk_GetPowerState = { at = 0x082b3630, c = "int Disk_GetPowerState(uint32_t *out_powered)" }
+StorageArbiter_Get = { at = 0x0807bf3c, c = "void *StorageArbiter_Get(void)" }
+StorageArbiter_Register = { at = 0x0815dde4, c = "void StorageArbiter_Register(void *arbiter, void *owner)" }
+StorageArbiter_SetOwner = { at = 0x0815dc00, c = "void StorageArbiter_SetOwner(void *arbiter, void *client)" }
+StorageArbiter_Request = { at = 0x0815dcec, c = "void StorageArbiter_Request(void *arbiter, void *client)" }
+StorageArbiter_Release = { at = 0x0815dc58, c = "void StorageArbiter_Release(void *arbiter, void *client)" }
+DiskClient_OnGranted = { at = 0x081d8248 }
+DiskClient_Yield = { at = 0x081d8258, c = "int DiskClient_Yield(void *client)" }
+ScsiDiskClient_Create = { at = 0x08130648, c = "void *ScsiDiskClient_Create(void *memory, void *scsi_context)" }
+ScsiDiskClient_Request = { at = 0x08130620, c = "void ScsiDiskClient_Request(void *client)" }
+HardwareEvent_Post = { at = 0x0807c5b4, c = "void HardwareEvent_Post(uint32_t source)" }
+HardwareEvent_PostArgument = { at = 0x0807c5bc, c = "void HardwareEvent_PostArgument(uint32_t source, uint32_t argument)" }
+HardwareEvent_MapSource = { at = 0x080d9f18, c = "int HardwareEvent_MapSource(uint32_t source, uint8_t *out_index)" }
+HardwareEvent_Dispatch = { at = 0x081dc214, c = "int HardwareEvent_Dispatch(uint32_t index, uint32_t *argument)" }
+App_HandleUsbConnected = { at = 0x0810b6e8, c = "void App_HandleUsbConnected(void *app)" }
+App_PollDiskModeEntry = { at = 0x081089ec, c = "void App_PollDiskModeEntry(void *app)" }
+App_EnterDiskMode = { at = 0x08106854, c = "void App_EnterDiskMode(void *app)" }
+App_ExitDiskMode = { at = 0x0810b5e0, c = "void App_ExitDiskMode(void *app)" }
+System_PrepareDiskMode = { at = 0x0805df34, c = "void System_PrepareDiskMode(void *system)" }
+SystemUI_DispatchSystemEvent = { at = 0x0810acd0 }
 
 [sites]
 Sleep_Idle_call = { at = 0x0819b32c, kind = "call", in = "PowerController_HandleIdleSleep+0xa0" }
 Sleep_Request_call = { at = 0x0819bba8, kind = "call", in = "PowerController_HandleRequestedSleep+0x90" }
 Preferences_FlushIfDirty_call = { at = 0x0806392c, kind = "call", in = "System_SaveAll+0x54" }
+DiskClient_Yield_slot = { at = 0x08996ba0, kind = "slot" }
+App_HandleUsbConnected_call = { at = 0x0810ad54, kind = "call", in = "SystemUI_DispatchSystemEvent+0x84" }
+
+[data]
+StorageArbiter = { at = 0x08a7e8f8, c = "uint8_t StorageArbiter[]" }
+DiskClient = { at = 0x08a7e920, c = "uint8_t DiskClient[]" }
+DiskClient_vtable = { at = 0x08996b78, c = "void *const DiskClient_vtable[]" }
+ScsiDiskClient_vtable = { at = 0x0898c96c, c = "void *const ScsiDiskClient_vtable[]" }
+App = { at = 0x089d2cb4, c = "void *App" }
+
+[offsets.App]
+disk_mode_requested = 0x4cc
+usb_connected = 0x4d2
+in_disk_mode = 0x4d3
+
+[offsets.StorageArbiter]
+active = 0x10
+clients = 0x14
+owner = 0x20
+pending = 0x24
+
+[offsets.ScsiDiskClient]
+context = 0x8
+wanted = 0xc
+state = 0xd
+
+[constants]
+HardwareSource_DiskModeRequest = 0x8
+HardwareSource_DiskGranted = 0x9
+AppMessage_DiskModeRequest = 0x63800003
+AppMessage_DiskGranted = 0x63800004
+ScsiDiskClientState_Refused = 0x0
+ScsiDiskClientState_Pending = 0x1
+ScsiDiskClientState_Granted = 0x2

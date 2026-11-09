@@ -33,6 +33,10 @@ NativePath_InitEmpty = { at = 0x0826fcc4, c = "struct NativePath *NativePath_Ini
 NativePath_Destroy = { at = 0x0826fcf4, c = "struct NativePath *NativePath_Destroy(struct NativePath *path)" }
 Thread_Create = { at = 0x0804b4f4 }
 Thread_GetCurrentRecord = { at = 0x0804b744, c = "void *Thread_GetCurrentRecord(void)" }
+IRQ_Entry = { at = 0x22003080 }
+IRQ_Dispatch = { at = 0x22008150, c = "void *IRQ_Dispatch(uint32_t *frame)" }
+Clock_GetMicroseconds = { at = 0x0804b7ac, c = "uint32_t Clock_GetMicroseconds(void)" }
+Timer_Stop = { at = 0x081219d0, c = "void Timer_Stop(void *timer)" }
 
 [sites]
 Preferences_LoadFile_call = { at = 0x08058808, kind = "call", in = "Preferences_LoadAndMigrate+0x14" }
@@ -42,6 +46,7 @@ Panic_entry = { at = 0x0803930c, kind = "entry" }
 Abort_entry = { at = 0x0802606c, kind = "entry" }
 RegionalVolumeResult_word = { at = 0x0804b188, kind = "word", in = "Platform_HasRegionalVolumeLimit+0xc" }
 Runtime_ReportUncaughtException_entry = { at = 0x0825de34, kind = "entry" }
+IRQ_Dispatch_entry = { at = 0x22008150, kind = "entry" }
 
 [offsets.Preferences]
 object = 0x378
@@ -60,3 +65,13 @@ context = 0x8
 name = 0xc
 stack_base = 0x40
 bytes = 0x44
+
+[data]
+IRQ_Nesting = { at = 0x22008af4, c = "uint8_t IRQ_Nesting" }
+
+[offsets.IRQFrame]
+spsr = 0x0
+r0 = 0x4
+lr = 0x38
+pc = 0x3c
+bytes = 0x40
