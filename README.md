@@ -37,7 +37,7 @@ Apple firmware bytes are never committed. Analysis is reproduced from the user's
 
 ## Ghidra
 
-Requires Ghidra 12.1.4, JDK 21 and the `reprise` CLI (for `firmware extract-efi`) on `PATH`.
+Requires Ghidra 12.1.4, JDK 21 and the `revola` CLI from the installer repository (for `firmware extract-efi`) on `PATH` or given with `--cli`.
 
 ```sh
 python tools/ghidra.py import --inputs <decrypted 2.0.5 inputs>   # builds build/ghidra

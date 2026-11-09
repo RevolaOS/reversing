@@ -38,7 +38,7 @@ def write_program(out, path, regions, entry, provenance):
     )
 
 
-def prepare(inputs, out, reprise, manifest):
+def prepare(inputs, out, cli, manifest):
     """Write <out>/inputs/<path> for every program and check them against manifest."""
     profile = load_profile()
     version = profile["ipsw"]["version"]
@@ -48,7 +48,7 @@ def prepare(inputs, out, reprise, manifest):
     out.mkdir(parents=True)
     subprocess.run(
         [
-            str(reprise),
+            str(cli),
             "firmware",
             "extract-efi",
             "--input",

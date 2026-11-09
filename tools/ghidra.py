@@ -52,13 +52,13 @@ def import_project(args, manifest):
     project = project_dir(args.project)
     if project.exists():
         raise ValueError(f"Import needs a new project directory: {project}")
-    reprise = args.reprise or shutil.which("reprise")
-    if not reprise:
-        raise ValueError("No reprise on PATH (source env.sh) and no --reprise")
+    cli = args.cli or shutil.which("revola")
+    if not cli:
+        raise ValueError("No revola CLI on PATH and no --cli")
     WORK.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="ghidra-inputs-", dir=WORK) as temporary:
         work = Path(temporary)
-        specs = prepare(args.inputs.resolve(), work / "prepared", reprise, manifest)
+        specs = prepare(args.inputs.resolve(), work / "prepared", cli, manifest)
         groups = defaultdict(list)
         for spec in specs:
             overlay(
@@ -141,7 +141,7 @@ def main():
     parser.add_argument("--project", type=Path, default=ROOT / "build/ghidra")
     parser.add_argument("--analysis", type=Path, default=ANALYSIS)
     parser.add_argument("--inputs", type=Path, help="decrypted 2.0.5 inputs (import)")
-    parser.add_argument("--reprise", help="reprise CLI for extract-efi (import)")
+    parser.add_argument("--cli", help="revola CLI for firmware extract-efi (import)")
     args = parser.parse_args()
     if args.command == "import" and not args.inputs:
         parser.error("import needs --inputs")
