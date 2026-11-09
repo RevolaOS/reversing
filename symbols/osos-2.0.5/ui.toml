@@ -31,6 +31,7 @@ View_BindGraphicsContext = { at = 0x08264bdc, c = "void View_BindGraphicsContext
 View_GetLocalContentRect = { at = 0x08299014, c = "void View_GetLocalContentRect(void *view, int32_t *rect)" }
 View_InvalidateRect = { at = 0x082655a0, c = "void View_InvalidateRect(void *view, const int32_t *rect)" }
 View_DrawBackgroundAndBorder = { at = 0x08263530 }
+TextView_CreateFromDescriptor = { at = 0x0817b238, c = "void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor)" }
 TextView_DrawTextWithColor = { at = 0x08287218 }
 MarqueeTextView_Draw = { at = 0x081a8dc8 }
 CoverFlowView_UpdateActiveState = { at = 0x0813818c }

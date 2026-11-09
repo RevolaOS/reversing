@@ -244,6 +244,7 @@ View_BindGraphicsContext = 0x08264bdc;
 View_GetLocalContentRect = 0x08299014;
 View_InvalidateRect = 0x082655a0;
 View_DrawBackgroundAndBorder = 0x08263530;
+TextView_CreateFromDescriptor = 0x0817b238;
 TextView_DrawTextWithColor = 0x08287218;
 MarqueeTextView_Draw = 0x081a8dc8;
 CoverFlowView_UpdateActiveState = 0x0813818c;

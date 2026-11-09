@@ -215,6 +215,7 @@ void *View_Construct(void *view, void *unused, void *parent, void *event_target,
 void View_BindGraphicsContext(void *view, void *context);
 void View_GetLocalContentRect(void *view, int32_t *rect);
 void View_InvalidateRect(void *view, const int32_t *rect);
+void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor);
 int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument);
 int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument);
 int SongList_DispatchAction(void *controller, const char *action, uint32_t argument);
@@ -497,6 +498,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_View_GetLocalContentRect 0x08299014
 #define ADDR_View_InvalidateRect 0x082655a0
 #define ADDR_View_DrawBackgroundAndBorder 0x08263530
+#define ADDR_TextView_CreateFromDescriptor 0x0817b238
 #define ADDR_TextView_DrawTextWithColor 0x08287218
 #define ADDR_MarqueeTextView_Draw 0x081a8dc8
 #define ADDR_CoverFlowView_UpdateActiveState 0x0813818c
