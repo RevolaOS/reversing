@@ -1232,6 +1232,7 @@ extern void *const MenuListModel_vtable[];
 #define MMU_TRANSLATION_TABLE 0x2200c000
 #define IRAM_END 0x22040000
 #define IRQ_STACK_TOP 0x8b3b1b0
+#define GraphicsDrawMode_Text 0x21
 #define BMapFormat_Indexed8 0x64
 #define BMapFormat_RGB565 0x565
 #define BMapFormat_BGRA8888 0x1888

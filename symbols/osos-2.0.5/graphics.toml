@@ -51,6 +51,7 @@ payload_bytes = 0x18
 payload = 0x1c
 
 [constants]
+GraphicsDrawMode_Text = 0x21
 BMapFormat_Indexed8 = 0x64
 BMapFormat_RGB565 = 0x565
 BMapFormat_BGRA8888 = 0x1888
