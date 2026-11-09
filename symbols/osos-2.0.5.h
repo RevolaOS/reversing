@@ -123,6 +123,8 @@ struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index);
 void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode);
 void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags);
 struct MediaEntry *MediaList_GetEntryByOrderIndex(struct MediaList *list, int order_mode, uint32_t reverse, uint32_t index);
+int MediaList_BuildOrderIndex(struct MediaList *list, uint32_t order);
+void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse);
 int MediaListController_AddSelectionToOnTheGo(void *controller);
 int MediaListController_DispatchAction(void *controller, const char *action, uint32_t argument);
 int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save);
@@ -350,6 +352,9 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_MediaList_InvalidateOrderCache 0x080d1928
 #define ADDR_MediaList_CopyEntryAtPosition 0x0803bbf0
 #define ADDR_MediaList_GetEntryByOrderIndex 0x08047870
+#define ADDR_MediaList_GetEntryOrderIndex 0x080497ac
+#define ADDR_MediaList_BuildOrderIndex 0x080d438c
+#define ADDR_MediaList_ResolveOrderMode 0x080a9ab0
 #define ADDR_MediaListController_AddSelectionToOnTheGo 0x0820f8d4
 #define ADDR_MediaListController_DispatchAction 0x0820f5a4
 #define ADDR_OnTheGo_AddBrowserSelection 0x081095f8
@@ -554,6 +559,67 @@ extern uint16_t ATA_Identify[256];
 #define SITE_EAppBlocks_Acquire_call 0x0819d6d0
 #define SITE_EAppBlocks_Release_call 0x0819d6d8
 #define SITE_UITask_StackShift_word 0x081391dc
+#define SITE_MediaList_GetEntryOrderIndex_entry 0x080497ac
+#define SITE_TrackCount_0803b2d8_word 0x0803b2d8
+#define SITE_TrackCount_0803bf9c_word 0x0803bf9c
+#define SITE_TrackCount_0803c9bc_word 0x0803c9bc
+#define SITE_TrackCount_0804789c_word 0x0804789c
+#define SITE_TrackCount_0804793c_word 0x0804793c
+#define SITE_TrackCount_08047970_word 0x08047970
+#define SITE_TrackCount_08047c7c_word 0x08047c7c
+#define SITE_TrackCount_08048e08_word 0x08048e08
+#define SITE_TrackCount_08048e48_word 0x08048e48
+#define SITE_TrackCount_08049070_word 0x08049070
+#define SITE_TrackCount_08049368_word 0x08049368
+#define SITE_TrackCount_08049938_word 0x08049938
+#define SITE_TrackCount_080499c4_word 0x080499c4
+#define SITE_TrackCount_0804a180_word 0x0804a180
+#define SITE_TrackCount_08051eb8_word 0x08051eb8
+#define SITE_TrackCount_080562f0_word 0x080562f0
+#define SITE_TrackCount_080586c0_word 0x080586c0
+#define SITE_TrackCount_080587b0_word 0x080587b0
+#define SITE_TrackCount_08059788_word 0x08059788
+#define SITE_TrackCount_0805cb04_word 0x0805cb04
+#define SITE_TrackCount_0805cf70_word 0x0805cf70
+#define SITE_TrackCount_0806294c_word 0x0806294c
+#define SITE_TrackCount_080637d4_word 0x080637d4
+#define SITE_TrackCount_08063834_word 0x08063834
+#define SITE_TrackCount_0807b8b8_word 0x0807b8b8
+#define SITE_TrackCount_0807b8f0_word 0x0807b8f0
+#define SITE_TrackCount_0807c87c_word 0x0807c87c
+#define SITE_TrackCount_08082248_word 0x08082248
+#define SITE_TrackCount_08082280_word 0x08082280
+#define SITE_TrackCount_080822a8_word 0x080822a8
+#define SITE_TrackCount_0808232c_word 0x0808232c
+#define SITE_TrackCount_08089058_word 0x08089058
+#define SITE_TrackCount_0808905c_word 0x0808905c
+#define SITE_TrackCount_0808909c_word 0x0808909c
+#define SITE_TrackCount_080890a4_word 0x080890a4
+#define SITE_TrackCount_080890a8_word 0x080890a8
+#define SITE_TrackCount_080890b0_word 0x080890b0
+#define SITE_TrackCount_08092e24_word 0x08092e24
+#define SITE_TrackCount_08092e28_word 0x08092e28
+#define SITE_TrackCount_080931b0_word 0x080931b0
+#define SITE_TrackCount_080931b4_word 0x080931b4
+#define SITE_TrackCount_0809cdc0_word 0x0809cdc0
+#define SITE_TrackCount_0809cdc4_word 0x0809cdc4
+#define SITE_TrackCount_0809cdd4_word 0x0809cdd4
+#define SITE_TrackCount_0809cddc_word 0x0809cddc
+#define SITE_TrackCount_0809cde0_word 0x0809cde0
+#define SITE_TrackCount_0809cde8_word 0x0809cde8
+#define SITE_TrackCount_0809f69c_word 0x0809f69c
+#define SITE_TrackCount_080b3460_word 0x080b3460
+#define SITE_TrackCount_080b3dcc_word 0x080b3dcc
+#define SITE_TrackCount_080b3dec_word 0x080b3dec
+#define SITE_TrackCount_080bf914_word 0x080bf914
+#define SITE_TrackCount_080bf9b8_word 0x080bf9b8
+#define SITE_TrackCount_080d16b4_word 0x080d16b4
+#define SITE_TrackCount_080d16b8_word 0x080d16b8
+#define SITE_TrackCount_080d43cc_word 0x080d43cc
+#define SITE_TrackCount_081087e8_word 0x081087e8
+#define SITE_TrackCount_0810897c_word 0x0810897c
+#define SITE_TrackCount_0816ebc4_word 0x0816ebc4
+#define SITE_TrackCount_0829c884_word 0x0829c884
 
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
@@ -563,6 +629,7 @@ extern uint16_t ATA_Identify[256];
 #define MediaList_shuffle_index 0x3b4
 #define MediaList_order_index 0x3ac
 #define MediaList_jump_index 0x544
+#define MediaBrowser_library 0xf64
 #define MediaBrowser_track_data 0xf60
 #define MediaBrowser_artists 0xe64
 #define MediaBrowser_albums 0xeb0
@@ -613,6 +680,23 @@ extern uint16_t ATA_Identify[256];
 #define EAppBlockManager_block_list 0x28
 #define EAppBlockManager_block_count 0x2c
 #define EAppBlockManager_request_blocks 0x34
+#define MediaEntry_list 0x0
+#define MediaEntry_parent 0x4
+#define MediaEntry_next 0x8
+#define MediaEntry_previous 0xc
+#define MediaEntry_id 0x10
+#define MediaEntry_flags 0x1c
+#define MediaEntry_song_record 0x20
+#define MediaEntry_song_shuffle_rank 0x24
+#define MediaEntry_group_first 0x20
+#define MediaEntry_group_last 0x24
+#define MediaEntry_groups 0x2c
+#define MediaEntry_tracks 0x2e
+#define MediaEntry_size 0x30
+#define MediaOrder_capacity 0x4
+#define MediaOrder_bytes 0x8
+#define MediaOrder_count 0xc
+#define MediaOrder_entries 0x10
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000

@@ -176,6 +176,9 @@ PlaybackList_GetEntryByIndex = { at = 0x0829cab8, c = "struct MediaEntry *Playba
 MediaList_InvalidateOrderCache = { at = 0x080d1928, c = "void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode)" }
 MediaList_CopyEntryAtPosition = { at = 0x0803bbf0, c = "void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags)" }
 MediaList_GetEntryByOrderIndex = { at = 0x08047870, c = "struct MediaEntry *MediaList_GetEntryByOrderIndex(struct MediaList *list, int order_mode, uint32_t reverse, uint32_t index)" }
+MediaList_GetEntryOrderIndex = { at = 0x080497ac }
+MediaList_BuildOrderIndex = { at = 0x080d438c, c = "int MediaList_BuildOrderIndex(struct MediaList *list, uint32_t order)" }
+MediaList_ResolveOrderMode = { at = 0x080a9ab0, c = "void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse)" }
 MediaListController_AddSelectionToOnTheGo = { at = 0x0820f8d4, c = "int MediaListController_AddSelectionToOnTheGo(void *controller)" }
 MediaListController_DispatchAction = { at = 0x0820f5a4, c = "int MediaListController_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 OnTheGo_AddBrowserSelection = { at = 0x081095f8, c = "int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save)" }
@@ -417,6 +420,69 @@ EAppBlocks_Acquire_call = { at = 0x0819d6d0, kind = "call", in = "EAppBlockManag
 EAppBlocks_Release_call = { at = 0x0819d6d8, kind = "call", in = "EAppBlockManager_HandleMessage+0x5c" }
 UITask_StackShift_word = { at = 0x081391dc, kind = "word", in = "UITask_Create+0x24" }
 
+# Halfword loads of MediaEntry.tracks (+0x2e) and MediaEntry.groups (+0x2c), for widening the track count.
+MediaList_GetEntryOrderIndex_entry = { at = 0x080497ac, kind = "entry" }
+TrackCount_0803b2d8_word = { at = 0x0803b2d8, kind = "word" }
+TrackCount_0803bf9c_word = { at = 0x0803bf9c, kind = "word" }
+TrackCount_0803c9bc_word = { at = 0x0803c9bc, kind = "word" }
+TrackCount_0804789c_word = { at = 0x0804789c, kind = "word" }
+TrackCount_0804793c_word = { at = 0x0804793c, kind = "word" }
+TrackCount_08047970_word = { at = 0x08047970, kind = "word" }
+TrackCount_08047c7c_word = { at = 0x08047c7c, kind = "word" }
+TrackCount_08048e08_word = { at = 0x08048e08, kind = "word" }
+TrackCount_08048e48_word = { at = 0x08048e48, kind = "word" }
+TrackCount_08049070_word = { at = 0x08049070, kind = "word" }
+TrackCount_08049368_word = { at = 0x08049368, kind = "word" }
+TrackCount_08049938_word = { at = 0x08049938, kind = "word" }
+TrackCount_080499c4_word = { at = 0x080499c4, kind = "word" }
+TrackCount_0804a180_word = { at = 0x0804a180, kind = "word" }
+TrackCount_08051eb8_word = { at = 0x08051eb8, kind = "word" }
+TrackCount_080562f0_word = { at = 0x080562f0, kind = "word" }
+TrackCount_080586c0_word = { at = 0x080586c0, kind = "word" }
+TrackCount_080587b0_word = { at = 0x080587b0, kind = "word" }
+TrackCount_08059788_word = { at = 0x08059788, kind = "word" }
+TrackCount_0805cb04_word = { at = 0x0805cb04, kind = "word" }
+TrackCount_0805cf70_word = { at = 0x0805cf70, kind = "word" }
+TrackCount_0806294c_word = { at = 0x0806294c, kind = "word" }
+TrackCount_080637d4_word = { at = 0x080637d4, kind = "word" }
+TrackCount_08063834_word = { at = 0x08063834, kind = "word" }
+TrackCount_0807b8b8_word = { at = 0x0807b8b8, kind = "word" }
+TrackCount_0807b8f0_word = { at = 0x0807b8f0, kind = "word" }
+TrackCount_0807c87c_word = { at = 0x0807c87c, kind = "word" }
+TrackCount_08082248_word = { at = 0x08082248, kind = "word" }
+TrackCount_08082280_word = { at = 0x08082280, kind = "word" }
+TrackCount_080822a8_word = { at = 0x080822a8, kind = "word" }
+TrackCount_0808232c_word = { at = 0x0808232c, kind = "word" }
+TrackCount_08089058_word = { at = 0x08089058, kind = "word" }
+TrackCount_0808905c_word = { at = 0x0808905c, kind = "word" }
+TrackCount_0808909c_word = { at = 0x0808909c, kind = "word" }
+TrackCount_080890a4_word = { at = 0x080890a4, kind = "word" }
+TrackCount_080890a8_word = { at = 0x080890a8, kind = "word" }
+TrackCount_080890b0_word = { at = 0x080890b0, kind = "word" }
+TrackCount_08092e24_word = { at = 0x08092e24, kind = "word" }
+TrackCount_08092e28_word = { at = 0x08092e28, kind = "word" }
+TrackCount_080931b0_word = { at = 0x080931b0, kind = "word" }
+TrackCount_080931b4_word = { at = 0x080931b4, kind = "word" }
+TrackCount_0809cdc0_word = { at = 0x0809cdc0, kind = "word" }
+TrackCount_0809cdc4_word = { at = 0x0809cdc4, kind = "word" }
+TrackCount_0809cdd4_word = { at = 0x0809cdd4, kind = "word" }
+TrackCount_0809cddc_word = { at = 0x0809cddc, kind = "word" }
+TrackCount_0809cde0_word = { at = 0x0809cde0, kind = "word" }
+TrackCount_0809cde8_word = { at = 0x0809cde8, kind = "word" }
+TrackCount_0809f69c_word = { at = 0x0809f69c, kind = "word" }
+TrackCount_080b3460_word = { at = 0x080b3460, kind = "word" }
+TrackCount_080b3dcc_word = { at = 0x080b3dcc, kind = "word" }
+TrackCount_080b3dec_word = { at = 0x080b3dec, kind = "word" }
+TrackCount_080bf914_word = { at = 0x080bf914, kind = "word" }
+TrackCount_080bf9b8_word = { at = 0x080bf9b8, kind = "word" }
+TrackCount_080d16b4_word = { at = 0x080d16b4, kind = "word" }
+TrackCount_080d16b8_word = { at = 0x080d16b8, kind = "word" }
+TrackCount_080d43cc_word = { at = 0x080d43cc, kind = "word" }
+TrackCount_081087e8_word = { at = 0x081087e8, kind = "word" }
+TrackCount_0810897c_word = { at = 0x0810897c, kind = "word" }
+TrackCount_0816ebc4_word = { at = 0x0816ebc4, kind = "word" }
+TrackCount_0829c884_word = { at = 0x0829c884, kind = "word" }
+
 # ---------------------------------------------------------------- struct offsets
 
 [offsets.ITunesReader]
@@ -434,6 +500,7 @@ order_index = 0x3ac
 jump_index = 0x544
 
 [offsets.MediaBrowser]
+library = 0xf64
 track_data = 0xf60
 artists = 0xe64
 albums = 0xeb0
@@ -508,6 +575,27 @@ client = 0x14
 block_list = 0x28
 block_count = 0x2c
 request_blocks = 0x34
+
+[offsets.MediaEntry]
+list = 0x0
+parent = 0x4
+next = 0x8
+previous = 0xc
+id = 0x10
+flags = 0x1c
+song_record = 0x20
+song_shuffle_rank = 0x24
+group_first = 0x20
+group_last = 0x24
+groups = 0x2c
+tracks = 0x2e
+size = 0x30
+
+[offsets.MediaOrder]
+capacity = 0x4
+bytes = 0x8
+count = 0xc
+entries = 0x10
 
 # ---------------------------------------------------------------- constants
 
