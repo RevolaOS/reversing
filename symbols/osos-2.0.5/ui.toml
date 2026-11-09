@@ -212,6 +212,7 @@ MenuRowStyle_Submenu = 5
 MenuRowStyle_InlineValue = 12
 Event_ModelChange = 0x13
 SourceDestination_InlineValue = 0xa
+SourceDestination_RowBitmap = 0xc
 ViewType_Progress = 0x70676f67
 ViewType_Text = 0x74657874
 UITask_stack_bytes = 0x20000

@@ -1093,6 +1093,7 @@ extern void *const AlbumsController_vtable[];
 #define MenuRowStyle_InlineValue 0xc
 #define Event_ModelChange 0x13
 #define SourceDestination_InlineValue 0xa
+#define SourceDestination_RowBitmap 0xc
 #define ViewType_Progress 0x70676f67
 #define ViewType_Text 0x74657874
 #define UITask_stack_bytes 0x20000
