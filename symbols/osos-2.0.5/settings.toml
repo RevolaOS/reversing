@@ -17,6 +17,12 @@ MainMenuSettings_HandleSelection = { at = 0x081d2200 }
 MusicMenuSettings_HandleSelection = { at = 0x081dd6c8 }
 SettingsModel_ResetAllSettings = { at = 0x081e1e6c, c = "void SettingsModel_ResetAllSettings(void *model)" }
 SettingsController_ConfirmResetAll = { at = 0x08212820 }
+SettingsModel_SelectEQMenuIndex = { at = 0x081e4008, c = "void SettingsModel_SelectEQMenuIndex(void *model, uint32_t menu_index)" }
+SettingsModel_SetPreviewIndex = { at = 0x081e11d4, c = "void SettingsModel_SetPreviewIndex(void *model, uint32_t index)" }
+SettingsEQ_HandleAction = { at = 0x081345e4, c = "int SettingsEQ_HandleAction(void *controller, const char *action, uint32_t argument)" }
+SettingsEQ_ApplySelection = { at = 0x081347b0, c = "int SettingsEQ_ApplySelection(void *controller)" }
+SettingsEQ_ShowPreview = { at = 0x08134690, c = "int SettingsEQ_ShowPreview(void *controller)" }
+SettingsMainMenu_HandleAction = { at = 0x081d2144, c = "int SettingsMainMenu_HandleAction(void *controller, const char *action, uint32_t argument)" }
 SettingsModel_AdjustBrightness = { at = 0x081e2ee8, c = "void SettingsModel_AdjustBrightness(void *model, int delta)" }
 
 [data]
@@ -69,6 +75,12 @@ Settings_MainMenu_Layout = 0x0dad0c92
 Settings_Legal_Screen = 0x0dad0cb3
 Settings_Legal_Layout = 0x0dad0cb4
 Settings_EQ_Items = 0x00000047
+Settings_EQ_Screen = 0x0dad0cae
+Settings_EQ_Layout = 0x0dad0cb0
+Settings_EQ_Item = 0x0dad0caf
+Settings_MainMenu_Items = 0x00000042
+SettingsPreview_Template = 0x0dad0c2e
+SettingsPreview_Caption_Text = 0x0dad0618
 Settings_Brightness_Screen = 0x0dad0c98
 Settings_Brightness_Screen_Default = 0x0dad0c99
 Settings_Brightness_Template = 0x0dad0c5a

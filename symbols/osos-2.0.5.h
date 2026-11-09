@@ -175,6 +175,12 @@ void *SettingsModel_ResetMusicMenu(void *model);
 void *SettingsModel_GetEQPresetPreview(void *model, uint32_t menu_index);
 void *SettingsModel_GetEQPresetName(void *model, uint32_t menu_index);
 void SettingsModel_ResetAllSettings(void *model);
+void SettingsModel_SelectEQMenuIndex(void *model, uint32_t menu_index);
+void SettingsModel_SetPreviewIndex(void *model, uint32_t index);
+int SettingsEQ_HandleAction(void *controller, const char *action, uint32_t argument);
+int SettingsEQ_ApplySelection(void *controller);
+int SettingsEQ_ShowPreview(void *controller);
+int SettingsMainMenu_HandleAction(void *controller, const char *action, uint32_t argument);
 void SettingsModel_AdjustBrightness(void *model, int delta);
 void *CppString_Init(void *string, const char *text);
 void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator);
@@ -248,6 +254,10 @@ int BrightnessController_HandleEvent(void *controller, void *event);
 int BrightnessController_HandleWheel(void *controller, void *event);
 int WheelInput_QuantizeMotion(uint32_t motion, int threshold);
 uint32_t WheelEvent_GetSpeed(void *event);
+int ScreenController_PopSelf(void *controller, uint32_t flags);
+void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t property, uint32_t index);
+void MenuItems_RegisterAll(void);
+void BitmapView_LoadBitmap(void *view);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
@@ -474,6 +484,12 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_MusicMenuSettings_HandleSelection 0x081dd6c8
 #define ADDR_SettingsModel_ResetAllSettings 0x081e1e6c
 #define ADDR_SettingsController_ConfirmResetAll 0x08212820
+#define ADDR_SettingsModel_SelectEQMenuIndex 0x081e4008
+#define ADDR_SettingsModel_SetPreviewIndex 0x081e11d4
+#define ADDR_SettingsEQ_HandleAction 0x081345e4
+#define ADDR_SettingsEQ_ApplySelection 0x081347b0
+#define ADDR_SettingsEQ_ShowPreview 0x08134690
+#define ADDR_SettingsMainMenu_HandleAction 0x081d2144
 #define ADDR_SettingsModel_AdjustBrightness 0x081e2ee8
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
@@ -560,6 +576,11 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_BrightnessController_HandleWheel 0x081ec864
 #define ADDR_WheelInput_QuantizeMotion 0x08289794
 #define ADDR_WheelEvent_GetSpeed 0x082894e8
+#define ADDR_ScreenController_PopSelf 0x081034f0
+#define ADDR_ResourceService_GetIndexedResource 0x08138dd8
+#define ADDR_MenuList_GetRowProperty 0x08194ecc
+#define ADDR_MenuItems_RegisterAll 0x081951cc
+#define ADDR_BitmapView_LoadBitmap 0x08100020
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
@@ -884,6 +905,7 @@ extern void *const AlbumsController_vtable[];
 #define ScreenController_push_method 0xd0
 #define ScreenController_pop_method 0xbc
 #define ScreenController_switch_layout_method 0x120
+#define ScreenController_pop_self_method 0xb8
 #define ScreenController_named_event_method 0x110
 #define ScreenController_show_layout_method 0x124
 #define ScreenController_action_method 0x114
@@ -1033,6 +1055,19 @@ extern void *const AlbumsController_vtable[];
 #define SourceDestination_Title 0x1
 #define Property_Control 0x436e746c
 #define Property_Visible 0x56566973
+#define Property_Minimum 0x564d696e
+#define Property_Layout 0x4c4c6179
+#define Property_LayoutSet 0x4c4c6180
+#define Property_Bitmap 0x424d6170
+#define Property_Drawable 0x44726177
+#define Property_ItemId 0x4c69746d
+#define Property_ItemChanged 0x4c697445
+#define MenuRowStyle_ModelLayout 0x1
+#define MenuRowStyle_Text 0x2
+#define MenuRowStyle_Check 0x3
+#define MenuRowStyle_CheckIndented 0x4
+#define MenuRowStyle_Submenu 0x5
+#define MenuRowStyle_InlineValue 0xc
 #define Event_ModelChange 0x13
 #define SourceDestination_InlineValue 0xa
 #define ViewType_Progress 0x70676f67
@@ -1063,6 +1098,12 @@ extern void *const AlbumsController_vtable[];
 #define RES_Settings_Legal_Screen 0x0dad0cb3
 #define RES_Settings_Legal_Layout 0x0dad0cb4
 #define RES_Settings_EQ_Items 0x00000047
+#define RES_Settings_EQ_Screen 0x0dad0cae
+#define RES_Settings_EQ_Layout 0x0dad0cb0
+#define RES_Settings_EQ_Item 0x0dad0caf
+#define RES_Settings_MainMenu_Items 0x00000042
+#define RES_SettingsPreview_Template 0x0dad0c2e
+#define RES_SettingsPreview_Caption_Text 0x0dad0618
 #define RES_Settings_Brightness_Screen 0x0dad0c98
 #define RES_Settings_Brightness_Screen_Default 0x0dad0c99
 #define RES_Settings_Brightness_Template 0x0dad0c5a
@@ -1075,6 +1116,9 @@ extern void *const AlbumsController_vtable[];
 #define RES_Settings_Icon_View 0x0dad0c30
 #define RES_Settings_InfoDetail_View 0x0dad0c31
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
+#define RES_Menu_CheckedSelected_Bitmap 0x0dad0c09
+#define RES_SettingsList_Template 0x0dad01b2
+#define RES_SettingsList_View 0x0dad01b3
 #define RES_Menu_Reset_Bitmap 0x0dad0125
 #define RES_CoverFlow_Backside_Border_Color 0x0dad05d8
 #define RES_NowPlaying_White_Background_View 0x0dad08c5

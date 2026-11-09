@@ -73,6 +73,11 @@ BrightnessController_HandleEvent = { at = 0x081ec9d4, c = "int BrightnessControl
 BrightnessController_HandleWheel = { at = 0x081ec864, c = "int BrightnessController_HandleWheel(void *controller, void *event)" }
 WheelInput_QuantizeMotion = { at = 0x08289794, c = "int WheelInput_QuantizeMotion(uint32_t motion, int threshold)" }
 WheelEvent_GetSpeed = { at = 0x082894e8, c = "uint32_t WheelEvent_GetSpeed(void *event)" }
+ScreenController_PopSelf = { at = 0x081034f0, c = "int ScreenController_PopSelf(void *controller, uint32_t flags)" }
+ResourceService_GetIndexedResource = { at = 0x08138dd8, c = "void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t property, uint32_t index)" }
+MenuList_GetRowProperty = { at = 0x08194ecc }
+MenuItems_RegisterAll = { at = 0x081951cc, c = "void MenuItems_RegisterAll(void)" }
+BitmapView_LoadBitmap = { at = 0x08100020, c = "void BitmapView_LoadBitmap(void *view)" }
 ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 UI_CreateTemplateFromResource = { at = 0x081df580 }
@@ -129,6 +134,7 @@ notify_method = 0x58
 push_method = 0xd0
 pop_method = 0xbc
 switch_layout_method = 0x120
+pop_self_method = 0xb8
 named_event_method = 0x110
 show_layout_method = 0x124
 action_method = 0x114
@@ -179,6 +185,19 @@ Service_String = 0x80
 SourceDestination_Title = 0x1
 Property_Control = 0x436e746c
 Property_Visible = 0x56566973
+Property_Minimum = 0x564d696e
+Property_Layout = 0x4c4c6179
+Property_LayoutSet = 0x4c4c6180
+Property_Bitmap = 0x424d6170
+Property_Drawable = 0x44726177
+Property_ItemId = 0x4c69746d
+Property_ItemChanged = 0x4c697445
+MenuRowStyle_ModelLayout = 1
+MenuRowStyle_Text = 2
+MenuRowStyle_Check = 3
+MenuRowStyle_CheckIndented = 4
+MenuRowStyle_Submenu = 5
+MenuRowStyle_InlineValue = 12
 Event_ModelChange = 0x13
 SourceDestination_InlineValue = 0xa
 ViewType_Progress = 0x70676f67
@@ -187,6 +206,9 @@ UITask_stack_bytes = 0x20000
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
+Menu_CheckedSelected_Bitmap = 0x0dad0c09
+SettingsList_Template = 0x0dad01b2
+SettingsList_View = 0x0dad01b3
 Menu_Reset_Bitmap = 0x0dad0125
 CoverFlow_Backside_Border_Color = 0x0dad05d8
 NowPlaying_White_Background_View = 0x0dad08c5

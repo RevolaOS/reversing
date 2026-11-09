@@ -14,11 +14,52 @@ Each controller factory builds its screen definition with `UI_ConstructScreenDef
 
 ## Menu rows
 
-A list's rows are blocks in an `ITEM` resource (`RES_SettingsMenu_Items` for Settings). Row fields: `MenuRow_id`, `MenuRow_style` (2 = text row without arrow or chosen event), `MenuRow_visible`, `MenuRow_title` (a `SORC` id or property source) and `MenuRow_title_from_model`. `MenuItem_SetVisible` finds a row by id in the menu registry, so it only reaches rows that were in the `ITEM` table when the list loaded. A row id is not unique: 47 stock rows have `MenuRow_id` 0, most of them the only row of a one-row `ITEM` table. Such rows cannot be addressed by id.
+A list's rows are blocks in an `ITEM` resource (`RES_SettingsMenu_Items` for Settings). Row fields: `MenuRow_id`, `MenuRow_style`, `MenuRow_visible`, `MenuRow_title` (a `SORC` id or property source) and `MenuRow_title_from_model`. Styles seen in stock tables:
+- `MenuRowStyle_Text`: text without an arrow.
+- `MenuRowStyle_Submenu`: text with an arrow.
+- `MenuRowStyle_InlineValue`: a title plus a second `SORC` binding with destination `SourceDestination_InlineValue` (Shuffle, Sound Check).
+- `MenuRowStyle_ModelLayout`: the model picks a style for each expanded row (see below).
+
+`MenuItems_RegisterAll` builds the menu registry once while the UI starts, before `UI_InitResourceProviders`. It maps each row id to its row data by loading every ROM `ITEM` table through `ResourceBlockList_Load`, so an `AppendBorrowedBlock` hook runs during this load too. `MenuItem_SetVisible` looks the id up there, writes `MenuRow_visible` in that row data and sends `Property_ItemChanged` and `Notify_None` for the id. It only reaches rows that were registered: rows appended after the registry is built, or `ITEM` tables that exist only as overrides, are not found, and the call returns 0. A row id is not unique: 47 stock rows have `MenuRow_id` 0, most of them the only row of a one-row `ITEM` table. Such rows cannot be addressed by id.
 
 `MenuList_RebuildVisibleItems` drops rows whose `MenuRow_visible` is 0 and subscribes to the Settings-style sources of rows with `MenuRow_title_from_model` set. The last such row is the list's dynamic row: `MenuList_QueryProperty` reports the row count as the visible rows minus one plus that row's provider's answer to `Property_Count` for its property. A model-backed last row therefore has to answer `Property_Count` with 1, or it disappears; answering N expands it into N rows.
 
-The Main Menu and Music Menu toggle screens have no `ITEM` table: `SettingsModel_GetIndexedProperty` serves their rows from `MainMenuSettingsRows` and `MusicMenuSettingsRows` (`MenuSettingsRow_*`), selected by property id alone.
+Rows of an expanded dynamic row are read with `ResourceService_GetIndexedResource(service, type, property, index)`, where `index` runs from 0 to N-1. It calls the provider's indexed slot (`Settings_IndexedProperty_slot` for Settings) with `*out` cleared, then tries parent services, then falls back to the plain property. `MenuList_GetRowProperty` maps a list position to the `ITEM` row and the index within it. `Property_ItemId` returns `MenuRow_id`. For a `MenuRowStyle_ModelLayout` row it asks `Property_Layout` for each index, and the answer is that row's style; a row that gets no answer is drawn as `MenuRowStyle_Text`. The list also asks the plain slot for `Property_LayoutSet`: a pointer to a zero-terminated list of the styles it must build (`{3, 4, 0}` for the Main and Music Menu lists). `MenuRowStyle_Check` (flush left) and `MenuRowStyle_CheckIndented` ask `Property_Drawable`, `Property_Bitmap` and `Property_String` for each index. A non-NULL `Property_Bitmap` answer is a `BMap` resource pointer, drawn as the checkmark. `MenuRowStyle_Text` rows ask only `Property_String`.
+
+Settings > Main Menu is `TCSettings_MainMenu` on `RES_Settings_MainMenu_Screen`. The screen's `Resource_VSlt` binds `RES_SettingsList_View` to `RES_Settings_MainMenu_Items`, a single `MenuRowStyle_ModelLayout` row (`RES_Settings_MainMenu_Item`) whose source is `Service_Settings` property 0x8909 (0x890a and `RES_Settings_MusicMenu_Item` for Music). Nothing in the class names the property; it comes from the `ITEM` row. `SettingsModel_GetProperty` answers `Property_Count` for 0x8909 and 0x890a with fixed counts (34 and 13, including Reset) and `Property_LayoutSet` with the style list. `SettingsModel_GetIndexedProperty` answers from `MainMenuSettingsRows` and `MusicMenuSettingsRows` (`MenuSettingsRow_*`):
+- `Property_Layout`: `MenuSettingsRow_layout_kind`.
+- `Property_String`: the title.
+- `Property_Bitmap`:
+  - `RES_Menu_Checked_Bitmap` for a visible row, `RES_Menu_CheckedSelected_Bitmap` when that row is the selection model's current row, and nothing for a hidden row.
+  - The Reset row (index 33 and 12) shows its own icon when selected.
+
+Its index bounds and the Reset index are fixed. `ResourceService_GetBitmap(UI_GetResourceService(), id)` returns such a `BMap` resource pointer.
+
+The `chosen` binding of `RES_Settings_MainMenu_Item` runs `HandleMainMenu`, which `SettingsMainMenu_HandleAction` passes to `MainMenuSettings_HandleSelection`. That reads the index from `SelectionModel_current_index_method`; index 33 opens the Reset confirmation, and any other index goes to `SettingsModel_ToggleMainMenuItem` through `MainMenu_Toggle_call`, with no bounds check. The toggle flips `MenuSettingsRow_visible` and continues only if the list view is on screen. It then calls `MenuItem_SetVisible` for the row's `RES_MainMenu_*_Item`, notifies `Notify_All` for `RES_Settings_MainMenu_Item` (the Music toggle notifies `RES_Settings_MusicMenu_Item` and redraws the list), mirrors one special row into a second table, and stores the visibility bit in the preference record.
+
+Settings > EQ is `TCSettings_EQ` on `RES_Settings_EQ_Screen`. Its `VSlt` binds the same list view to `RES_Settings_EQ_Items`, one `MenuRowStyle_Text` row (`RES_Settings_EQ_Item`) whose source is `Service_Settings` 0x890f (23 presets). The `CEVT` binds that row's `chosen` event to `HandleEQ` and `selected` to `ShowSetting_EQ`, once for all expanded rows. `SettingsEQ_HandleAction` dispatches both:
+- `SettingsEQ_ApplySelection` reads the current index, calls `SettingsModel_SelectEQMenuIndex` and pops the screen with `ScreenController_pop_self_method` (`ScreenController_PopSelf(controller, 0x10)`, which calls `Navigator_PopTop`).
+- `SettingsEQ_ShowPreview` passes the index to `SettingsModel_SetPreviewIndex`, which stores it and notifies `Notify_All` for preview property 0x891a.
+
+How the current preset is highlighted when the screen opens has not been traced; `TCSettings_EQ` uses the generic `ResourceScreen_Activate`.
+
+## Settings preview pane
+
+Every row of `RES_SettingsMenu_Main_Screen` has its own layout. The row's `delayedselected` binding runs a `ShowSetting_*` handler and the action `navigator.SwitchLayout` with that row's layout name, so the pane follows the highlighted row through layout switches. Each layout has four instances:
+- the status bar (`RES_StatusBarWhite_Template`);
+- the background (`RES_FullScreenImage_Template`);
+- the pane, `RES_SettingsPreview_Template` for most rows;
+- the list (`RES_SettingsList_Template`).
+
+The pane has a caption (`RES_SettingsPreview_Caption_Text`), a background image, an icon (`RES_Settings_Icon_View`) and a detail line (`RES_Settings_InfoDetail_View`). The pane instance's `Resource_VLyt` (`SsinInstance_substitute`) binds each of them for that row: visibility, a `SORC` source and, for the icon, its frame. About's caption is a `Service_String` string, its icon is `Service_Settings` property 0x891d and its detail line is property 0x8905. A clone binds its own caption and bitmap by giving its pane instance a `VLyt` with its own sources.
+
+An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, or `Property_Drawable` when that is its type. A `Property_Bitmap` answer is a pointer to a `BMap` resource:
+- a format halfword at +0 (0x64 is 8-bit indexed, 0 picks the format from the depth);
+- the stride at +4 and the depth at +6;
+- the bounds `{top, left, bottom, right}` at +8;
+- the payload length at +0x18 and the payload (palette and pixels) at +0x1c.
+
+Dropping a stock row while a list loads and binding its id in another screen's `CEVT` is safe for the bindings themselves: events are named by row id, and preview layouts are chosen by name, not by position. The handler strings (`ToggleSetting_*`, `ShowSetting_*`) are understood only by the Settings list controller's action slot, so another screen needs that controller class or its own handler. `MenuItem_SetVisible` still writes the stock row data, which the other list shares.
 
 ## Main, Music and Extras menus
 
