@@ -242,6 +242,9 @@ UITask_stack_bytes = 0x20000
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
+Font_Bold = 0x0dad0000
+Font_BoldSmall = 0x0dad0001
+Font_RegularSmall = 0x0dad0020
 Menu_CheckedSelected_Bitmap = 0x0dad0c09
 SettingsList_Template = 0x0dad01b2
 SettingsList_View = 0x0dad01b3

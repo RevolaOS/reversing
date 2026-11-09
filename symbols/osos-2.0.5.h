@@ -39,6 +39,10 @@ void GraphicsContext_SetTextPen(void *context, int x, int baseline);
 void GraphicsContext_SetDrawMode(void *context, uint8_t mode);
 void GraphicsContext_DrawUtf8(void *context, const char *text);
 int GraphicsContext_MeasureUtf8(void *context, const char *text);
+void GraphicsContext_CopyRect(void *context, void *source, const int32_t *source_rect, const int32_t *rect, uint32_t alpha, uint32_t flags);
+void *GraphicsContext_InitWithBitmap(void *context, void *bitmap);
+void *GraphicsContext_InitFromBitmapResource(void *context, void *bitmap, const void *resource);
+void GraphicsContext_SetOrigin(void *context, int x, int y);
 void Font_Construct(uint32_t *font, const char *family, uint32_t size, uint8_t style);
 int GraphicsContext_GetFontAscent(void *context);
 int GraphicsContext_GetFontDescent(void *context);
@@ -370,6 +374,11 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_GraphicsContext_SetDrawMode 0x082596fc
 #define ADDR_GraphicsContext_DrawUtf8 0x08259648
 #define ADDR_GraphicsContext_MeasureUtf8 0x08259d10
+#define ADDR_GraphicsContext_CopyRect 0x08259568
+#define ADDR_GraphicsContext_InitWithBitmap 0x0825aefc
+#define ADDR_GraphicsContext_InitFromBitmapResource 0x0825af2c
+#define ADDR_GraphicsContext_SetOrigin 0x0825aef0
+#define ADDR_Bitmap_Construct 0x08103e8c
 #define ADDR_Font_Construct 0x0826c0f4
 #define ADDR_GraphicsContext_GetFontAscent 0x08298784
 #define ADDR_GraphicsContext_GetFontDescent 0x082987b8
@@ -940,17 +949,28 @@ extern void *const MenuListModel_vtable[];
 #define BootDescriptor_sysinfo_magic 0x18
 #define BootDescriptor_sysinfo 0x1c
 #define GraphicsContext_bytes 0x44
-#define GraphicsContext_color 0x10
-#define GraphicsContext_clip_top 0x28
-#define GraphicsContext_clip_left 0x30
-#define GraphicsContext_clip_bottom 0x34
-#define GraphicsContext_clip_right 0x38
+#define GraphicsContext_mode 0x10
+#define GraphicsContext_color 0x11
+#define GraphicsContext_background_color 0x15
+#define GraphicsContext_bitmap 0x1c
+#define GraphicsContext_font 0x20
+#define GraphicsContext_font_flags 0x28
+#define GraphicsContext_origin_x 0x2c
+#define GraphicsContext_origin_y 0x30
+#define GraphicsContext_clip_top 0x34
+#define GraphicsContext_clip_left 0x38
+#define GraphicsContext_clip_bottom 0x3c
+#define GraphicsContext_clip_right 0x40
 #define BMap_format 0x0
 #define BMap_stride 0x4
 #define BMap_depth 0x6
 #define BMap_bounds 0x8
 #define BMap_payload_bytes 0x18
 #define BMap_payload 0x1c
+#define FontResource_family 0x0
+#define FontResource_size 0x4
+#define FontResource_style 0x8
+#define FontResource_bytes 0xc
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
 #define WheelState_skip_packet 0x1
@@ -1332,6 +1352,22 @@ extern void *const MenuListModel_vtable[];
 #define RES_Settings_MainMenu_Item 0x0dad0c91
 #define RES_Settings_MusicMenu_Item 0x0dad0c94
 #define RES_SettingsMenu_Legal_Item 0x0dad0c7b
+#define RES_SettingsMenu_About_Item 0x0dad0c6b
+#define RES_SettingsMenu_Shuffle_Item 0x0dad0c6c
+#define RES_SettingsMenu_Repeat_Item 0x0dad0c6d
+#define RES_SettingsMenu_MainMenu_Item 0x0dad0c6e
+#define RES_SettingsMenu_MusicMenu_Item 0x0dad0c6f
+#define RES_SettingsMenu_VolumeLimit_Item 0x0dad0c70
+#define RES_SettingsMenu_Backlight_Item 0x0dad0c71
+#define RES_SettingsMenu_Brightness_Item 0x0dad0c72
+#define RES_SettingsMenu_Audiobooks_Item 0x0dad0c73
+#define RES_SettingsMenu_RadioRegions_Item 0x0dad0c74
+#define RES_SettingsMenu_EQ_Item 0x0dad0c75
+#define RES_SettingsMenu_Clicker_Item 0x0dad0c77
+#define RES_SettingsMenu_DateTime_Item 0x0dad0c78
+#define RES_SettingsMenu_SortBy_Item 0x0dad0c79
+#define RES_SettingsMenu_Language_Item 0x0dad0c7a
+#define RES_SettingsMenu_ResetSettings_Item 0x0dad0c7c
 #define RES_SettingsMenu_Items 0x00000041
 #define RES_SettingsMenu_SoundCheck_Item 0x0dad0c76
 #define RES_SettingsMenu_Main_Screen 0x0dad0c6a
@@ -1362,6 +1398,9 @@ extern void *const MenuListModel_vtable[];
 #define RES_Settings_Icon_View 0x0dad0c30
 #define RES_Settings_InfoDetail_View 0x0dad0c31
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
+#define RES_Font_Bold 0x0dad0000
+#define RES_Font_BoldSmall 0x0dad0001
+#define RES_Font_RegularSmall 0x0dad0020
 #define RES_Menu_CheckedSelected_Bitmap 0x0dad0c09
 #define RES_SettingsList_Template 0x0dad01b2
 #define RES_SettingsList_View 0x0dad01b3
