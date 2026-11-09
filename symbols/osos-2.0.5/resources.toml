@@ -41,6 +41,7 @@ Resource_VLyt = 0x564c7974
 Resource_View = 0x56696577
 Resource_TMLT = 0x544d4c54
 Resource_String = 0x53747220
+Resource_VSlt = 0x56536c74
 
 [offsets.ResourceBlock]
 bytes = 0x0

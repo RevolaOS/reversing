@@ -54,6 +54,9 @@ Navigator_PopToScreen = { at = 0x08289728 }
 Navigator_PopToMainScreen = { at = 0x08289714, c = "void Navigator_PopToMainScreen(void)" }
 Navigator_PopToPixoMainScreen = { at = 0x08289768, c = "void Navigator_PopToPixoMainScreen(void)" }
 ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts)" }
+UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
+ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
@@ -223,6 +226,7 @@ MediaLists_Artists_Screen = 0x0dad07f0
 MediaLists_Artists_Screen_Default = 0x0dad07f1
 MediaLists_Albums_Screen = 0x0dad07ed
 NowPlaying_Screen = 0x0dad096c
+ExtrasMenu_Items = 0x00000002
 
 [offsets.EventTimer]
 period = 0x4
@@ -271,6 +275,8 @@ bytes = 0xfc
 [offsets.ScreenDefinition]
 layout = 0x30
 transition = 0x36
+screen = 0x4
+layout_cache = 0xc
 
 [offsets.SsinInstance]
 view_bindings = 0x0

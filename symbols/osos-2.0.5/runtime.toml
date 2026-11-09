@@ -31,6 +31,8 @@ DirectoryIterator_Next = { at = 0x081e54e8, c = "int DirectoryIterator_Next(stru
 DirectoryIterator_Destroy = { at = 0x081e5928, c = "void DirectoryIterator_Destroy(struct DirectoryIterator *iterator)" }
 NativePath_InitEmpty = { at = 0x0826fcc4, c = "struct NativePath *NativePath_InitEmpty(struct NativePath *path)" }
 NativePath_Destroy = { at = 0x0826fcf4, c = "struct NativePath *NativePath_Destroy(struct NativePath *path)" }
+Thread_Create = { at = 0x0804b4f4 }
+Thread_GetCurrentRecord = { at = 0x0804b744, c = "void *Thread_GetCurrentRecord(void)" }
 
 [sites]
 Preferences_LoadFile_call = { at = 0x08058808, kind = "call", in = "Preferences_LoadAndMigrate+0x14" }
@@ -51,3 +53,10 @@ bytes = 0x44
 
 [offsets.NativePath]
 bytes = 0x8
+
+[offsets.ThreadRecord]
+kernel_thread = 0x0
+context = 0x8
+name = 0xc
+stack_base = 0x40
+bytes = 0x44

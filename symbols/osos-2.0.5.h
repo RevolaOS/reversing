@@ -161,6 +161,7 @@ int DirectoryIterator_Next(struct DirectoryIterator *iterator, struct NativePath
 void DirectoryIterator_Destroy(struct DirectoryIterator *iterator);
 struct NativePath *NativePath_InitEmpty(struct NativePath *path);
 struct NativePath *NativePath_Destroy(struct NativePath *path);
+void *Thread_GetCurrentRecord(void);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
 int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
 int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out);
@@ -224,6 +225,9 @@ void Navigator_PopTop(uint32_t flags);
 void Navigator_PopToMainScreen(void);
 void Navigator_PopToPixoMainScreen(void);
 int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument);
+void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
+void UI_LoadScreenLayouts(void *definition);
+void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
@@ -426,6 +430,8 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_DirectoryIterator_Destroy 0x081e5928
 #define ADDR_NativePath_InitEmpty 0x0826fcc4
 #define ADDR_NativePath_Destroy 0x0826fcf4
+#define ADDR_Thread_Create 0x0804b4f4
+#define ADDR_Thread_GetCurrentRecord 0x0804b744
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
 #define ADDR_SettingsModel_GetProperty 0x081e11f4
@@ -508,6 +514,9 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_Navigator_PopToMainScreen 0x08289714
 #define ADDR_Navigator_PopToPixoMainScreen 0x08289768
 #define ADDR_ExtrasMenu_DispatchAction 0x0811a664
+#define ADDR_UI_ConstructScreenDefinition 0x0813ca44
+#define ADDR_UI_LoadScreenLayouts 0x0813c91c
+#define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_WheelState 0x089d2b8c
@@ -802,6 +811,11 @@ extern void *const AlbumsController_vtable[];
 #define Preferences_set_method 0xd4
 #define DirectoryIterator_bytes 0x44
 #define NativePath_bytes 0x8
+#define ThreadRecord_kernel_thread 0x0
+#define ThreadRecord_context 0x8
+#define ThreadRecord_name 0xc
+#define ThreadRecord_stack_base 0x40
+#define ThreadRecord_bytes 0x44
 #define MenuSettingsRow_item 0x0
 #define MenuSettingsRow_title 0x4
 #define MenuSettingsRow_layout_kind 0x8
@@ -853,6 +867,8 @@ extern void *const AlbumsController_vtable[];
 #define SettingsMenuListController_bytes 0xfc
 #define ScreenDefinition_layout 0x30
 #define ScreenDefinition_transition 0x36
+#define ScreenDefinition_screen 0x4
+#define ScreenDefinition_layout_cache 0xc
 #define SsinInstance_view_bindings 0x0
 #define SsinInstance_template 0x4
 #define SsinInstance_substitute 0x8
@@ -913,6 +929,7 @@ extern void *const AlbumsController_vtable[];
 #define Resource_View 0x56696577
 #define Resource_TMLT 0x544d4c54
 #define Resource_String 0x53747220
+#define Resource_VSlt 0x56536c74
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
 #define Property_String 0x53747220
@@ -1052,3 +1069,4 @@ extern void *const AlbumsController_vtable[];
 #define RES_MediaLists_Artists_Screen_Default 0x0dad07f1
 #define RES_MediaLists_Albums_Screen 0x0dad07ed
 #define RES_NowPlaying_Screen 0x0dad096c
+#define RES_ExtrasMenu_Items 0x00000002

@@ -10,6 +10,8 @@ A pushed screen is created by `ControllerRegistry_InvokeScreenFactory` from a co
 | Settings > Main Menu | `TCSettings_MainMenu` | `RES_Settings_MainMenu_Screen` | `RES_Settings_MainMenu_Layout` |
 | Settings > Legal | `TSilverCntlr` | `RES_Settings_Legal_Screen` | `RES_Settings_Legal_Layout` |
 
+Each controller factory builds its screen definition with `UI_ConstructScreenDefinition`, which runs `UI_LoadScreenLayouts`: every block of the screen's `SLst` becomes a prepared layout in `ScreenDefinition_layout_cache`, keyed by layout id. Showing a layout looks it up with `ControllerLayoutCache_GetOrInsert` and aborts on a miss, so the layout must be listed in the screen's `SLst` when the controller is created. Resources come from the resource bank at that moment; there is no boot-time registry, so screens and layouts added with `ResourceBank_SetResource` later work as long as they are in place before the push.
+
 ## Menu rows
 
 A list's rows are blocks in an `ITEM` resource (`RES_SettingsMenu_Items` for Settings). Row fields: `MenuRow_id`, `MenuRow_style` (2 = text row without arrow or chosen event), `MenuRow_visible`, `MenuRow_title` (a `SORC` id or property source) and `MenuRow_title_from_model`. `MenuItem_SetVisible` finds a row by id in the menu registry, so it only reaches rows that were in the `ITEM` table when the list loaded.
@@ -18,7 +20,7 @@ The Main Menu and Music Menu toggle screens have no `ITEM` table: `SettingsModel
 
 ## Main, Music and Extras menus
 
-The main menu is `RES_MainMenu_Items` on `RES_MainMenus_Main_Screen`, the Music menu `RES_MusicMenu_Items` on `RES_MainMenus_Music_Screen`; their rows are the `RES_MainMenu_*_Item` and `RES_MusicMenu_*_Item` ids, in the order of `MainMenuSettingsRows` and `MusicMenuSettingsRows`. Extras is controller `TCExtrasMenu` on `RES_ExtrasMenu_Screen`; its rows (`RES_ExtrasMenu_*_Item`) are bound in the screen's `CEVT`, and only `HandleLock` and `HandleAddressBook` reach `ExtrasMenu_DispatchAction` (site `Extras_Action_slot`). TODO: the Extras `ITEM` id.
+The main menu is `RES_MainMenu_Items` on `RES_MainMenus_Main_Screen`, the Music menu `RES_MusicMenu_Items` on `RES_MainMenus_Music_Screen`; their rows are the `RES_MainMenu_*_Item` and `RES_MusicMenu_*_Item` ids, in the order of `MainMenuSettingsRows` and `MusicMenuSettingsRows`. Extras is controller `TCExtrasMenu` on `RES_ExtrasMenu_Screen`; its rows (`RES_ExtrasMenu_*_Item`) are bound in the screen's `CEVT`, and only `HandleLock` and `HandleAddressBook` reach `ExtrasMenu_DispatchAction` (site `Extras_Action_slot`). Its list is bound to `RES_ExtrasMenu_Items` through a `ViewBinding_ItemTable` block in the screen's `Resource_VSlt` resource.
 
 Sites `MainMenu_Index_call` and `MusicMenu_Index_call` are `BLX r1` through the selection model, not direct calls; a replacement must call the original through r1.
 
