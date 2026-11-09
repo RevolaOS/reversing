@@ -272,6 +272,15 @@ MediaPlayer_ReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_ReadAh
 FixedPool_Create = { at = 0x08053074, c = "int FixedPool_Create(uint32_t slot_bytes, uint32_t argument, void **out_pool)" }
 Heap_GetTotalBytes = { at = 0x0809cc58, c = "uint32_t Heap_GetTotalBytes(void)" }
 
+# ---------------------------------------------------------------- artwork database
+
+ArtworkDatabase_Import = { at = 0x08059000 }
+ArtworkDatabase_ReadImageThumbs = { at = 0x0808b578, c = "int ArtworkDatabase_ReadImageThumbs(void *reader, void *image, uint32_t count, uint32_t flags)" }
+ArtworkDatabase_FindById = { at = 0x08045534, c = "void *ArtworkDatabase_FindById(void *database, uint32_t artwork_id)" }
+ArtworkDatabase_FindByDbid = { at = 0x08045668 }
+ArtworkThumb_Destroy = { at = 0x0803e16c, c = "void ArtworkThumb_Destroy(void *thumb)" }
+ArtworkThumb_GetNameCache = { at = 0x080475cc, c = "void *ArtworkThumb_GetNameCache(void *thumb)" }
+
 # ---------------------------------------------------------------- block cache
 
 BlockCache_Get = { at = 0x08180830, c = "void *BlockCache_Get(void)" }
@@ -483,6 +492,13 @@ TrackCount_0810897c_word = { at = 0x0810897c, kind = "word" }
 TrackCount_0816ebc4_word = { at = 0x0816ebc4, kind = "word" }
 TrackCount_0829c884_word = { at = 0x0829c884, kind = "word" }
 
+ArtworkDatabase_Import_call = { at = 0x0804d458, kind = "call" }
+ArtworkDatabase_ReadImageThumbs_call = { at = 0x08074f34, kind = "call" }
+ArtworkDatabase_FindById_PhotoAlbum_call = { at = 0x08074d44, kind = "call" }
+ArtworkDatabase_FindByDbid_0804581c_call = { at = 0x0804581c, kind = "call" }
+ArtworkDatabase_FindByDbid_08046494_call = { at = 0x08046494, kind = "call" }
+TrackData_ArtworkId_word = { at = 0x0808a868, kind = "word", in = "ITunesDB_ImportTrackDataset+0x3e0" }
+
 # ---------------------------------------------------------------- struct offsets
 
 [offsets.ITunesReader]
@@ -491,6 +507,8 @@ owner = 0x40004
 
 [offsets.TrackData]
 artist_cache = 0x118
+artwork_id = 0xf0
+dbid = 0x110
 
 [offsets.MediaList]
 flags = 0x18c
@@ -596,6 +614,50 @@ capacity = 0x4
 bytes = 0x8
 count = 0xc
 entries = 0x10
+
+[offsets.ArtworkReader]
+database = 0x10
+
+[offsets.ArtworkDatabase]
+image_count = 0x8
+first_image = 0xc
+last_image = 0x10
+image_pool = 0x2c
+
+[offsets.ArtworkImage]
+next = 0x0
+id = 0xc
+dbid = 0x10
+thumb_count = 0x22
+thumbs = 0x24
+
+[offsets.ArtworkThumb]
+next = 0x0
+image = 0x4
+format = 0x8
+dimensions = 0xc
+padding = 0x10
+offset = 0x18
+size = 0x1c
+file = 0x20
+bytes = 0x24
+
+[offsets.FixedPool]
+magic = 0x0
+slot_size = 0x4
+slots = 0x8
+chunks = 0xc
+
+[offsets.FixedPoolChunk]
+magic = 0x0
+pool = 0x4
+next = 0x8
+slots = 0xc
+free = 0x10
+first = 0x14
+last = 0x18
+free_list = 0x1c
+bytes = 0x20
 
 # ---------------------------------------------------------------- constants
 

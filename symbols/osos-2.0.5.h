@@ -181,6 +181,10 @@ void Timer_Start(void *timer);
 uint32_t MediaPlayer_ReadAheadBytes(void *player);
 int FixedPool_Create(uint32_t slot_bytes, uint32_t argument, void **out_pool);
 uint32_t Heap_GetTotalBytes(void);
+int ArtworkDatabase_ReadImageThumbs(void *reader, void *image, uint32_t count, uint32_t flags);
+void *ArtworkDatabase_FindById(void *database, uint32_t artwork_id);
+void ArtworkThumb_Destroy(void *thumb);
+void *ArtworkThumb_GetNameCache(void *thumb);
 void *BlockCache_Get(void);
 uint32_t BlockCache_GetBlockBytes(void);
 uint32_t BlockCache_GetTotalBlocks(void);
@@ -432,6 +436,12 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_MediaPlayer_ReadAheadBytes 0x0822c92c
 #define ADDR_FixedPool_Create 0x08053074
 #define ADDR_Heap_GetTotalBytes 0x0809cc58
+#define ADDR_ArtworkDatabase_Import 0x08059000
+#define ADDR_ArtworkDatabase_ReadImageThumbs 0x0808b578
+#define ADDR_ArtworkDatabase_FindById 0x08045534
+#define ADDR_ArtworkDatabase_FindByDbid 0x08045668
+#define ADDR_ArtworkThumb_Destroy 0x0803e16c
+#define ADDR_ArtworkThumb_GetNameCache 0x080475cc
 #define ADDR_BlockCache_Get 0x08180830
 #define ADDR_BlockCache_GetBlockBytes 0x0817fd4c
 #define ADDR_BlockCache_GetTotalBlocks 0x08180628
@@ -620,10 +630,18 @@ extern uint16_t ATA_Identify[256];
 #define SITE_TrackCount_0810897c_word 0x0810897c
 #define SITE_TrackCount_0816ebc4_word 0x0816ebc4
 #define SITE_TrackCount_0829c884_word 0x0829c884
+#define SITE_ArtworkDatabase_Import_call 0x0804d458
+#define SITE_ArtworkDatabase_ReadImageThumbs_call 0x08074f34
+#define SITE_ArtworkDatabase_FindById_PhotoAlbum_call 0x08074d44
+#define SITE_ArtworkDatabase_FindByDbid_0804581c_call 0x0804581c
+#define SITE_ArtworkDatabase_FindByDbid_08046494_call 0x08046494
+#define SITE_TrackData_ArtworkId_word 0x0808a868
 
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
 #define TrackData_artist_cache 0x118
+#define TrackData_artwork_id 0xf0
+#define TrackData_dbid 0x110
 #define MediaList_flags 0x18c
 #define MediaList_order_flags 0x18d
 #define MediaList_shuffle_index 0x3b4
@@ -697,6 +715,38 @@ extern uint16_t ATA_Identify[256];
 #define MediaOrder_bytes 0x8
 #define MediaOrder_count 0xc
 #define MediaOrder_entries 0x10
+#define ArtworkReader_database 0x10
+#define ArtworkDatabase_image_count 0x8
+#define ArtworkDatabase_first_image 0xc
+#define ArtworkDatabase_last_image 0x10
+#define ArtworkDatabase_image_pool 0x2c
+#define ArtworkImage_next 0x0
+#define ArtworkImage_id 0xc
+#define ArtworkImage_dbid 0x10
+#define ArtworkImage_thumb_count 0x22
+#define ArtworkImage_thumbs 0x24
+#define ArtworkThumb_next 0x0
+#define ArtworkThumb_image 0x4
+#define ArtworkThumb_format 0x8
+#define ArtworkThumb_dimensions 0xc
+#define ArtworkThumb_padding 0x10
+#define ArtworkThumb_offset 0x18
+#define ArtworkThumb_size 0x1c
+#define ArtworkThumb_file 0x20
+#define ArtworkThumb_bytes 0x24
+#define FixedPool_magic 0x0
+#define FixedPool_slot_size 0x4
+#define FixedPool_slots 0x8
+#define FixedPool_chunks 0xc
+#define FixedPoolChunk_magic 0x0
+#define FixedPoolChunk_pool 0x4
+#define FixedPoolChunk_next 0x8
+#define FixedPoolChunk_slots 0xc
+#define FixedPoolChunk_free 0x10
+#define FixedPoolChunk_first 0x14
+#define FixedPoolChunk_last 0x18
+#define FixedPoolChunk_free_list 0x1c
+#define FixedPoolChunk_bytes 0x20
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
