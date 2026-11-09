@@ -8,8 +8,9 @@
 | `File_ReadLegacyHandle` | read into a buffer, reports bytes read |
 | `File_WriteLegacyHandle` | write from a buffer, reports bytes written |
 | `File_CloseLegacyHandle` | close |
+| `File_DeleteLegacyPath` | delete a file or an empty directory |
 
-There is no rename or delete in this API. `File_OpenLegacyPath` accepts `Dir\name`, `\Dir\name` and `/Dir/name` on the data volume. A missing file returns -43.
+There is no rename in this API. `File_OpenLegacyPath` accepts `Dir\name`, `\Dir\name` and `/Dir/name` on the data volume. A missing file returns -43.
 
 ## When files can be read
 

@@ -33,6 +33,6 @@ A file offset in the OSOS image maps to `offset - OSOS_RUNTIME_FILE_OFFSET + OSO
 
 `Memory_InitPlatformHeapBounds` asks `Platform_GetHeapRegion` for the heap and hands it to the memory pool. `Platform_GetHeapRegion` returns the base from the literal at site `HeapRegionBase_literal` and the size as SysInfo RAM base plus RAM size minus that base. A second literal, site `RuntimeHeapBase_literal`, holds the same base. Both hold `OSOS_NATIVE_HEAP_BASE`. Rewriting both moves the start of the heap; the end always follows SysInfo.
 
-The RevolaOS core is placed on the first 4 KiB page above `OSOS_NATIVE_HEAP_BASE`, and both heap-base literals are repointed to the end of the core.
+The RevolaOS core is placed on the first 4 KiB page above `OSOS_NATIVE_HEAP_BASE`, and both heap-base literals are repointed to the end of the core rounded up to 4 KiB.
 
 `Heap_AllocateZeroed` and `Heap_Free` allocate from and free to this heap.
