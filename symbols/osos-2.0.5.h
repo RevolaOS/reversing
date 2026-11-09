@@ -169,6 +169,36 @@ void *LibraryModelRef_Assign(void *destination, void *source);
 void LibraryModelRef_Release(void *reference);
 void *LibraryModelRef_Get(void *reference);
 void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
+uint32_t System_Sleep(int mode);
+void Preferences_Flush(void *preferences);
+void Settings_ResetAll(void *model);
+int File_DeleteLegacyPath(void *path);
+int Disk_GetPowerState(uint32_t *out_powered);
+void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue);
+void Timer_Start(void *timer);
+uint32_t MediaPlayer_ReadAheadBytes(void *player);
+int FixedPool_Create(uint32_t slot_bytes, uint32_t argument, void **out_pool);
+uint32_t Heap_GetTotalBytes(void);
+void *BlockCache_Get(void);
+uint32_t BlockCache_GetBlockBytes(void);
+uint32_t BlockCache_GetTotalBlocks(void);
+int BlockCache_Grow(uint32_t bytes);
+void BlockCache_Trim(void);
+int BlockCache_PostRebalance(void *cache, uint32_t argument);
+int BlockCache_PostWaitPending(void *cache, uint32_t argument);
+int BlockCache_PostClientRequest(void *cache, uint32_t argument);
+uint32_t BlockCache_AddBlocks(void *cache, uint32_t count);
+int BlockCache_PushFreeBlock(void *cache, void *block);
+uint32_t BlockCache_AssignedBlocks(void *cache);
+uint32_t BlockCache_CountPendingClients(void *cache);
+void BlockCache_PendingInc(void *cache);
+void BlockList_Erase(void **out_next, void *list, void **node);
+int BlockCacheClient_SetDesired(void *client, uint32_t bytes, uint32_t weight);
+void BlockCacheClient_ReturnBlock(void *client, void *block);
+int BlockCacheClient_CancelPending(void *client);
+int EAppBlockManager_HandleMessage(void *manager, void *message);
+void EAppBlocks_Acquire(void *manager);
+void EAppBlocks_Release(void *manager);
 
 extern uint8_t ResourceNameMap[];
 extern void *const ScreenController_vtable[];
@@ -178,6 +208,9 @@ extern const uint32_t EQ_PresetIds[];
 extern uint8_t BrowserRegistry[];
 extern uint32_t MainMenuSettingsRows[];
 extern uint32_t MusicMenuSettingsRows[];
+extern void *BlockCache;
+extern void *MainHeap;
+extern uint16_t ATA_Identify[256];
 #endif
 
 #define ADDR_Heap_AllocateZeroed 0x0805232c
@@ -377,6 +410,44 @@ extern uint32_t MusicMenuSettingsRows[];
 #define ADDR_IAP_VerifyDeviceSignatureAlternate 0x081592fc
 #define ADDR_IAP_HandleDevAuthenticationSignature 0x081892b8
 #define ADDR_IAP_SetAccessoryAuthState 0x08185e18
+#define ADDR_System_Sleep 0x0805d0c0
+#define ADDR_Power_IdleSleep 0x0819b28c
+#define ADDR_Power_RequestedSleep 0x0819bb18
+#define ADDR_System_SaveAll 0x080638d8
+#define ADDR_Preferences_Flush 0x08063760
+#define ADDR_Settings_ResetAll 0x081e1e6c
+#define ADDR_Settings_ConfirmResetAll 0x08212820
+#define ADDR_File_DeleteLegacyPath 0x0804f99c
+#define ADDR_Disk_GetPowerState 0x082b3630
+#define ADDR_UI_InitializeEventTimer 0x0810635c
+#define ADDR_Timer_Start 0x08121268
+#define ADDR_UITask_Create 0x081391b8
+#define ADDR_UITask_Main 0x08139118
+#define ADDR_Library_FinishImport 0x0805d6c8
+#define ADDR_MediaPlayer_ReadAheadBytes 0x0822c92c
+#define ADDR_FixedPool_Create 0x08053074
+#define ADDR_Heap_GetTotalBytes 0x0809cc58
+#define ADDR_BlockCache_Get 0x08180830
+#define ADDR_BlockCache_GetBlockBytes 0x0817fd4c
+#define ADDR_BlockCache_GetTotalBlocks 0x08180628
+#define ADDR_BlockCache_Grow 0x080ca238
+#define ADDR_BlockCache_Trim 0x080cd16c
+#define ADDR_BlockCache_PostRebalance 0x0817fd68
+#define ADDR_BlockCache_PostWaitPending 0x0817fdd0
+#define ADDR_BlockCache_PostClientRequest 0x0817fd9c
+#define ADDR_BlockCache_AddBlocks 0x081804e8
+#define ADDR_BlockCache_PushFreeBlock 0x081801a4
+#define ADDR_BlockCache_AssignedBlocks 0x08180690
+#define ADDR_BlockCache_CountPendingClients 0x08180840
+#define ADDR_BlockCache_PendingInc 0x08180700
+#define ADDR_BlockCache_PendingDec 0x08180644
+#define ADDR_BlockList_Erase 0x083cc960
+#define ADDR_BlockCacheClient_SetDesired 0x081f1f50
+#define ADDR_BlockCacheClient_ReturnBlock 0x081f2888
+#define ADDR_BlockCacheClient_CancelPending 0x081f2988
+#define ADDR_EAppBlockManager_HandleMessage 0x0819d67c
+#define ADDR_EAppBlocks_Acquire 0x0819d870
+#define ADDR_EAppBlocks_Release 0x0819d40c
 #define ADDR_ResourceNameMap 0x08ae02c4
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
@@ -385,6 +456,9 @@ extern uint32_t MusicMenuSettingsRows[];
 #define ADDR_BrowserRegistry 0x08a1a6dc
 #define ADDR_MainMenuSettingsRows 0x08a815f0
 #define ADDR_MusicMenuSettingsRows 0x08a81898
+#define ADDR_BlockCache 0x089d380c
+#define ADDR_MainHeap 0x089d2c78
+#define ADDR_ATA_Identify 0x08ae087c
 
 #define SITE_Preferences_LoadFile_call 0x08058808
 #define SITE_ResourceBlockList_AppendBorrowedBlock_call 0x0817a88c
@@ -465,6 +539,21 @@ extern uint32_t MusicMenuSettingsRows[];
 #define SITE_MusicMenu_Apply_call 0x081e3f48
 #define SITE_SettingsModel_ResetMainMenu_entry 0x081e1024
 #define SITE_SettingsModel_ResetMusicMenu_entry 0x081e1134
+#define SITE_Sleep_Idle_call 0x0819b32c
+#define SITE_Sleep_Request_call 0x0819bba8
+#define SITE_Preferences_Flush_call 0x0806392c
+#define SITE_Settings_ResetAll_call 0x08212844
+#define SITE_BlockCache_ImportCost_word 0x0805ddd4
+#define SITE_BlockCache_ReserveNative_word 0x0805ddd8
+#define SITE_BlockCache_FloorTest_word 0x0805dddc
+#define SITE_BlockCache_FloorSet_word 0x0805dde0
+#define SITE_MediaPlayer_ReadAheadMinTest_word 0x0822c944
+#define SITE_MediaPlayer_ReadAheadMinSet_word 0x0822c948
+#define SITE_FixedPool_SlotRoundAdd_word 0x080530b4
+#define SITE_FixedPool_SlotRoundMask_word 0x080530b8
+#define SITE_EAppBlocks_Acquire_call 0x0819d6d0
+#define SITE_EAppBlocks_Release_call 0x0819d6d8
+#define SITE_UITask_StackShift_word 0x081391dc
 
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
@@ -497,6 +586,33 @@ extern uint32_t MusicMenuSettingsRows[];
 #define View_draw_method 0x74
 #define View_bounds 0x80
 #define View_graphics_options 0x4c
+#define MainHeap_free_bytes 0x0
+#define MainHeap_total_bytes 0x4
+#define MainHeap_used_bytes 0x8
+#define BlockCache_free_blocks 0x4
+#define BlockCache_free_count 0x14
+#define BlockCache_clients 0x28
+#define BlockCache_block_bytes 0x30
+#define BlockCache_total_blocks 0x34
+#define BlockCache_trimmed 0x38
+#define BlockCache_task_queue 0x3c
+#define BlockCache_lock 0x148
+#define BlockCache_core_mutex 0x180
+#define BlockCache_pending_cond 0x19c
+#define BlockCache_assigned_cache 0x1bc
+#define BlockCache_pending_count 0x1c0
+#define BlockClient_cache 0x4
+#define BlockClient_blocks 0x8
+#define BlockClient_block_count 0x18
+#define BlockClient_assigned_blocks 0x1c
+#define BlockClient_mutex 0x24
+#define BlockClient_weight 0x40
+#define BlockClient_flags 0x44
+#define BlockClient_desired_bytes 0x48
+#define EAppBlockManager_client 0x14
+#define EAppBlockManager_block_list 0x28
+#define EAppBlockManager_block_count 0x2c
+#define EAppBlockManager_request_blocks 0x34
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000

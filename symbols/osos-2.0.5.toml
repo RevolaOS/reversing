@@ -246,6 +246,53 @@ IAP_VerifyDeviceSignatureAlternate = { at = 0x081592fc }
 IAP_HandleDevAuthenticationSignature = { at = 0x081892b8 }
 IAP_SetAccessoryAuthState = { at = 0x08185e18 }
 
+# ---------------------------------------------------------------- power, sleep, settings store
+
+System_Sleep = { at = 0x0805d0c0, c = "uint32_t System_Sleep(int mode)" }
+Power_IdleSleep = { at = 0x0819b28c }
+Power_RequestedSleep = { at = 0x0819bb18 }
+System_SaveAll = { at = 0x080638d8 }
+Preferences_Flush = { at = 0x08063760, c = "void Preferences_Flush(void *preferences)" }
+Settings_ResetAll = { at = 0x081e1e6c, c = "void Settings_ResetAll(void *model)" }
+Settings_ConfirmResetAll = { at = 0x08212820 }
+File_DeleteLegacyPath = { at = 0x0804f99c, c = "int File_DeleteLegacyPath(void *path)" }
+Disk_GetPowerState = { at = 0x082b3630, c = "int Disk_GetPowerState(uint32_t *out_powered)" }
+UI_InitializeEventTimer = { at = 0x0810635c, c = "void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue)" }
+Timer_Start = { at = 0x08121268, c = "void Timer_Start(void *timer)" }
+UITask_Create = { at = 0x081391b8 }
+UITask_Main = { at = 0x08139118 }
+
+# ---------------------------------------------------------------- library import, media player, pools
+
+Library_FinishImport = { at = 0x0805d6c8 }
+MediaPlayer_ReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_ReadAheadBytes(void *player)" }
+FixedPool_Create = { at = 0x08053074, c = "int FixedPool_Create(uint32_t slot_bytes, uint32_t argument, void **out_pool)" }
+Heap_GetTotalBytes = { at = 0x0809cc58, c = "uint32_t Heap_GetTotalBytes(void)" }
+
+# ---------------------------------------------------------------- block cache
+
+BlockCache_Get = { at = 0x08180830, c = "void *BlockCache_Get(void)" }
+BlockCache_GetBlockBytes = { at = 0x0817fd4c, c = "uint32_t BlockCache_GetBlockBytes(void)" }
+BlockCache_GetTotalBlocks = { at = 0x08180628, c = "uint32_t BlockCache_GetTotalBlocks(void)" }
+BlockCache_Grow = { at = 0x080ca238, c = "int BlockCache_Grow(uint32_t bytes)" }
+BlockCache_Trim = { at = 0x080cd16c, c = "void BlockCache_Trim(void)" }
+BlockCache_PostRebalance = { at = 0x0817fd68, c = "int BlockCache_PostRebalance(void *cache, uint32_t argument)" }
+BlockCache_PostWaitPending = { at = 0x0817fdd0, c = "int BlockCache_PostWaitPending(void *cache, uint32_t argument)" }
+BlockCache_PostClientRequest = { at = 0x0817fd9c, c = "int BlockCache_PostClientRequest(void *cache, uint32_t argument)" }
+BlockCache_AddBlocks = { at = 0x081804e8, c = "uint32_t BlockCache_AddBlocks(void *cache, uint32_t count)" }
+BlockCache_PushFreeBlock = { at = 0x081801a4, c = "int BlockCache_PushFreeBlock(void *cache, void *block)" }
+BlockCache_AssignedBlocks = { at = 0x08180690, c = "uint32_t BlockCache_AssignedBlocks(void *cache)" }
+BlockCache_CountPendingClients = { at = 0x08180840, c = "uint32_t BlockCache_CountPendingClients(void *cache)" }
+BlockCache_PendingInc = { at = 0x08180700, c = "void BlockCache_PendingInc(void *cache)" }
+BlockCache_PendingDec = { at = 0x08180644 }
+BlockList_Erase = { at = 0x083cc960, c = "void BlockList_Erase(void **out_next, void *list, void **node)" }
+BlockCacheClient_SetDesired = { at = 0x081f1f50, c = "int BlockCacheClient_SetDesired(void *client, uint32_t bytes, uint32_t weight)" }
+BlockCacheClient_ReturnBlock = { at = 0x081f2888, c = "void BlockCacheClient_ReturnBlock(void *client, void *block)" }
+BlockCacheClient_CancelPending = { at = 0x081f2988, c = "int BlockCacheClient_CancelPending(void *client)" }
+EAppBlockManager_HandleMessage = { at = 0x0819d67c, c = "int EAppBlockManager_HandleMessage(void *manager, void *message)" }
+EAppBlocks_Acquire = { at = 0x0819d870, c = "void EAppBlocks_Acquire(void *manager)" }
+EAppBlocks_Release = { at = 0x0819d40c, c = "void EAppBlocks_Release(void *manager)" }
+
 # ---------------------------------------------------------------- data
 
 [data]
@@ -257,6 +304,9 @@ EQ_PresetIds = { at = 0x083e4110, c = "const uint32_t EQ_PresetIds[]" }
 BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
 MainMenuSettingsRows = { at = 0x08a815f0, c = "uint32_t MainMenuSettingsRows[]" }
 MusicMenuSettingsRows = { at = 0x08a81898, c = "uint32_t MusicMenuSettingsRows[]" }
+BlockCache = { at = 0x089d380c, c = "void *BlockCache" }
+MainHeap = { at = 0x089d2c78, c = "void *MainHeap" }
+ATA_Identify = { at = 0x08ae087c, c = "uint16_t ATA_Identify[256]" }
 
 # ---------------------------------------------------------------- patch sites
 # kind: call = BL to redirect, slot = pointer in a vtable or table, word = constant,
@@ -350,6 +400,23 @@ MusicMenu_Apply_call = { at = 0x081e3f48, kind = "call", in = "SettingsModel_Loa
 SettingsModel_ResetMainMenu_entry = { at = 0x081e1024, kind = "entry" }
 SettingsModel_ResetMusicMenu_entry = { at = 0x081e1134, kind = "entry" }
 
+Sleep_Idle_call = { at = 0x0819b32c, kind = "call", in = "Power_IdleSleep+0xa0" }
+Sleep_Request_call = { at = 0x0819bba8, kind = "call", in = "Power_RequestedSleep+0x90" }
+Preferences_Flush_call = { at = 0x0806392c, kind = "call", in = "System_SaveAll+0x54" }
+Settings_ResetAll_call = { at = 0x08212844, kind = "call", in = "Settings_ConfirmResetAll+0x24" }
+
+BlockCache_ImportCost_word = { at = 0x0805ddd4, kind = "word", in = "Library_FinishImport+0x70c" }
+BlockCache_ReserveNative_word = { at = 0x0805ddd8, kind = "word", in = "Library_FinishImport+0x710" }
+BlockCache_FloorTest_word = { at = 0x0805dddc, kind = "word", in = "Library_FinishImport+0x714" }
+BlockCache_FloorSet_word = { at = 0x0805dde0, kind = "word", in = "Library_FinishImport+0x718" }
+MediaPlayer_ReadAheadMinTest_word = { at = 0x0822c944, kind = "word", in = "MediaPlayer_ReadAheadBytes+0x18" }
+MediaPlayer_ReadAheadMinSet_word = { at = 0x0822c948, kind = "word", in = "MediaPlayer_ReadAheadBytes+0x1c" }
+FixedPool_SlotRoundAdd_word = { at = 0x080530b4, kind = "word", in = "FixedPool_Create+0x40" }
+FixedPool_SlotRoundMask_word = { at = 0x080530b8, kind = "word", in = "FixedPool_Create+0x44" }
+EAppBlocks_Acquire_call = { at = 0x0819d6d0, kind = "call", in = "EAppBlockManager_HandleMessage+0x54" }
+EAppBlocks_Release_call = { at = 0x0819d6d8, kind = "call", in = "EAppBlockManager_HandleMessage+0x5c" }
+UITask_StackShift_word = { at = 0x081391dc, kind = "word", in = "UITask_Create+0x24" }
+
 # ---------------------------------------------------------------- struct offsets
 
 [offsets.ITunesReader]
@@ -406,6 +473,41 @@ set_method = 0xd4
 draw_method = 0x74
 bounds = 0x80
 graphics_options = 0x4c
+
+[offsets.MainHeap]
+free_bytes = 0x0
+total_bytes = 0x4
+used_bytes = 0x8
+
+[offsets.BlockCache]
+free_blocks = 0x04
+free_count = 0x14
+clients = 0x28
+block_bytes = 0x30
+total_blocks = 0x34
+trimmed = 0x38
+task_queue = 0x3c
+lock = 0x148
+core_mutex = 0x180
+pending_cond = 0x19c
+assigned_cache = 0x1bc
+pending_count = 0x1c0
+
+[offsets.BlockClient]
+cache = 0x04
+blocks = 0x08
+block_count = 0x18
+assigned_blocks = 0x1c
+mutex = 0x24
+weight = 0x40
+flags = 0x44
+desired_bytes = 0x48
+
+[offsets.EAppBlockManager]
+client = 0x14
+block_list = 0x28
+block_count = 0x2c
+request_blocks = 0x34
 
 # ---------------------------------------------------------------- constants
 
