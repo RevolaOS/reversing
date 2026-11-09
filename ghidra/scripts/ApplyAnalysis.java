@@ -57,18 +57,32 @@ public class ApplyAnalysis extends GhidraScript {
 
   // Auto-analysis misses some saved functions, often ones reached only through
   // tables or folded into a neighbour. The SARIF reader does not create them.
+  // Saved names win over names already in the program.
   private void createFunctions(JsonObject run) throws Exception {
     for (JsonElement element : run.getAsJsonArray("results")) {
       JsonObject row = element.getAsJsonObject();
       if (!row.get("ruleId").getAsString().equals("FUNCTIONS")) continue;
       JsonObject p = row.getAsJsonObject("properties").getAsJsonObject("additionalProperties");
       Address entry = toAddr(p.get("location").getAsString());
-      if (getFunctionAt(entry) != null) continue;
-      Function owner = getFunctionContaining(entry);
-      if (getInstructionAt(entry) == null) disassemble(entry);
-      if (createFunction(entry, null) == null)
-        printerr("cannot create " + p.get("name").getAsString() + " at " + entry
-            + (owner == null ? "" : " inside " + owner.getName()));
+      String name = p.get("name").getAsString();
+      Function function = getFunctionAt(entry);
+      if (function == null) {
+        Function owner = getFunctionContaining(entry);
+        if (getInstructionAt(entry) == null) disassemble(entry);
+        function = createFunction(entry, null);
+        if (function == null) {
+          printerr("cannot create " + name + " at " + entry
+              + (owner == null ? "" : " inside " + owner.getName()));
+          continue;
+        }
+      }
+      // The SARIF reader adds a second label instead of renaming a function
+      // that already has a user-defined name.
+      if (!p.get("sourceType").getAsString().equals("DEFAULT") && !function.getName().equals(name)) {
+        for (Symbol label : currentProgram.getSymbolTable().getSymbols(entry))
+          if (label.getName().equals(name) && !label.equals(function.getSymbol())) label.delete();
+        function.setName(name, SourceType.valueOf(p.get("sourceType").getAsString()));
+      }
     }
   }
 
