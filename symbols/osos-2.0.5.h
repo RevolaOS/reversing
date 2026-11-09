@@ -1095,6 +1095,7 @@ extern void *const AlbumsController_vtable[];
 #define MenuRowStyle_Check 0x3
 #define MenuRowStyle_CheckIndented 0x4
 #define MenuRowStyle_Submenu 0x5
+#define MenuRowStyle_TwoLine 0x6
 #define MenuRowStyle_InlineValue 0xc
 #define Event_ModelChange 0x13
 #define SourceDestination_InlineValue 0xa
