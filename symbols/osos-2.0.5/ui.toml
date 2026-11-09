@@ -81,6 +81,7 @@ MenuItems_RegisterAll = { at = 0x081951cc, c = "void MenuItems_RegisterAll(void)
 BitmapView_LoadBitmap = { at = 0x08100020, c = "void BitmapView_LoadBitmap(void *view)" }
 Object_GetInterface = { at = 0x0826c594, c = "void *Object_GetInterface(void *object, uint32_t interface)" }
 UI_TransitionToLayout = { at = 0x0817518c }
+UI_EmitControllerEvent = { at = 0x0812a150, c = "int UI_EmitControllerEvent(void *controller, void *event_name)" }
 ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 UI_CreateTemplateFromResource = { at = 0x081df580 }
@@ -137,6 +138,7 @@ notify_method = 0x58
 push_method = 0xd0
 pop_method = 0xbc
 switch_layout_method = 0x120
+emit_event_method = 0x11c
 pop_self_method = 0xb8
 named_event_method = 0x110
 show_layout_method = 0x124

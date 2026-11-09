@@ -185,6 +185,7 @@ int SettingsMainMenu_HandleAction(void *controller, const char *action, uint32_t
 int SettingsEQ_HandleEvent(void *controller, void *event);
 int SettingsEQ_SelectCurrentRow(void *controller, uint32_t deferred);
 int SettingsBacklight_SelectCurrentRow(void *controller, uint32_t deferred);
+int SettingsMusicMenu_HandleAction(void *controller, const char *action, uint32_t argument);
 void SettingsModel_AdjustBrightness(void *model, int delta);
 void *CppString_Init(void *string, const char *text);
 void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator);
@@ -263,6 +264,7 @@ void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t 
 void MenuItems_RegisterAll(void);
 void BitmapView_LoadBitmap(void *view);
 void *Object_GetInterface(void *object, uint32_t interface);
+int UI_EmitControllerEvent(void *controller, void *event_name);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
@@ -499,6 +501,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_SettingsEQ_HandleEvent 0x08398e78
 #define ADDR_SettingsEQ_SelectCurrentRow 0x08134750
 #define ADDR_SettingsBacklight_SelectCurrentRow 0x08100d88
+#define ADDR_SettingsMusicMenu_HandleAction 0x081dd60c
 #define ADDR_SettingsModel_AdjustBrightness 0x081e2ee8
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
@@ -593,6 +596,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_BitmapView_LoadBitmap 0x08100020
 #define ADDR_Object_GetInterface 0x0826c594
 #define ADDR_UI_TransitionToLayout 0x0817518c
+#define ADDR_UI_EmitControllerEvent 0x0812a150
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
@@ -685,6 +689,10 @@ extern void *const AlbumsController_vtable[];
 #define SITE_Runtime_ReportUncaughtException_entry 0x0825de34
 #define SITE_Settings_Action_slot 0x089a3bf4
 #define SITE_Settings_SecondaryAction_slot 0x089a7c3c
+#define SITE_SettingsMainMenu_Action_slot 0x089a00f4
+#define SITE_SettingsMainMenu_SecondaryAction_slot 0x08996280
+#define SITE_SettingsMusicMenu_Action_slot 0x089a05bc
+#define SITE_SettingsMusicMenu_SecondaryAction_slot 0x08997094
 #define SITE_Settings_Property_slot 0x08997b60
 #define SITE_Settings_IndexedProperty_slot 0x08997b7c
 #define SITE_EQ_PreviewCount_word 0x081e0f74
@@ -920,6 +928,7 @@ extern void *const AlbumsController_vtable[];
 #define ScreenController_push_method 0xd0
 #define ScreenController_pop_method 0xbc
 #define ScreenController_switch_layout_method 0x120
+#define ScreenController_emit_event_method 0x11c
 #define ScreenController_pop_self_method 0xb8
 #define ScreenController_named_event_method 0x110
 #define ScreenController_show_layout_method 0x124

@@ -27,6 +27,7 @@ SettingsMainMenu_HandleAction = { at = 0x081d2144, c = "int SettingsMainMenu_Han
 SettingsEQ_HandleEvent = { at = 0x08398e78, c = "int SettingsEQ_HandleEvent(void *controller, void *event)" }
 SettingsEQ_SelectCurrentRow = { at = 0x08134750, c = "int SettingsEQ_SelectCurrentRow(void *controller, uint32_t deferred)" }
 SettingsBacklight_SelectCurrentRow = { at = 0x08100d88, c = "int SettingsBacklight_SelectCurrentRow(void *controller, uint32_t deferred)" }
+SettingsMusicMenu_HandleAction = { at = 0x081dd60c, c = "int SettingsMusicMenu_HandleAction(void *controller, const char *action, uint32_t argument)" }
 SettingsModel_AdjustBrightness = { at = 0x081e2ee8, c = "void SettingsModel_AdjustBrightness(void *model, int delta)" }
 
 [data]
@@ -36,6 +37,10 @@ MusicMenuSettingsRows = { at = 0x08a81898, c = "uint32_t MusicMenuSettingsRows[]
 [sites]
 Settings_Action_slot = { at = 0x089a3bf4, kind = "slot" }
 Settings_SecondaryAction_slot = { at = 0x089a7c3c, kind = "slot" }
+SettingsMainMenu_Action_slot = { at = 0x089a00f4, kind = "slot" }
+SettingsMainMenu_SecondaryAction_slot = { at = 0x08996280, kind = "slot" }
+SettingsMusicMenu_Action_slot = { at = 0x089a05bc, kind = "slot" }
+SettingsMusicMenu_SecondaryAction_slot = { at = 0x08997094, kind = "slot" }
 Settings_Property_slot = { at = 0x08997b60, kind = "slot" }
 Settings_IndexedProperty_slot = { at = 0x08997b7c, kind = "slot" }
 EQ_PreviewCount_word = { at = 0x081e0f74, kind = "word", in = "SettingsModel_GetEQPresetPreview+0x0" }
