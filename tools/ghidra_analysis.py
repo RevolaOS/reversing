@@ -13,9 +13,13 @@ BOOKMARK_KINDS = {"Note", "Info"}
 KEPT_SOURCES = {"USER_DEFINED", "IMPORTED"}
 
 
-def keep(rule, properties):
+def keep(rule, properties, record_kind=None):
     """True for records that auto-analysis cannot reproduce."""
-    if rule in ("memory_map", "comments", "datatype", "entry_points"):
+    if rule == "datatype":
+        # Built-in types exist in every program; Ghidra also re-exports them
+        # wrapped in DT.Base records that grow with each round trip.
+        return record_kind not in ("DT.Builtin", "DT.Base")
+    if rule in ("memory_map", "comments", "entry_points"):
         return True
     if rule == "functions":
         return (
@@ -81,7 +85,7 @@ def trim(results, spec, header, destination):
     for result in results:
         rule = result["ruleId"].lower()
         properties = result["properties"]["additionalProperties"]
-        if keep(rule, properties):
+        if keep(rule, properties, result["message"]["text"]):
             if rule == "memory_map":
                 # Offset into the SARIF byte stream, which is never published.
                 properties.pop("location", None)
