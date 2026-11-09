@@ -169,6 +169,7 @@ int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uin
 int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out);
 void SettingsModel_ToggleMainMenuItem(void *model, uint32_t index);
 void SettingsModel_ToggleMusicMenuItem(void *model, uint32_t index);
+void *SettingsModel_ApplyMainMenuPreferences(void *model);
 void *SettingsModel_ApplyMusicMenuPreferences(void *model);
 void *SettingsModel_ResetMainMenu(void *model);
 void *SettingsModel_ResetMusicMenu(void *model);
@@ -478,6 +479,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_SettingsModel_GetIndexedProperty 0x081e30ac
 #define ADDR_SettingsModel_ToggleMainMenuItem 0x081e3460
 #define ADDR_SettingsModel_ToggleMusicMenuItem 0x081e36ac
+#define ADDR_SettingsModel_ApplyMainMenuPreferences 0x081e2a50
 #define ADDR_SettingsModel_ApplyMusicMenuPreferences 0x081e2e48
 #define ADDR_SettingsModel_ResetMainMenu 0x081e1024
 #define ADDR_SettingsModel_ResetMusicMenu 0x081e1134
@@ -586,6 +588,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_ScreenController_PopSelf 0x081034f0
 #define ADDR_ResourceService_GetIndexedResource 0x08138dd8
 #define ADDR_MenuList_GetRowProperty 0x08194ecc
+#define ADDR_MenuList_HandleNotification 0x08195120
 #define ADDR_MenuItems_RegisterAll 0x081951cc
 #define ADDR_BitmapView_LoadBitmap 0x08100020
 #define ADDR_Object_GetInterface 0x0826c594

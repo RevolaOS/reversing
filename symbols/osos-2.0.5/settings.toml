@@ -7,6 +7,7 @@ SettingsModel_GetProperty = { at = 0x081e11f4, c = "int SettingsModel_GetPropert
 SettingsModel_GetIndexedProperty = { at = 0x081e30ac, c = "int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out)" }
 SettingsModel_ToggleMainMenuItem = { at = 0x081e3460, c = "void SettingsModel_ToggleMainMenuItem(void *model, uint32_t index)" }
 SettingsModel_ToggleMusicMenuItem = { at = 0x081e36ac, c = "void SettingsModel_ToggleMusicMenuItem(void *model, uint32_t index)" }
+SettingsModel_ApplyMainMenuPreferences = { at = 0x081e2a50, c = "void *SettingsModel_ApplyMainMenuPreferences(void *model)" }
 SettingsModel_ApplyMusicMenuPreferences = { at = 0x081e2e48, c = "void *SettingsModel_ApplyMusicMenuPreferences(void *model)" }
 SettingsModel_ResetMainMenu = { at = 0x081e1024, c = "void *SettingsModel_ResetMainMenu(void *model)" }
 SettingsModel_ResetMusicMenu = { at = 0x081e1134, c = "void *SettingsModel_ResetMusicMenu(void *model)" }

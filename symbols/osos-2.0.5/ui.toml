@@ -76,6 +76,7 @@ WheelEvent_GetSpeed = { at = 0x082894e8, c = "uint32_t WheelEvent_GetSpeed(void 
 ScreenController_PopSelf = { at = 0x081034f0, c = "int ScreenController_PopSelf(void *controller, uint32_t flags)" }
 ResourceService_GetIndexedResource = { at = 0x08138dd8, c = "void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t property, uint32_t index)" }
 MenuList_GetRowProperty = { at = 0x08194ecc }
+MenuList_HandleNotification = { at = 0x08195120 }
 MenuItems_RegisterAll = { at = 0x081951cc, c = "void MenuItems_RegisterAll(void)" }
 BitmapView_LoadBitmap = { at = 0x08100020, c = "void BitmapView_LoadBitmap(void *view)" }
 Object_GetInterface = { at = 0x0826c594, c = "void *Object_GetInterface(void *object, uint32_t interface)" }
