@@ -22,7 +22,7 @@ void *Runtime_OperatorNew(uint32_t byte_count);
 int Mutex_Lock(void *mutex);
 int Mutex_Unlock(void *mutex);
 int HoldSwitch_GetLogicalState(void);
-void System_HoldChanged(void *system, int locked);
+void SystemUI_HandleHoldChange(void *system, int locked);
 int File_OpenLegacyPath(void *path, uint32_t fork, int mode, void **out_handle);
 int File_ReadLegacyHandle(void *handle, void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_read);
 int File_WriteLegacyHandle(void *handle, const void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_written);
@@ -32,8 +32,8 @@ void Preferences_LoadFile(void *preferences);
 void *CppString_Init(void *string, const char *text);
 void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator);
 void CppString_Destroy(void *string);
-void StringStream_Init(void *stream, void *string, uint32_t mode);
-void StringStream_Destroy(void *stream, uint32_t flags, void *storage);
+void StringInputStream_Init(void *stream, void *string, uint32_t mode);
+void StringInputStream_Destroy(void *stream, uint32_t flags, void *storage);
 struct NativeString *NativeString_InitEmpty(struct NativeString *string);
 struct NativeString *NativeString_Destroy(struct NativeString *string);
 char *NativeString_GetUtf8(struct NativeString *string);
@@ -52,43 +52,43 @@ char *ResourceService_GetString(void *service, uint32_t id);
 void *ResourceService_GetBitmap(void *service, uint32_t id);
 void *UI_GetResourceBank(void);
 void *UI_GetResourceService(void);
-void *UI_GetService(uint32_t service_id);
+void *UI_FindServiceById(uint32_t service_id);
 void *UI_GetRootView(void);
 void *UI_GetSelectionModel(void);
 void *UI_GetControllerRegistry(void);
 void *UI_CreateScreenController(void *registry, uint32_t screen_id, uint32_t layout_id, uint32_t transition);
-void UI_RegisterController(void *registry, const char *name, void *ordinary_factory, void *resource_factory);
+void UI_RegisterControllerFactories(void *registry, const char *name, void *ordinary_factory, void *resource_factory);
 void UI_RegisterViewFactory(uint32_t view_type, void *create);
 void UI_LoadLayoutEventTables(void *layout);
-void UI_ReadEventMap(void *stream, void *map);
+void UIEventMap_ReadStream(void *stream, void *map);
 void *ScreenController_CreateNamed(const char *name, uint32_t screen_id, uint32_t layout_id, uint32_t transition);
 int ScreenController_HandleEvent(void *controller, void *event);
-uint32_t Controller_Activate(void *controller, uint32_t entering);
-uint32_t Controller_Deactivate(void *controller, uint32_t leaving);
+uint32_t ResourceScreen_Activate(void *controller, uint32_t entering);
+uint32_t ResourceScreen_Deactivate(void *controller, uint32_t leaving);
 int MenuItem_SetVisible(uint32_t item_id, uint32_t visible);
 void ContextMenuItems_Append(void *items, uint32_t item_id, const char *action, uint32_t flags);
-void Wheel_DecodeEvent(void *event);
-uint32_t Button_EventToUIKey(void *event);
+void WheelEvent_DecodeMotion(void *event);
+uint32_t ButtonEvent_GetUIKeyCode(void *event);
 void *WheelAccumulator_Init(void *state, int threshold, uint8_t accelerate, uint32_t interval);
-int WheelAccumulator_Step(void *state, int motion, uint32_t speed);
+int WheelAccumulator_ConsumeMotion(void *state, int motion, uint32_t speed);
 void WheelAccumulator_Reset(void *accumulator);
-void View_InitOptions(const void *descriptor, void *options);
+void View_InitOptionsFromDescriptor(const void *descriptor, void *options);
 void *View_Construct(void *view, void *unused, void *parent, void *event_target, const void *options);
-void View_BindGraphics(void *view, void *context);
-void View_GetLocalRect(void *view, int32_t *rect);
+void View_BindGraphicsContext(void *view, void *context);
+void View_GetLocalContentRect(void *view, int32_t *rect);
 void View_InvalidateRect(void *view, const int32_t *rect);
-void *GraphicsContext_Construct(void *context);
+void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
 void GraphicsContext_SetColor(void *context, const uint8_t *rgba);
 void GraphicsContext_SetBackgroundColor(void *context, const uint8_t *rgba);
 void GraphicsContext_SetFont(void *context, const uint32_t *font);
-void GraphicsContext_SetPen(void *context, int x, int baseline);
-void GraphicsContext_SetMode(void *context, uint8_t mode);
-void GraphicsContext_DrawText(void *context, const char *text);
-int GraphicsContext_TextWidth(void *context, const char *text);
+void GraphicsContext_SetTextPen(void *context, int x, int baseline);
+void GraphicsContext_SetDrawMode(void *context, uint8_t mode);
+void GraphicsContext_DrawUtf8(void *context, const char *text);
+int GraphicsContext_MeasureUtf8(void *context, const char *text);
 void Font_Construct(uint32_t *font, const char *family, uint32_t size, uint8_t style);
-int Font_Ascent(void *context);
-int Font_Descent(void *context);
+int GraphicsContext_GetFontAscent(void *context);
+int GraphicsContext_GetFontDescent(void *context);
 void Surface_FillRect(void *surface, const int32_t *rect, const uint8_t *rgba, uint32_t mode, void *clip);
 void GLES_ClearColorx(int red, int green, int blue, int alpha);
 uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight);
@@ -123,9 +123,9 @@ struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index);
 void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode);
 void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags);
 struct MediaEntry *MediaList_GetEntryByOrderIndex(struct MediaList *list, int order_mode, uint32_t reverse, uint32_t index);
-int MediaList_AddToOnTheGo(void *controller);
-int MediaList_DispatchAction(void *controller, const char *action, uint32_t argument);
-int OnTheGo_AddBrowser(void *otg, int row, void *browser, int save);
+int MediaListController_AddSelectionToOnTheGo(void *controller);
+int MediaListController_DispatchAction(void *controller, const char *action, uint32_t argument);
+int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save);
 uint32_t MediaListSelection_SelectArtworkSource(void *selection, uint32_t category);
 void ArtworkSession_Stop(void *session);
 void *AlbumArtworkProvider_Create(uint32_t source_kind, uint32_t selector);
@@ -169,9 +169,9 @@ void *LibraryModelRef_Assign(void *destination, void *source);
 void LibraryModelRef_Release(void *reference);
 void *LibraryModelRef_Get(void *reference);
 void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
-uint32_t System_Sleep(int mode);
-void Preferences_Flush(void *preferences);
-void Settings_ResetAll(void *model);
+uint32_t Power_EnterLightSleep(int mode);
+void Preferences_FlushIfDirty(void *preferences);
+void SettingsModel_ResetAllSettings(void *model);
 int File_DeleteLegacyPath(void *path);
 int Disk_GetPowerState(uint32_t *out_powered);
 void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue);
@@ -219,7 +219,7 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_Mutex_Lock 0x08258b34
 #define ADDR_Mutex_Unlock 0x08258b38
 #define ADDR_HoldSwitch_GetLogicalState 0x08048964
-#define ADDR_System_HoldChanged 0x08108c14
+#define ADDR_SystemUI_HandleHoldChange 0x08108c14
 #define ADDR_Platform_HasRegionalVolumeLimit 0x0804b17c
 #define ADDR_File_OpenLegacyPath 0x0804f784
 #define ADDR_File_ReadLegacyHandle 0x0804f838
@@ -237,8 +237,8 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
 #define ADDR_CppString_Destroy 0x083cf7d4
-#define ADDR_StringStream_Init 0x0829e7b8
-#define ADDR_StringStream_Destroy 0x0829e81c
+#define ADDR_StringInputStream_Init 0x0829e7b8
+#define ADDR_StringInputStream_Destroy 0x0829e81c
 #define ADDR_NativeString_InitEmpty 0x0826de38
 #define ADDR_NativeString_Destroy 0x0826de7c
 #define ADDR_NativeString_GetUtf8 0x0829bac0
@@ -260,49 +260,49 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_UI_GetResourceService 0x08268d34
 #define ADDR_UI_InitResourceProviders 0x081c7e68
 #define ADDR_UI_InitializeViewTemplates 0x081af5b4
-#define ADDR_UI_GetService 0x081c7d44
+#define ADDR_UI_FindServiceById 0x081c7d44
 #define ADDR_UI_GetRootView 0x08113600
 #define ADDR_UI_GetSelectionModel 0x0817dde4
 #define ADDR_UI_GetControllerRegistry 0x081d5950
 #define ADDR_UI_CreateScreenController 0x081d59e0
-#define ADDR_UI_RegisterController 0x081d5ac8
+#define ADDR_UI_RegisterControllerFactories 0x081d5ac8
 #define ADDR_UI_RegisterViewFactory 0x081d70d8
 #define ADDR_UI_LoadLayoutEventTables 0x081d61b0
 #define ADDR_UI_GetLayoutEventTable 0x081d63e0
-#define ADDR_UI_ReadEventMap 0x082a191c
+#define ADDR_UIEventMap_ReadStream 0x082a191c
 #define ADDR_ScreenController_CreateNamed 0x0812a0d8
 #define ADDR_ScreenController_HandleEvent 0x0812a39c
-#define ADDR_Controller_Activate 0x08398954
-#define ADDR_Controller_Deactivate 0x08398b6c
+#define ADDR_ResourceScreen_Activate 0x08398954
+#define ADDR_ResourceScreen_Deactivate 0x08398b6c
 #define ADDR_MenuItem_SetVisible 0x08194ff0
 #define ADDR_ContextMenuItems_Append 0x08162390
-#define ADDR_Wheel_DecodeEvent 0x08289490
-#define ADDR_Button_EventToUIKey 0x0829b978
+#define ADDR_WheelEvent_DecodeMotion 0x08289490
+#define ADDR_ButtonEvent_GetUIKeyCode 0x0829b978
 #define ADDR_WheelAccumulator_Init 0x081b0efc
-#define ADDR_WheelAccumulator_Step 0x081b0e4c
+#define ADDR_WheelAccumulator_ConsumeMotion 0x081b0e4c
 #define ADDR_WheelAccumulator_Reset 0x081b0e7c
-#define ADDR_View_InitOptions 0x0829b090
+#define ADDR_View_InitOptionsFromDescriptor 0x0829b090
 #define ADDR_View_Construct 0x08265bf8
-#define ADDR_View_BindGraphics 0x08264bdc
-#define ADDR_View_GetLocalRect 0x08299014
+#define ADDR_View_BindGraphicsContext 0x08264bdc
+#define ADDR_View_GetLocalContentRect 0x08299014
 #define ADDR_View_InvalidateRect 0x082655a0
 #define ADDR_View_DrawBackgroundAndBorder 0x08263530
 #define ADDR_TextView_DrawTextWithColor 0x08287218
 #define ADDR_MarqueeTextView_Draw 0x081a8dc8
 #define ADDR_CoverFlowView_UpdateActiveState 0x0813818c
 #define ADDR_GLAlbumArtView_UpdateActiveState 0x081641b8
-#define ADDR_GraphicsContext_Construct 0x0825b008
+#define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
 #define ADDR_GraphicsContext_SetColor 0x08259b28
 #define ADDR_GraphicsContext_SetBackgroundColor 0x08259b20
 #define ADDR_GraphicsContext_SetFont 0x0825aba8
-#define ADDR_GraphicsContext_SetPen 0x0825aba0
-#define ADDR_GraphicsContext_SetMode 0x082596fc
-#define ADDR_GraphicsContext_DrawText 0x08259648
-#define ADDR_GraphicsContext_TextWidth 0x08259d10
+#define ADDR_GraphicsContext_SetTextPen 0x0825aba0
+#define ADDR_GraphicsContext_SetDrawMode 0x082596fc
+#define ADDR_GraphicsContext_DrawUtf8 0x08259648
+#define ADDR_GraphicsContext_MeasureUtf8 0x08259d10
 #define ADDR_Font_Construct 0x0826c0f4
-#define ADDR_Font_Ascent 0x08298784
-#define ADDR_Font_Descent 0x082987b8
+#define ADDR_GraphicsContext_GetFontAscent 0x08298784
+#define ADDR_GraphicsContext_GetFontDescent 0x082987b8
 #define ADDR_Surface_FillRect 0x08069a5c
 #define ADDR_GLES_ClearColorx 0x082c7820
 #define ADDR_RGB565_BlendFixed 0x0826a9a8
@@ -350,9 +350,9 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_MediaList_InvalidateOrderCache 0x080d1928
 #define ADDR_MediaList_CopyEntryAtPosition 0x0803bbf0
 #define ADDR_MediaList_GetEntryByOrderIndex 0x08047870
-#define ADDR_MediaList_AddToOnTheGo 0x0820f8d4
-#define ADDR_MediaList_DispatchAction 0x0820f5a4
-#define ADDR_OnTheGo_AddBrowser 0x081095f8
+#define ADDR_MediaListController_AddSelectionToOnTheGo 0x0820f8d4
+#define ADDR_MediaListController_DispatchAction 0x0820f5a4
+#define ADDR_OnTheGo_AddBrowserSelection 0x081095f8
 #define ADDR_MediaListSelection_SelectArtworkSource 0x08169c98
 #define ADDR_MediaListSelection_SetList 0x08169db4
 #define ADDR_ArtworkSession_Stop 0x0820a76c
@@ -408,15 +408,15 @@ extern uint16_t ATA_Identify[256];
 #define ADDR_GameLoader_LoadVerifiedManifest 0x080f9374
 #define ADDR_IAP_VerifyDeviceSignatureRSA 0x0812dca8
 #define ADDR_IAP_VerifyDeviceSignatureAlternate 0x081592fc
-#define ADDR_IAP_HandleDevAuthenticationSignature 0x081892b8
+#define ADDR_IAP_HandleDeviceAuthenticationSignature 0x081892b8
 #define ADDR_IAP_SetAccessoryAuthState 0x08185e18
-#define ADDR_System_Sleep 0x0805d0c0
-#define ADDR_Power_IdleSleep 0x0819b28c
-#define ADDR_Power_RequestedSleep 0x0819bb18
+#define ADDR_Power_EnterLightSleep 0x0805d0c0
+#define ADDR_PowerController_HandleIdleSleep 0x0819b28c
+#define ADDR_PowerController_HandleRequestedSleep 0x0819bb18
 #define ADDR_System_SaveAll 0x080638d8
-#define ADDR_Preferences_Flush 0x08063760
-#define ADDR_Settings_ResetAll 0x081e1e6c
-#define ADDR_Settings_ConfirmResetAll 0x08212820
+#define ADDR_Preferences_FlushIfDirty 0x08063760
+#define ADDR_SettingsModel_ResetAllSettings 0x081e1e6c
+#define ADDR_SettingsController_ConfirmResetAll 0x08212820
 #define ADDR_File_DeleteLegacyPath 0x0804f99c
 #define ADDR_Disk_GetPowerState 0x082b3630
 #define ADDR_UI_InitializeEventTimer 0x0810635c
@@ -541,8 +541,8 @@ extern uint16_t ATA_Identify[256];
 #define SITE_SettingsModel_ResetMusicMenu_entry 0x081e1134
 #define SITE_Sleep_Idle_call 0x0819b32c
 #define SITE_Sleep_Request_call 0x0819bba8
-#define SITE_Preferences_Flush_call 0x0806392c
-#define SITE_Settings_ResetAll_call 0x08212844
+#define SITE_Preferences_FlushIfDirty_call 0x0806392c
+#define SITE_SettingsModel_ResetAllSettings_call 0x08212844
 #define SITE_BlockCache_ImportCost_word 0x0805ddd4
 #define SITE_BlockCache_ReserveNative_word 0x0805ddd8
 #define SITE_BlockCache_FloorTest_word 0x0805dddc
