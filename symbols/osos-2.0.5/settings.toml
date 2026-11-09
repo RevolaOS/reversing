@@ -23,6 +23,9 @@ SettingsEQ_HandleAction = { at = 0x081345e4, c = "int SettingsEQ_HandleAction(vo
 SettingsEQ_ApplySelection = { at = 0x081347b0, c = "int SettingsEQ_ApplySelection(void *controller)" }
 SettingsEQ_ShowPreview = { at = 0x08134690, c = "int SettingsEQ_ShowPreview(void *controller)" }
 SettingsMainMenu_HandleAction = { at = 0x081d2144, c = "int SettingsMainMenu_HandleAction(void *controller, const char *action, uint32_t argument)" }
+SettingsEQ_HandleEvent = { at = 0x08398e78, c = "int SettingsEQ_HandleEvent(void *controller, void *event)" }
+SettingsEQ_SelectCurrentRow = { at = 0x08134750, c = "int SettingsEQ_SelectCurrentRow(void *controller, uint32_t deferred)" }
+SettingsBacklight_SelectCurrentRow = { at = 0x08100d88, c = "int SettingsBacklight_SelectCurrentRow(void *controller, uint32_t deferred)" }
 SettingsModel_AdjustBrightness = { at = 0x081e2ee8, c = "void SettingsModel_AdjustBrightness(void *model, int delta)" }
 
 [data]

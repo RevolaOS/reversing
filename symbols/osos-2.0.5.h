@@ -181,6 +181,9 @@ int SettingsEQ_HandleAction(void *controller, const char *action, uint32_t argum
 int SettingsEQ_ApplySelection(void *controller);
 int SettingsEQ_ShowPreview(void *controller);
 int SettingsMainMenu_HandleAction(void *controller, const char *action, uint32_t argument);
+int SettingsEQ_HandleEvent(void *controller, void *event);
+int SettingsEQ_SelectCurrentRow(void *controller, uint32_t deferred);
+int SettingsBacklight_SelectCurrentRow(void *controller, uint32_t deferred);
 void SettingsModel_AdjustBrightness(void *model, int delta);
 void *CppString_Init(void *string, const char *text);
 void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator);
@@ -258,6 +261,7 @@ int ScreenController_PopSelf(void *controller, uint32_t flags);
 void *ResourceService_GetIndexedResource(void *service, uint32_t type, uint32_t property, uint32_t index);
 void MenuItems_RegisterAll(void);
 void BitmapView_LoadBitmap(void *view);
+void *Object_GetInterface(void *object, uint32_t interface);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
@@ -490,6 +494,9 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_SettingsEQ_ApplySelection 0x081347b0
 #define ADDR_SettingsEQ_ShowPreview 0x08134690
 #define ADDR_SettingsMainMenu_HandleAction 0x081d2144
+#define ADDR_SettingsEQ_HandleEvent 0x08398e78
+#define ADDR_SettingsEQ_SelectCurrentRow 0x08134750
+#define ADDR_SettingsBacklight_SelectCurrentRow 0x08100d88
 #define ADDR_SettingsModel_AdjustBrightness 0x081e2ee8
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
@@ -581,6 +588,8 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_MenuList_GetRowProperty 0x08194ecc
 #define ADDR_MenuItems_RegisterAll 0x081951cc
 #define ADDR_BitmapView_LoadBitmap 0x08100020
+#define ADDR_Object_GetInterface 0x0826c594
+#define ADDR_UI_TransitionToLayout 0x0817518c
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
@@ -933,6 +942,7 @@ extern void *const AlbumsController_vtable[];
 #define EventTimer_event_queue 0x28
 #define EventTimer_bytes 0x2c
 #define Event_kind 0x4
+#define Event_notification 0x8
 #define Event_payload_method 0x14
 #define TimerEventPayload_timer 0x8
 #define EventRecipient_event_method 0x30
@@ -981,6 +991,9 @@ extern void *const AlbumsController_vtable[];
 #define SourceBinding_property 0x4
 #define SourceBinding_destination 0x8
 #define SelectionModel_current_index_method 0x168
+#define SelectionModel_find_view_method 0xf8
+#define ListInterface_select_method 0x174
+#define Notification_code 0x4
 #define ControlRange_value 0x0
 #define ControlRange_minimum 0x4
 #define ControlRange_maximum 0x8
@@ -1055,6 +1068,16 @@ extern void *const AlbumsController_vtable[];
 #define SourceDestination_Title 0x1
 #define Property_Control 0x436e746c
 #define Property_Visible 0x56566973
+#define Interface_List 0x1700
+#define Interface_Template 0x3b80
+#define Event_Notification 0x16
+#define Notification_LayoutShown 0x2502
+#define Notification_LayoutChanged 0x2503
+#define ViewOption_TopEdge 0x3e8
+#define ViewOption_LeftEdge 0x3e9
+#define ViewOption_BottomEdge 0x3ea
+#define ViewOption_RightEdge 0x3eb
+#define ViewOption_Visible 0x3ed
 #define Property_Minimum 0x564d696e
 #define Property_Layout 0x4c4c6179
 #define Property_LayoutSet 0x4c4c6180

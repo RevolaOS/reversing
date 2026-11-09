@@ -41,7 +41,7 @@ Settings > EQ is `TCSettings_EQ` on `RES_Settings_EQ_Screen`. Its `VSlt` binds t
 - `SettingsEQ_ApplySelection` reads the current index, calls `SettingsModel_SelectEQMenuIndex` and pops the screen with `ScreenController_pop_self_method` (`ScreenController_PopSelf(controller, 0x10)`, which calls `Navigator_PopTop`).
 - `SettingsEQ_ShowPreview` passes the index to `SettingsModel_SetPreviewIndex`, which stores it and notifies `Notify_All` for preview property 0x891a.
 
-How the current preset is highlighted when the screen opens has not been traced; `TCSettings_EQ` uses the generic `ResourceScreen_Activate`.
+The current preset is highlighted from the controller's event slot. When `UI_TransitionToLayout` has shown the layout, the controller receives an `Event_Notification` whose `Notification_code` (at `Event_notification`) is `Notification_LayoutShown`; `UI_DisplayPreparedLayout` sends `Notification_LayoutChanged`. `SettingsEQ_HandleEvent` then calls `SettingsEQ_SelectCurrentRow`, unless the controller's deferred flag is set. That function finds the list with `SelectionModel_find_view_method(RES_SettingsList_View)`, takes its `Interface_List` with `Object_GetInterface`, and calls `ListInterface_select_method(list, index)` with the current preset. Backlight does the same (`SettingsBacklight_SelectCurrentRow`). A clone can do this in its event slot on the same notification. Right after the push the layout is not shown yet and the list view may not exist.
 
 ## Settings preview pane
 
@@ -51,7 +51,14 @@ Every row of `RES_SettingsMenu_Main_Screen` has its own layout. The row's `delay
 - the pane, `RES_SettingsPreview_Template` for most rows;
 - the list (`RES_SettingsList_Template`).
 
-The pane has a caption (`RES_SettingsPreview_Caption_Text`), a background image, an icon (`RES_Settings_Icon_View`) and a detail line (`RES_Settings_InfoDetail_View`). The pane instance's `Resource_VLyt` (`SsinInstance_substitute`) binds each of them for that row: visibility, a `SORC` source and, for the icon, its frame. About's caption is a `Service_String` string, its icon is `Service_Settings` property 0x891d and its detail line is property 0x8905. A clone binds its own caption and bitmap by giving its pane instance a `VLyt` with its own sources.
+The pane has a caption (`RES_SettingsPreview_Caption_Text`), a background image, an icon (`RES_Settings_Icon_View`) and a detail line (`RES_Settings_InfoDetail_View`). The pane instance's `Resource_VLyt` (`SsinInstance_substitute`) binds each of them for that row. About's caption is a `Service_String` string, its icon is `Service_Settings` property 0x891d and its detail line is property 0x8905. A clone binds its own caption and bitmap by giving its pane instance a `VLyt` with its own sources.
+
+A `VLyt`, `VSlt` or `VCvs` block's kind is a view id, and its data is a block list of options:
+- `ViewOption_Visible`: a byte, 1 to show and 0 to hide.
+- `ViewOption_TopEdge`, `ViewOption_LeftEdge`, `ViewOption_BottomEdge` and `ViewOption_RightEdge`: one edge constraint each, in the descriptor frame's triple format.
+- `Resource_SORC`: a source id.
+
+The 30 stock `VSlt` resources hold only `ViewBinding_ItemTable` blocks: `{view id, ITEM id}`. Template views keep whatever was last applied, so a view a `VLyt` leaves out keeps the previous screen's caption or icon. A clone should bind every pane view.
 
 An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, or `Property_Drawable` when that is its type. A `Property_Bitmap` answer is a pointer to a `BMap` resource:
 - a format halfword at +0 (0x64 is 8-bit indexed, 0 picks the format from the depth);
@@ -120,7 +127,7 @@ A view bound to a model (`View_model`, `View_property`) is refreshed through `Vi
 
 `UI_InitializeViewTemplates` runs once per template owner while the UI starts. It enumerates every `Resource_View` with `ResourceBank_FirstResource` and `ResourceBank_NextResource`, and `UI_CreateTemplateFromResource` builds a live view tree for each one from its `Resource_TMLT`. Nothing is built later. On a ROM-backed bank the enumeration walks only the ROM index and never the overrides, so a View that exists only as an override gets no template. To add one, hook site `ResourceBank_NextTemplate_call`: call the original, and when it returns NULL, yield the extra View resources one at a time. The hook is called again with the last id it returned. The template then builds its child views from the View resource it loads again by id through the resource provider, so each yielded View must also be stored with `ResourceBank_SetResource`; a View that is only yielded produces a template with no children.
 
-`UI_DisplayPreparedLayout` finds each `SSin` instance's template with `UI_FindTemplateView`. If there is no template, the instance is skipped without an error. Otherwise `UI_ApplyInstanceResources` applies the instance's `Resource_VLyt`, then the layout's `Resource_VSlt`, then the instance's `Resource_VCvs`. Each block looks up a view in the template tree with `View_FindViewById` (`View_find_view_method`; the id is in `View_id`) and passes its options to `View_ApplyPropertyBindings`. Apart from an item-table block, nothing checks the result of that lookup. A block whose kind is not the id of a view in the template therefore crashes on a NULL pointer. All screens that use a template share the same views, so bindings set for one screen stay in place until another screen rebinds them.
+`UI_DisplayPreparedLayout` finds each `SSin` instance's template with `UI_FindTemplateView`. If there is no template, the instance is skipped without an error. Otherwise `UI_ApplyInstanceResources` applies the instance's `Resource_VLyt`, then the screen's `Resource_VSlt` (keyed by `ScreenDefinition_screen`), then the instance's `Resource_VCvs`. Each block looks up a view in the template tree with `View_FindViewById` (`View_find_view_method`; the id is in `View_id`) and passes its options to `View_ApplyPropertyBindings`. Apart from an item-table block, nothing checks the result of that lookup. A block whose kind is not the id of a view in the template therefore crashes on a NULL pointer. All screens that use a template share the same views, so bindings set for one screen stay in place until another screen rebinds them.
 
 The stock Legal page binds only its title this way. Its paragraph text comes from the template's view descriptors.
 
