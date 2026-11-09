@@ -108,16 +108,6 @@ def trim_sarif(source, spec, analysis):
     trim(results, spec, data, analysis_directory(spec, analysis))
 
 
-def trim_directory(source, spec, analysis):
-    """Trim an untrimmed RepriseOS analysis directory (one jsonl per rule)."""
-    header = json.loads((source / "program.json").read_text())
-    results = []
-    for path in sorted(source.glob("*.jsonl")):
-        with path.open() as lines:
-            results.extend(json.loads(line) for line in lines if line.strip())
-    trim(results, spec, header, analysis_directory(spec, analysis))
-
-
 OVERLAY_RULES = ("datatype", "functions", "symbols", "comments", "bookmarks")
 
 
