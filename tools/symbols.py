@@ -14,7 +14,8 @@ verify compares every function and site with the exported analysis.
 push names the project's functions and data after the symbols file and applies the
 prototypes; sites become Note bookmarks in category "site".
 refresh rewrites the address, thumb flag and prototype of existing entries from the
-project. It never adds or removes entries.
+project. It never adds or removes entries, and it keeps a prototype when Ghidra's
+names a struct the symbols file does not use.
 """
 
 import argparse
@@ -330,6 +331,12 @@ def refresh(path, project):
             "READ ",
         )
         found = json.loads(result.read_text())
+    structs = {
+        name
+        for table in ("functions", "data")
+        for entry in data[table].values()
+        for name in STRUCT.findall(entry.get("c", ""))
+    }
     updates = {}
     moved = {}
     for table in ("functions", "data"):
@@ -347,7 +354,12 @@ def refresh(path, project):
                 else:
                     entry.pop("thumb", None)
                 if "c" in entry and "c" in ghidra:
-                    if not same_prototype(entry["c"], ghidra["c"]):
+                    unknown = set(STRUCT.findall(ghidra["c"])) - structs
+                    if unknown:
+                        print(
+                            f"{name}: kept c; Ghidra uses struct {', '.join(unknown)}"
+                        )
+                    elif not same_prototype(entry["c"], ghidra["c"]):
                         entry["c"] = ghidra["c"]
             entry["at"] = ghidra["at"]
             updates[name] = entry
