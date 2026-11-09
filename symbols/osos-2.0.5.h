@@ -131,6 +131,7 @@ int Disk_GetPowerState(uint32_t *out_powered);
 void ResourceBank_InitOverrides(void *bank);
 void ResourceBank_SetResource(void *bank, uint32_t type, uint32_t id, const void *data, uint32_t bytes);
 void *ResourceBank_GetResource(void *bank, uint32_t type, uint32_t id, uint32_t *out_bytes);
+const void *ResourceBank_FirstResource(void *bank, uint32_t type, uint32_t *id, uint32_t *bytes);
 const void *ResourceBank_NextResource(void *bank, uint32_t *id, uint32_t *bytes);
 uint32_t *ResourceNames_FindOrInsertSlot(void *map, const void *name);
 void ResourceBlockList_AppendBorrowedBlock(void *list, const void *data, uint32_t bytes, uint32_t metadata);
@@ -230,6 +231,8 @@ int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t arg
 void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
 void UI_LoadScreenLayouts(void *definition);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
+void *UI_FindTemplateView(void *owner, uint32_t template_id);
+void UI_DisplayPreparedLayout(void *manager, void *layout);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
@@ -391,6 +394,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_ResourceBank_InitOverrides 0x08111f00
 #define ADDR_ResourceBank_SetResource 0x08111e20
 #define ADDR_ResourceBank_GetResource 0x08111d74
+#define ADDR_ResourceBank_FirstResource 0x081120f4
 #define ADDR_ResourceBank_NextResource 0x08112000
 #define ADDR_ResourceNames_FindOrInsertSlot 0x083d242c
 #define ADDR_ResourceBlockList_AppendBorrowedBlock 0x0817a7ec
@@ -521,6 +525,11 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_UI_ConstructScreenDefinition 0x0813ca44
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
+#define ADDR_UI_CreateTemplateFromResource 0x081df580
+#define ADDR_UI_FindTemplateView 0x081af514
+#define ADDR_UI_DisplayPreparedLayout 0x08174464
+#define ADDR_UI_ApplyInstanceResources 0x081781c0
+#define ADDR_View_ApplyPropertyBindings 0x08175b7c
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_WheelState 0x089d2b8c

@@ -59,6 +59,11 @@ ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchActio
 UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts)" }
 UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
+UI_CreateTemplateFromResource = { at = 0x081df580 }
+UI_FindTemplateView = { at = 0x081af514, c = "void *UI_FindTemplateView(void *owner, uint32_t template_id)" }
+UI_DisplayPreparedLayout = { at = 0x08174464, c = "void UI_DisplayPreparedLayout(void *manager, void *layout)" }
+UI_ApplyInstanceResources = { at = 0x081781c0 }
+View_ApplyPropertyBindings = { at = 0x08175b7c }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }

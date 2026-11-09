@@ -24,6 +24,8 @@ The Main Menu and Music Menu toggle screens have no `ITEM` table: `SettingsModel
 
 The main menu is `RES_MainMenu_Items` on `RES_MainMenus_Main_Screen`, the Music menu `RES_MusicMenu_Items` on `RES_MainMenus_Music_Screen`; their rows are the `RES_MainMenu_*_Item` and `RES_MusicMenu_*_Item` ids, in the order of `MainMenuSettingsRows` and `MusicMenuSettingsRows`. Extras is controller `TCExtrasMenu` on `RES_ExtrasMenu_Screen`; its rows (`RES_ExtrasMenu_*_Item`) are bound in the screen's `CEVT`, and only `HandleLock` and `HandleAddressBook` reach `ExtrasMenu_DispatchAction` (site `Extras_Action_slot`). Its list is bound to `RES_ExtrasMenu_Items` through a `ViewBinding_ItemTable` block in the screen's `Resource_VSlt` resource.
 
+Each `*_Action_slot` is the `ScreenController_action_method` entry of a controller vtable. Main, Music and Now Playing each have two such vtables, so a hook binds both the plain and the `Secondary` slot. Which class each screen creates has not been traced.
+
 Sites `MainMenu_Index_call` and `MusicMenu_Index_call` are `BLX r1` through the selection model, not direct calls; a replacement must call the original through r1.
 
 ## Resource blocks
@@ -39,7 +41,7 @@ UI resources are a 32-bit count followed by blocks of `{bytes, kind, data}`, eac
 | `Resource_SCST` | screen id | controller class name, NUL-terminated |
 | `Resource_SLst` | screen id | blocks; word 0 of each is a layout id (the first is the default layout) |
 | `Resource_SLyt` | layout id | blocks; word 0 of each is an `SSin` id |
-| `Resource_SSin` | instance list id | blocks: `SsinInstance_view_bindings` (a `VCvs` id), `SsinInstance_template`, `SsinInstance_substitute`, `SsinInstance_flags` |
+| `Resource_SSin` | instance list id | blocks: `SsinInstance_view_bindings` (a `VCvs` id), `SsinInstance_template`, `SsinInstance_substitute` (loaded as the instance's `VLyt` id), `SsinInstance_flags` |
 | `Resource_VCvs` | instance id | blocks whose kind is a view id, each holding option blocks; a `Resource_SORC` option is a 32-bit source id. Kind `ViewBinding_ItemTable` binds a list to an `ITEM` table at `ItemTableBinding_item_table` |
 | `Resource_View` | template id | view descriptors, one block per view, kind = view type |
 | `Resource_TMLT` | template id | template parameters, copied unchanged when a template is cloned |
@@ -63,6 +65,14 @@ The stock Settings rows bind `list.pid.<row id>.chosen` and `delayedselected` in
 ## Views
 
 `UI_RegisterViewFactory` maps a view type (the descriptor's `ViewDescriptor_type`) to `create(owner, parent, event_target, descriptor)`. A custom view fills `ViewDescriptor_options_bytes` of options with `View_InitOptionsFromDescriptor`, allocates `View_bytes`, calls `View_Construct` and installs its own vtable: a copy of `View_vtable` (`View_vtable_bytes`, the last four slots null) with `View_draw_method` replaced. `View_destroy_method` is the deleting destructor. A full redraw is `View_InvalidateRect(UI_GetRootView(), root + View_bounds)`.
+
+### Templates
+
+`UI_InitializeViewTemplates` runs once per template owner while the UI starts. It enumerates every `Resource_View` with `ResourceBank_FirstResource` and `ResourceBank_NextResource`, and `UI_CreateTemplateFromResource` builds a live view tree for each one from its `Resource_TMLT`. Nothing is built later. On a ROM-backed bank the enumeration walks only the ROM index and never the overrides, so a View that exists only as an override gets no template. To add one, hook site `ResourceBank_NextTemplate_call`: call the original, and when it returns NULL, yield the extra View resources one at a time. The hook is called again with the last id it returned.
+
+`UI_DisplayPreparedLayout` finds each `SSin` instance's template with `UI_FindTemplateView`. If there is no template, the instance is skipped without an error. Otherwise `UI_ApplyInstanceResources` applies the instance's `Resource_VLyt`, then the layout's `Resource_VSlt`, then the instance's `Resource_VCvs`. Each block finds a child view of the template by id and passes its options to `View_ApplyPropertyBindings`. All screens that use a template share the same views, so bindings set for one screen stay in place until another screen rebinds them.
+
+The stock Legal page binds only its title this way. Its paragraph text comes from the template's view descriptors.
 
 Settings > Brightness is the slider prototype: its template has a `ViewType_Progress` bar (`RES_Settings_Brightness_Bar`) and a `ViewType_Text` value (`RES_Settings_Brightness_Value_Text`). Bound to a Settings property, the bar asks for type `Property_Control` and reads three signed words (`ControlRange_*`); the text asks for `Property_String`.
 
