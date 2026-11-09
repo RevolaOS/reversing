@@ -223,6 +223,7 @@ int Controller_ExecuteNavigatorAction(void *controller, void *action, int action
 void Navigator_PopTop(uint32_t flags);
 void Navigator_PopToMainScreen(void);
 void Navigator_PopToPixoMainScreen(void);
+int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
@@ -238,6 +239,9 @@ extern uint32_t MusicMenuSettingsRows[];
 extern void *const ScreenController_vtable[];
 extern void *const View_vtable[];
 extern void *const SettingsMenuListController_vtable[];
+extern void *const ExtrasMenuController_vtable[];
+extern void *const ArtistsController_vtable[];
+extern void *const AlbumsController_vtable[];
 #endif
 
 #define ADDR_ArtworkDatabase_Import 0x08059000
@@ -503,6 +507,7 @@ extern void *const SettingsMenuListController_vtable[];
 #define ADDR_Navigator_PopToScreen 0x08289728
 #define ADDR_Navigator_PopToMainScreen 0x08289714
 #define ADDR_Navigator_PopToPixoMainScreen 0x08289768
+#define ADDR_ExtrasMenu_DispatchAction 0x0811a664
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_WheelState 0x089d2b8c
@@ -517,6 +522,9 @@ extern void *const SettingsMenuListController_vtable[];
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
 #define ADDR_SettingsMenuListController_vtable 0x089a3ae0
+#define ADDR_ExtrasMenuController_vtable 0x0899cb30
+#define ADDR_ArtistsController_vtable 0x089a40e4
+#define ADDR_AlbumsController_vtable 0x089a3514
 
 #define SITE_ArtworkDatabase_Import_call 0x0804d458
 #define SITE_ArtworkDatabase_ReadImageThumbs_call 0x08074f34
@@ -680,6 +688,9 @@ extern void *const SettingsMenuListController_vtable[];
 #define SITE_NestedPlaylists_DispatchAction_entry 0x0822ea1c
 #define SITE_Genius_DispatchAction_entry 0x0821c0e4
 #define SITE_UITask_StackShift_word 0x081391dc
+#define SITE_Extras_Action_slot 0x0899cc44
+#define SITE_Artists_Action_slot 0x089a41f8
+#define SITE_Albums_Action_slot 0x089a3628
 
 #define ArtworkDatabase_image_count 0x8
 #define ArtworkDatabase_first_image 0xc
@@ -860,6 +871,11 @@ extern void *const SettingsMenuListController_vtable[];
 #define ControlRange_minimum 0x4
 #define ControlRange_maximum 0x8
 #define ControlRange_bytes 0xc
+#define ContextMenuItem_item 0x0
+#define ContextMenuItem_action 0x4
+#define ContextMenuItem_flags 0x8
+#define ContextMenuItem_bytes 0xc
+#define MediaListController_show_context_menu_method 0x148
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
@@ -919,6 +935,7 @@ extern void *const SettingsMenuListController_vtable[];
 #define SourceDestination_InlineValue 0xa
 #define ViewType_Progress 0x70676f67
 #define ViewType_Text 0x74657874
+#define UITask_stack_bytes 0x20000
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
@@ -968,3 +985,70 @@ extern void *const SettingsMenuListController_vtable[];
 #define RES_Settings_Legal_Template 0x0dad0041
 #define RES_StatusBarWhite_Template 0x0dad01a1
 #define RES_StatusBarWhite_Text 0x0dad01a6
+#define RES_MainMenu_Items 0x0000001a
+#define RES_MusicMenu_Items 0x0000001b
+#define RES_MainMenus_Main_Screen 0x0dad076e
+#define RES_MainMenus_Music_Screen 0x0dad07c8
+#define RES_ExtrasMenu_Screen 0x0dad01cc
+#define RES_ExtrasMenu_Layout 0x0dad01f0
+#define RES_MainMenu_Music_Item 0x0dad076f
+#define RES_MainMenu_CoverFlow_Item 0x0dad0770
+#define RES_MainMenu_GeniusMixes_Item 0x0dad0771
+#define RES_MainMenu_Playlists_Item 0x0dad0772
+#define RES_MainMenu_Artists_Item 0x0dad0773
+#define RES_MainMenu_Albums_Item 0x0dad0774
+#define RES_MainMenu_Compilations_Item 0x0dad0775
+#define RES_MainMenu_Songs_Item 0x0dad0776
+#define RES_MainMenu_Radio_Item 0x0dad0792
+#define RES_MainMenu_Genres_Item 0x0dad0777
+#define RES_MainMenu_Composers_Item 0x0dad0778
+#define RES_MainMenu_Audiobooks_Item 0x0dad0779
+#define RES_MainMenu_Search_Item 0x0dad077a
+#define RES_MainMenu_Photos_Item 0x0dad0781
+#define RES_MainMenu_Podcasts_Item 0x0dad0784
+#define RES_MainMenu_iTunesU_Item 0x0dad0785
+#define RES_MainMenu_Videos_Item 0x0dad077b
+#define RES_MainMenu_VideoPlaylists_Item 0x0dad077c
+#define RES_MainMenu_Movies_Item 0x0dad077d
+#define RES_MainMenu_TVShows_Item 0x0dad077e
+#define RES_MainMenu_MusicVideos_Item 0x0dad077f
+#define RES_MainMenu_Rentals_Item 0x0dad0780
+#define RES_MainMenu_Extras_Item 0x0dad0786
+#define RES_MainMenu_Clocks_Item 0x0dad0787
+#define RES_MainMenu_Alarms_Item 0x0dad0788
+#define RES_MainMenu_Calendars_Item 0x0dad0789
+#define RES_MainMenu_Contacts_Item 0x0dad078a
+#define RES_MainMenu_Games_Item 0x0dad078b
+#define RES_MainMenu_Notes_Item 0x0dad078c
+#define RES_MainMenu_ScreenLock_Item 0x0dad078d
+#define RES_MainMenu_Stopwatch_Item 0x0dad078e
+#define RES_MainMenu_ShuffleSongs_Item 0x0dad0794
+#define RES_MainMenu_Sleep_Item 0x0dad0796
+#define RES_MusicMenu_CoverFlow_Item 0x0dad07c9
+#define RES_MusicMenu_GeniusMixes_Item 0x0dad07ca
+#define RES_MusicMenu_Playlists_Item 0x0dad07cb
+#define RES_MusicMenu_Artists_Item 0x0dad07cc
+#define RES_MusicMenu_Albums_Item 0x0dad07cd
+#define RES_MusicMenu_Compilations_Item 0x0dad07ce
+#define RES_MusicMenu_Songs_Item 0x0dad07cf
+#define RES_MusicMenu_Radio_Item 0x0dad07d0
+#define RES_MusicMenu_Genres_Item 0x0dad07d1
+#define RES_MusicMenu_Composers_Item 0x0dad07d2
+#define RES_MusicMenu_Audiobooks_Item 0x0dad07d3
+#define RES_MusicMenu_Search_Item 0x0dad07d4
+#define RES_ExtrasMenu_Clocks_Item 0x0dad01cd
+#define RES_ExtrasMenu_Calendars_Item 0x0dad01ce
+#define RES_ExtrasMenu_Contacts_Item 0x0dad01cf
+#define RES_ExtrasMenu_Alarms_Item 0x0dad01d0
+#define RES_ExtrasMenu_Games_Item 0x0dad01d1
+#define RES_ExtrasMenu_Notes_Item 0x0dad01d2
+#define RES_ExtrasMenu_ScreenLock_Item 0x0dad01d3
+#define RES_ExtrasMenu_Stopwatch_Item 0x0dad01d4
+#define RES_MediaLists_Songs_Screen 0x0dad07e9
+#define RES_MediaLists_NestedPlaylists_Screen 0x0dad0808
+#define RES_MediaLists_Genius_Screen 0x0dad0844
+#define RES_MediaLists_GeniusPlaylist_Screen 0x0dad0848
+#define RES_MediaLists_Artists_Screen 0x0dad07f0
+#define RES_MediaLists_Artists_Screen_Default 0x0dad07f1
+#define RES_MediaLists_Albums_Screen 0x0dad07ed
+#define RES_NowPlaying_Screen 0x0dad096c

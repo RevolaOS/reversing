@@ -16,6 +16,12 @@ A list's rows are blocks in an `ITEM` resource (`RES_SettingsMenu_Items` for Set
 
 The Main Menu and Music Menu toggle screens have no `ITEM` table: `SettingsModel_GetIndexedProperty` serves their rows from `MainMenuSettingsRows` and `MusicMenuSettingsRows` (`MenuSettingsRow_*`), selected by property id alone.
 
+## Main, Music and Extras menus
+
+The main menu is `RES_MainMenu_Items` on `RES_MainMenus_Main_Screen`, the Music menu `RES_MusicMenu_Items` on `RES_MainMenus_Music_Screen`; their rows are the `RES_MainMenu_*_Item` and `RES_MusicMenu_*_Item` ids, in the order of `MainMenuSettingsRows` and `MusicMenuSettingsRows`. Extras is controller `TCExtrasMenu` on `RES_ExtrasMenu_Screen`; its rows (`RES_ExtrasMenu_*_Item`) are bound in the screen's `CEVT`, and only `HandleLock` and `HandleAddressBook` reach `ExtrasMenu_DispatchAction` (site `Extras_Action_slot`). TODO: the Extras `ITEM` id.
+
+Sites `MainMenu_Index_call` and `MusicMenu_Index_call` are `BLX r1` through the selection model, not direct calls; a replacement must call the original through r1.
+
 ## Resource blocks
 
 UI resources are a 32-bit count followed by blocks of `{bytes, kind, data}`, each padded to 4 bytes. `ResourceBlockList_Load` passes the kind word to `ResourceBlockList_AppendBorrowedBlock` as its metadata.

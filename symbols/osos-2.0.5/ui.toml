@@ -53,11 +53,15 @@ Navigator_PopTop = { at = 0x082896b8, c = "void Navigator_PopTop(uint32_t flags)
 Navigator_PopToScreen = { at = 0x08289728 }
 Navigator_PopToMainScreen = { at = 0x08289714, c = "void Navigator_PopToMainScreen(void)" }
 Navigator_PopToPixoMainScreen = { at = 0x08289768, c = "void Navigator_PopToPixoMainScreen(void)" }
+ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
 View_vtable = { at = 0x089ad8ec, c = "void *const View_vtable[]" }
 SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const SettingsMenuListController_vtable[]" }
+ExtrasMenuController_vtable = { at = 0x0899cb30, c = "void *const ExtrasMenuController_vtable[]" }
+ArtistsController_vtable = { at = 0x089a40e4, c = "void *const ArtistsController_vtable[]" }
+AlbumsController_vtable = { at = 0x089a3514, c = "void *const AlbumsController_vtable[]" }
 
 [sites]
 UI_LoadLayoutEvents_call = { at = 0x081d63f8, kind = "call", in = "UI_GetLayoutEventTable+0x18" }
@@ -84,6 +88,9 @@ SongList_DispatchAction_entry = { at = 0x08218b24, kind = "entry" }
 NestedPlaylists_DispatchAction_entry = { at = 0x0822ea1c, kind = "entry" }
 Genius_DispatchAction_entry = { at = 0x0821c0e4, kind = "entry" }
 UITask_StackShift_word = { at = 0x081391dc, kind = "word", in = "UITask_Create+0x24" }
+Extras_Action_slot = { at = 0x0899cc44, kind = "slot" }
+Artists_Action_slot = { at = 0x089a41f8, kind = "slot" }
+Albums_Action_slot = { at = 0x089a3628, kind = "slot" }
 
 [offsets.Model]
 notify_method = 0x58
@@ -133,6 +140,7 @@ Property_Control = 0x436e746c
 SourceDestination_InlineValue = 0xa
 ViewType_Progress = 0x70676f67
 ViewType_Text = 0x74657874
+UITask_stack_bytes = 0x20000
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
@@ -148,6 +156,73 @@ Notes_List_Screen_Alt_Default = 0x0dad09fb
 Settings_Legal_Template = 0x0dad0041
 StatusBarWhite_Template = 0x0dad01a1
 StatusBarWhite_Text = 0x0dad01a6
+MainMenu_Items = 0x0000001a
+MusicMenu_Items = 0x0000001b
+MainMenus_Main_Screen = 0x0dad076e
+MainMenus_Music_Screen = 0x0dad07c8
+ExtrasMenu_Screen = 0x0dad01cc
+ExtrasMenu_Layout = 0x0dad01f0
+MainMenu_Music_Item = 0x0dad076f
+MainMenu_CoverFlow_Item = 0x0dad0770
+MainMenu_GeniusMixes_Item = 0x0dad0771
+MainMenu_Playlists_Item = 0x0dad0772
+MainMenu_Artists_Item = 0x0dad0773
+MainMenu_Albums_Item = 0x0dad0774
+MainMenu_Compilations_Item = 0x0dad0775
+MainMenu_Songs_Item = 0x0dad0776
+MainMenu_Radio_Item = 0x0dad0792
+MainMenu_Genres_Item = 0x0dad0777
+MainMenu_Composers_Item = 0x0dad0778
+MainMenu_Audiobooks_Item = 0x0dad0779
+MainMenu_Search_Item = 0x0dad077a
+MainMenu_Photos_Item = 0x0dad0781
+MainMenu_Podcasts_Item = 0x0dad0784
+MainMenu_iTunesU_Item = 0x0dad0785
+MainMenu_Videos_Item = 0x0dad077b
+MainMenu_VideoPlaylists_Item = 0x0dad077c
+MainMenu_Movies_Item = 0x0dad077d
+MainMenu_TVShows_Item = 0x0dad077e
+MainMenu_MusicVideos_Item = 0x0dad077f
+MainMenu_Rentals_Item = 0x0dad0780
+MainMenu_Extras_Item = 0x0dad0786
+MainMenu_Clocks_Item = 0x0dad0787
+MainMenu_Alarms_Item = 0x0dad0788
+MainMenu_Calendars_Item = 0x0dad0789
+MainMenu_Contacts_Item = 0x0dad078a
+MainMenu_Games_Item = 0x0dad078b
+MainMenu_Notes_Item = 0x0dad078c
+MainMenu_ScreenLock_Item = 0x0dad078d
+MainMenu_Stopwatch_Item = 0x0dad078e
+MainMenu_ShuffleSongs_Item = 0x0dad0794
+MainMenu_Sleep_Item = 0x0dad0796
+MusicMenu_CoverFlow_Item = 0x0dad07c9
+MusicMenu_GeniusMixes_Item = 0x0dad07ca
+MusicMenu_Playlists_Item = 0x0dad07cb
+MusicMenu_Artists_Item = 0x0dad07cc
+MusicMenu_Albums_Item = 0x0dad07cd
+MusicMenu_Compilations_Item = 0x0dad07ce
+MusicMenu_Songs_Item = 0x0dad07cf
+MusicMenu_Radio_Item = 0x0dad07d0
+MusicMenu_Genres_Item = 0x0dad07d1
+MusicMenu_Composers_Item = 0x0dad07d2
+MusicMenu_Audiobooks_Item = 0x0dad07d3
+MusicMenu_Search_Item = 0x0dad07d4
+ExtrasMenu_Clocks_Item = 0x0dad01cd
+ExtrasMenu_Calendars_Item = 0x0dad01ce
+ExtrasMenu_Contacts_Item = 0x0dad01cf
+ExtrasMenu_Alarms_Item = 0x0dad01d0
+ExtrasMenu_Games_Item = 0x0dad01d1
+ExtrasMenu_Notes_Item = 0x0dad01d2
+ExtrasMenu_ScreenLock_Item = 0x0dad01d3
+ExtrasMenu_Stopwatch_Item = 0x0dad01d4
+MediaLists_Songs_Screen = 0x0dad07e9
+MediaLists_NestedPlaylists_Screen = 0x0dad0808
+MediaLists_Genius_Screen = 0x0dad0844
+MediaLists_GeniusPlaylist_Screen = 0x0dad0848
+MediaLists_Artists_Screen = 0x0dad07f0
+MediaLists_Artists_Screen_Default = 0x0dad07f1
+MediaLists_Albums_Screen = 0x0dad07ed
+NowPlaying_Screen = 0x0dad096c
 
 [offsets.EventTimer]
 period = 0x4
@@ -228,3 +303,12 @@ value = 0x0
 minimum = 0x4
 maximum = 0x8
 bytes = 0xc
+
+[offsets.ContextMenuItem]
+item = 0x0
+action = 0x4
+flags = 0x8
+bytes = 0xc
+
+[offsets.MediaListController]
+show_context_menu_method = 0x148
