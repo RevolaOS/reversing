@@ -74,9 +74,9 @@ Albums_CancelAppend_call = { at = 0x0821c004, kind = "call" }
 MediaList_DispatchAction_entry = { at = 0x0820f5a4, kind = "entry" }
 MediaList_OnTheGoAdd_call = { at = 0x0820f9cc, kind = "call" }
 ITunesDB_ImportTrackDataset_call = { at = 0x08058f1c, kind = "call", in = "ITunesDB_ImportLibrary+0x420" }
-ITunesDB_AlbumArtist_slot = { at = 0x0808adcc, kind = "word", in = "ITunesDB_ImportTrackDataset+0x944" }
-ITunesDB_SortArtist_slot = { at = 0x0808add0, kind = "word", in = "ITunesDB_ImportTrackDataset+0x948" }
-ITunesDB_SortAlbumArtist_slot = { at = 0x0808ade8, kind = "word", in = "ITunesDB_ImportTrackDataset+0x960" }
+ITunesDB_AlbumArtist_word = { at = 0x0808adcc, kind = "word", in = "ITunesDB_ImportTrackDataset+0x944" }
+ITunesDB_SortArtist_word = { at = 0x0808add0, kind = "word", in = "ITunesDB_ImportTrackDataset+0x948" }
+ITunesDB_SortAlbumArtist_word = { at = 0x0808ade8, kind = "word", in = "ITunesDB_ImportTrackDataset+0x960" }
 TrackData_DestroyStorage_call = { at = 0x0803e650, kind = "call", in = "TrackData_Destroy+0xc4" }
 MediaBrowser_BuildArtists_entry = { at = 0x08048fe8, kind = "entry" }
 MediaBrowser_ReadArtistName_entry = { at = 0x08047b54, kind = "entry" }

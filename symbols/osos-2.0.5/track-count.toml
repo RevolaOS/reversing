@@ -1,4 +1,4 @@
-# Halfword loads of MediaEntry.tracks (+0x2e) and MediaEntry.groups (+0x2c), for widening the track count.
+# Halfword loads and stores of MediaEntry.tracks (+0x2e) and MediaEntry.groups (+0x2c), for widening the track count.
 
 [sites]
 TrackCount_0803b2d8_word = { at = 0x0803b2d8, kind = "word" }

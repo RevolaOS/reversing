@@ -21,7 +21,7 @@ What is known about Apple's iPod Classic firmware, and the symbols the RevolaOS 
 | `[offsets.Struct]` | `field = value` | `#define Struct_field` |
 | `[constants]`, `[resources]` | `Name = value` | `#define Name`, `#define RES_Name` |
 
-Site kinds: `call` (a `BL` to redirect), `slot` (a pointer in a vtable or table), `word` (a constant), `entry` (a function start for a jump hook), `literal` (an address held in a literal pool). `in` names the containing function and offset; `verify` checks it.
+Site kinds: `call` (a `BL`, or a `BLX` through a register, to redirect), `slot` (a pointer in a vtable or table), `word` (a constant), `entry` (a function start for a jump hook), `literal` (an address held in a literal pool). `in` names the containing function and offset; `verify` checks it.
 
 ```sh
 python tools/symbols.py generate symbols/osos-2.0.5
@@ -31,7 +31,7 @@ python tools/symbols.py verify symbols/osos-2.0.5
 
 `generate` writes `osos-2.0.5.ld` and `osos-2.0.5.h` next to the directory; both are committed. `check` fails when they are stale. `verify` compares every function and site with `ghidra/analysis/2.0.5/osos` (or `--analysis <dir>`) and lists functions Ghidra has not defined yet. CI runs `check` and `verify`.
 
-Code links against the linker script with `-Wl,--just-symbols=osos-2.0.5.ld` and includes the header. Functions without a prototype exist only so sites can name them.
+Code links against the linker script with `-Wl,--just-symbols=osos-2.0.5.ld` and includes the header. A function without a prototype gets only its linker symbol and `ADDR_` define; add `c` before calling it from C.
 
 Apple firmware bytes are never committed. Analysis is reproduced from the user's own decrypted inputs.
 

@@ -582,9 +582,9 @@ extern void *const AlbumsController_vtable[];
 #define SITE_MediaList_DispatchAction_entry 0x0820f5a4
 #define SITE_MediaList_OnTheGoAdd_call 0x0820f9cc
 #define SITE_ITunesDB_ImportTrackDataset_call 0x08058f1c
-#define SITE_ITunesDB_AlbumArtist_slot 0x0808adcc
-#define SITE_ITunesDB_SortArtist_slot 0x0808add0
-#define SITE_ITunesDB_SortAlbumArtist_slot 0x0808ade8
+#define SITE_ITunesDB_AlbumArtist_word 0x0808adcc
+#define SITE_ITunesDB_SortArtist_word 0x0808add0
+#define SITE_ITunesDB_SortAlbumArtist_word 0x0808ade8
 #define SITE_TrackData_DestroyStorage_call 0x0803e650
 #define SITE_MediaBrowser_BuildArtists_entry 0x08048fe8
 #define SITE_MediaBrowser_ReadArtistName_entry 0x08047b54
