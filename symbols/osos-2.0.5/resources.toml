@@ -27,3 +27,12 @@ ResourceBank_NextTemplate_call = { at = 0x081af75c, kind = "call", in = "UI_Init
 Resource_BMap = 0x424d6170
 Resource_Draw = 0x44726177
 Resource_SORC = 0x534f5243
+Resource_ITEM = 0x4954454d
+Resource_TEVT = 0x54455654
+Resource_SEVT = 0x53455654
+Resource_CEVT = 0x43455654
+
+[offsets.ResourceBlock]
+bytes = 0x0
+kind = 0x4
+data = 0x8

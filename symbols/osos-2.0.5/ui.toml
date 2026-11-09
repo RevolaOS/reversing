@@ -46,6 +46,7 @@ UI_InitializeEventTimer = { at = 0x0810635c, c = "void UI_InitializeEventTimer(v
 Timer_Start = { at = 0x08121268, c = "void Timer_Start(void *timer)" }
 UITask_Create = { at = 0x081391b8 }
 UITask_Main = { at = 0x08139118 }
+Timer_SetPeriod = { at = 0x0812195c, c = "void Timer_SetPeriod(void *timer, uint32_t milliseconds)" }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
@@ -103,6 +104,8 @@ Notify_All = 0x2a2a2a2a
 Service_Settings = 0x8900
 Service_NowPlaying = 0x7f00
 ActionSupportQuery = 0xdeadbeef
+Event_Timer = 0xf
+EventPayload_Timer = 0xd00
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
@@ -113,3 +116,39 @@ NowPlaying_Idle_Template = 0x0dad0925
 NowPlaying_ChapterArt_BackgroundImage_View = 0x0dad092d
 RentalInfo_White_Background_View = 0x0dad09ae
 Search_Input_Text = 0x0dad0ddc
+
+[offsets.EventTimer]
+period = 0x4
+recipient = 0x24
+event_queue = 0x28
+bytes = 0x2c
+
+[offsets.Event]
+kind = 0x4
+payload_method = 0x14
+
+[offsets.TimerEventPayload]
+timer = 0x8
+
+[offsets.EventRecipient]
+event_method = 0x30
+
+[offsets.MenuRow]
+id = 0x30
+style = 0x60
+visible = 0x64
+title = 0x68
+title_from_model = 0x94
+
+[offsets.Layout]
+id = 0x8
+instances = 0x10
+instances_end = 0x14
+events = 0x38
+screen = 0x58
+
+[offsets.LayoutInstance]
+id = 0x8
+
+[offsets.LayoutScreen]
+id = 0x4

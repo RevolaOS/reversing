@@ -59,3 +59,4 @@ Settings_Brightness_Image = 0x0dad0bff
 Settings_MainMenu_Item = 0x0dad0c91
 Settings_MusicMenu_Item = 0x0dad0c94
 SettingsMenu_Legal_Item = 0x0dad0c7b
+SettingsMenu_Items = 0x00000041

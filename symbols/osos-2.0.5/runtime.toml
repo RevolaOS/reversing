@@ -24,6 +24,13 @@ Memory_InitPlatformHeapBounds = { at = 0x0806bf34 }
 System_CreateAndStartConfiguredTasks = { at = 0x0805d5f4 }
 Preferences_FlushIfDirty = { at = 0x08063760, c = "void Preferences_FlushIfDirty(void *preferences)" }
 File_DeleteLegacyPath = { at = 0x0804f99c, c = "int File_DeleteLegacyPath(void *path)" }
+Runtime_Abort = { at = 0x0802606c, c = "void Runtime_Abort(void)" }
+Runtime_ReportUncaughtException = { at = 0x0825de34, c = "void Runtime_ReportUncaughtException(int kind, const char *what)" }
+DirectoryIterator_Init = { at = 0x081e57dc, c = "struct DirectoryIterator *DirectoryIterator_Init(struct DirectoryIterator *iterator, const char *path, uint8_t recursive, uint32_t volume)" }
+DirectoryIterator_Next = { at = 0x081e54e8, c = "int DirectoryIterator_Next(struct DirectoryIterator *iterator, struct NativePath *path, uint8_t *is_directory)" }
+DirectoryIterator_Destroy = { at = 0x081e5928, c = "void DirectoryIterator_Destroy(struct DirectoryIterator *iterator)" }
+NativePath_InitEmpty = { at = 0x0826fcc4, c = "struct NativePath *NativePath_InitEmpty(struct NativePath *path)" }
+NativePath_Destroy = { at = 0x0826fcf4, c = "struct NativePath *NativePath_Destroy(struct NativePath *path)" }
 
 [sites]
 Preferences_LoadFile_call = { at = 0x08058808, kind = "call", in = "Preferences_LoadAndMigrate+0x14" }
@@ -32,8 +39,15 @@ RuntimeHeapBase_literal = { at = 0x0807c048, kind = "literal" }
 Panic_entry = { at = 0x0803930c, kind = "entry" }
 Abort_entry = { at = 0x0802606c, kind = "entry" }
 RegionalVolumeResult_word = { at = 0x0804b188, kind = "word", in = "Platform_HasRegionalVolumeLimit+0xc" }
+Runtime_ReportUncaughtException_entry = { at = 0x0825de34, kind = "entry" }
 
 [offsets.Preferences]
 object = 0x378
 get_method = 0xdc
 set_method = 0xd4
+
+[offsets.DirectoryIterator]
+bytes = 0x44
+
+[offsets.NativePath]
+bytes = 0x8

@@ -10,9 +10,11 @@
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
+struct DirectoryIterator;
 struct MediaEntry;
 struct MediaItem;
 struct MediaList;
+struct NativePath;
 struct NativeString;
 struct ThreeBandEQ;
 
@@ -149,6 +151,13 @@ int BufferedFile_GetPosition(void *file, uint64_t *position);
 void Preferences_LoadFile(void *preferences);
 void Preferences_FlushIfDirty(void *preferences);
 int File_DeleteLegacyPath(void *path);
+void Runtime_Abort(void);
+void Runtime_ReportUncaughtException(int kind, const char *what);
+struct DirectoryIterator *DirectoryIterator_Init(struct DirectoryIterator *iterator, const char *path, uint8_t recursive, uint32_t volume);
+int DirectoryIterator_Next(struct DirectoryIterator *iterator, struct NativePath *path, uint8_t *is_directory);
+void DirectoryIterator_Destroy(struct DirectoryIterator *iterator);
+struct NativePath *NativePath_InitEmpty(struct NativePath *path);
+struct NativePath *NativePath_Destroy(struct NativePath *path);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
 int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
 int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out);
@@ -205,6 +214,7 @@ int NestedPlaylists_DispatchAction(void *controller, const char *action, uint32_
 int Genius_DispatchAction(void *controller, const char *action, uint32_t argument);
 void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue);
 void Timer_Start(void *timer);
+void Timer_SetPeriod(void *timer, uint32_t milliseconds);
 
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
@@ -389,6 +399,13 @@ extern void *const View_vtable[];
 #define ADDR_System_CreateAndStartConfiguredTasks 0x0805d5f4
 #define ADDR_Preferences_FlushIfDirty 0x08063760
 #define ADDR_File_DeleteLegacyPath 0x0804f99c
+#define ADDR_Runtime_Abort 0x0802606c
+#define ADDR_Runtime_ReportUncaughtException 0x0825de34
+#define ADDR_DirectoryIterator_Init 0x081e57dc
+#define ADDR_DirectoryIterator_Next 0x081e54e8
+#define ADDR_DirectoryIterator_Destroy 0x081e5928
+#define ADDR_NativePath_InitEmpty 0x0826fcc4
+#define ADDR_NativePath_Destroy 0x0826fcf4
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
 #define ADDR_SettingsModel_GetProperty 0x081e11f4
@@ -463,6 +480,7 @@ extern void *const View_vtable[];
 #define ADDR_Timer_Start 0x08121268
 #define ADDR_UITask_Create 0x081391b8
 #define ADDR_UITask_Main 0x08139118
+#define ADDR_Timer_SetPeriod 0x0812195c
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_BrowserRegistry 0x08a1a6dc
@@ -537,6 +555,7 @@ extern void *const View_vtable[];
 #define SITE_Panic_entry 0x0803930c
 #define SITE_Abort_entry 0x0802606c
 #define SITE_RegionalVolumeResult_word 0x0804b188
+#define SITE_Runtime_ReportUncaughtException_entry 0x0825de34
 #define SITE_Settings_Action_slot 0x089a3bf4
 #define SITE_Settings_SecondaryAction_slot 0x089a7c3c
 #define SITE_Settings_Property_slot 0x08997b60
@@ -734,9 +753,14 @@ extern void *const View_vtable[];
 #define MainHeap_free_bytes 0x0
 #define MainHeap_total_bytes 0x4
 #define MainHeap_used_bytes 0x8
+#define ResourceBlock_bytes 0x0
+#define ResourceBlock_kind 0x4
+#define ResourceBlock_data 0x8
 #define Preferences_object 0x378
 #define Preferences_get_method 0xdc
 #define Preferences_set_method 0xd4
+#define DirectoryIterator_bytes 0x44
+#define NativePath_bytes 0x8
 #define Model_notify_method 0x58
 #define ScreenController_screen 0xb4
 #define ScreenController_settings_model 0xb0
@@ -747,6 +771,26 @@ extern void *const View_vtable[];
 #define View_draw_method 0x74
 #define View_bounds 0x80
 #define View_graphics_options 0x4c
+#define EventTimer_period 0x4
+#define EventTimer_recipient 0x24
+#define EventTimer_event_queue 0x28
+#define EventTimer_bytes 0x2c
+#define Event_kind 0x4
+#define Event_payload_method 0x14
+#define TimerEventPayload_timer 0x8
+#define EventRecipient_event_method 0x30
+#define MenuRow_id 0x30
+#define MenuRow_style 0x60
+#define MenuRow_visible 0x64
+#define MenuRow_title 0x68
+#define MenuRow_title_from_model 0x94
+#define Layout_id 0x8
+#define Layout_instances 0x10
+#define Layout_instances_end 0x14
+#define Layout_events 0x38
+#define Layout_screen 0x58
+#define LayoutInstance_id 0x8
+#define LayoutScreen_id 0x4
 
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
@@ -758,6 +802,10 @@ extern void *const View_vtable[];
 #define Resource_BMap 0x424d6170
 #define Resource_Draw 0x44726177
 #define Resource_SORC 0x534f5243
+#define Resource_ITEM 0x4954454d
+#define Resource_TEVT 0x54455654
+#define Resource_SEVT 0x53455654
+#define Resource_CEVT 0x43455654
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
 #define Property_String 0x53747220
@@ -767,6 +815,8 @@ extern void *const View_vtable[];
 #define Service_Settings 0x8900
 #define Service_NowPlaying 0x7f00
 #define ActionSupportQuery 0xdeadbeef
+#define Event_Timer 0xf
+#define EventPayload_Timer 0xd00
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
@@ -783,6 +833,7 @@ extern void *const View_vtable[];
 #define RES_Settings_MainMenu_Item 0x0dad0c91
 #define RES_Settings_MusicMenu_Item 0x0dad0c94
 #define RES_SettingsMenu_Legal_Item 0x0dad0c7b
+#define RES_SettingsMenu_Items 0x00000041
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
 #define RES_Menu_Reset_Bitmap 0x0dad0125
 #define RES_CoverFlow_Backside_Border_Color 0x0dad05d8
