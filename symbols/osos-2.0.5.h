@@ -895,9 +895,15 @@ extern void *const AlbumsController_vtable[];
 #define SsinInstance_substitute 0x8
 #define SsinInstance_flags 0x10
 #define ViewDescriptor_frame 0x0
+#define ViewDescriptor_top_offset 0xc
+#define ViewDescriptor_anchor 0x10
+#define ViewDescriptor_anchor_mode 0x14
 #define ViewDescriptor_id 0x30
 #define ViewDescriptor_type 0x4c
 #define ViewDescriptor_options_bytes 0x5c
+#define TextViewDescriptor_source 0x64
+#define TextViewDescriptor_font 0x68
+#define TextViewDescriptor_color 0x70
 #define ItemTableBinding_item_table 0x4
 #define ViewLayout_title 0x24
 #define SourceBinding_service 0x0
