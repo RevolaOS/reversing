@@ -1,6 +1,8 @@
 # UI framework: services, controllers, views, menus, actions, events and timers.
 
 [functions]
+MenuList_RebuildVisibleItems = { at = 0x081946fc, c = "void MenuList_RebuildVisibleItems(void *menu_list, void *view, int refresh_subscriptions)" }
+MenuList_QueryProperty = { at = 0x08194c2c, c = "int MenuList_QueryProperty(void *menu_list, uint32_t type, uint32_t property, uint32_t *out)" }
 ControllerRegistry_InvokeScreenFactory = { at = 0x081d5a40, c = "void *ControllerRegistry_InvokeScreenFactory(void *registry, const char *class_name, const char *controller_name, uint32_t screen_id, uint32_t layout_id, uint32_t transition)" }
 UI_FindServiceById = { at = 0x081c7d44, c = "void *UI_FindServiceById(uint32_t service_id)" }
 UI_GetRootView = { at = 0x08113600, c = "void *UI_GetRootView(void)" }
