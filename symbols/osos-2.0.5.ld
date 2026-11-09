@@ -239,6 +239,7 @@ WheelAccumulator_Init = 0x081b0efc;
 WheelAccumulator_ConsumeMotion = 0x081b0e4c;
 WheelAccumulator_Reset = 0x081b0e7c;
 View_InitOptionsFromDescriptor = 0x0829b090;
+View_ResolveBounds = 0x08264f9c;
 View_Construct = 0x08265bf8;
 View_BindGraphicsContext = 0x08264bdc;
 View_GetLocalContentRect = 0x08299014;

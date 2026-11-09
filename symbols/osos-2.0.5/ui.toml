@@ -26,6 +26,7 @@ WheelAccumulator_Init = { at = 0x081b0efc, c = "void *WheelAccumulator_Init(void
 WheelAccumulator_ConsumeMotion = { at = 0x081b0e4c, c = "int WheelAccumulator_ConsumeMotion(void *state, int motion, uint32_t speed)" }
 WheelAccumulator_Reset = { at = 0x081b0e7c, c = "void WheelAccumulator_Reset(void *accumulator)" }
 View_InitOptionsFromDescriptor = { at = 0x0829b090, c = "void View_InitOptionsFromDescriptor(const void *descriptor, void *options)" }
+View_ResolveBounds = { at = 0x08264f9c, c = "void View_ResolveBounds(void *view, int32_t *bounds)" }
 View_Construct = { at = 0x08265bf8, c = "void *View_Construct(void *view, void *unused, void *parent, void *event_target, const void *options)" }
 View_BindGraphicsContext = { at = 0x08264bdc, c = "void View_BindGraphicsContext(void *view, void *context)" }
 View_GetLocalContentRect = { at = 0x08299014, c = "void View_GetLocalContentRect(void *view, int32_t *rect)" }
@@ -135,6 +136,10 @@ find_view_method = 0xe4
 linked_view_method = 0xfc
 
 [constants]
+AnchorMode_Top = 1
+AnchorMode_Left = 2
+AnchorMode_Bottom = 3
+AnchorMode_Right = 4
 Property_String = 0x53747220
 Property_Count = 0x564d6178
 Notify_None = 0x4e6f6e65

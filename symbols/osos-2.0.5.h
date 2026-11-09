@@ -211,6 +211,7 @@ void *WheelAccumulator_Init(void *state, int threshold, uint8_t accelerate, uint
 int WheelAccumulator_ConsumeMotion(void *state, int motion, uint32_t speed);
 void WheelAccumulator_Reset(void *accumulator);
 void View_InitOptionsFromDescriptor(const void *descriptor, void *options);
+void View_ResolveBounds(void *view, int32_t *bounds);
 void *View_Construct(void *view, void *unused, void *parent, void *event_target, const void *options);
 void View_BindGraphicsContext(void *view, void *context);
 void View_GetLocalContentRect(void *view, int32_t *rect);
@@ -495,6 +496,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_WheelAccumulator_ConsumeMotion 0x081b0e4c
 #define ADDR_WheelAccumulator_Reset 0x081b0e7c
 #define ADDR_View_InitOptionsFromDescriptor 0x0829b090
+#define ADDR_View_ResolveBounds 0x08264f9c
 #define ADDR_View_Construct 0x08265bf8
 #define ADDR_View_BindGraphicsContext 0x08264bdc
 #define ADDR_View_GetLocalContentRect 0x08299014
@@ -959,6 +961,10 @@ extern void *const AlbumsController_vtable[];
 #define Resource_VSlt 0x56536c74
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
+#define AnchorMode_Top 0x1
+#define AnchorMode_Left 0x2
+#define AnchorMode_Bottom 0x3
+#define AnchorMode_Right 0x4
 #define Property_String 0x53747220
 #define Property_Count 0x564d6178
 #define Notify_None 0x4e6f6e65
