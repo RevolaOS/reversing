@@ -819,6 +819,12 @@ extern void *const AlbumsController_vtable[];
 #define BootDescriptor_sysinfo_magic 0x18
 #define BootDescriptor_sysinfo 0x1c
 #define GraphicsContext_bytes 0x44
+#define BMap_format 0x0
+#define BMap_stride 0x4
+#define BMap_depth 0x6
+#define BMap_bounds 0x8
+#define BMap_payload_bytes 0x18
+#define BMap_payload 0x1c
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
 #define InputEvent_kind 0x4
@@ -1027,6 +1033,9 @@ extern void *const AlbumsController_vtable[];
 #define BOOT_SYSINFO_MAGIC 0x53797349
 #define MMIO_BASE 0x38000000
 #define MMU_TRANSLATION_TABLE 0x2200c000
+#define BMapFormat_Indexed8 0x64
+#define BMapFormat_RGB565 0x565
+#define BMapFormat_BGRA8888 0x1888
 #define WheelButton_Center 0x1
 #define WheelButton_Next 0x2
 #define WheelButton_Previous 0x4

@@ -24,3 +24,16 @@ ArtworkReflection_Blend_call = { at = 0x0826a890, kind = "call", in = "ArtworkRe
 
 [offsets.GraphicsContext]
 bytes = 0x44
+
+[offsets.BMap]
+format = 0x0
+stride = 0x4
+depth = 0x6
+bounds = 0x8
+payload_bytes = 0x18
+payload = 0x1c
+
+[constants]
+BMapFormat_Indexed8 = 0x64
+BMapFormat_RGB565 = 0x565
+BMapFormat_BGRA8888 = 0x1888

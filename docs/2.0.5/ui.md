@@ -65,13 +65,18 @@ A `VLyt`, `VSlt` or `VCvs` block's kind is a view id, and its data is a block li
 
 The 30 stock `VSlt` resources hold only `ViewBinding_ItemTable` blocks: `{view id, ITEM id}`. Template views keep whatever was last applied, so a view a `VLyt` leaves out keeps the previous screen's caption or icon. A clone should bind every pane view.
 
-An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, or `Property_Drawable` when that is its type. A `Property_Bitmap` answer is a pointer to a `BMap` resource:
-- a format halfword at +0 (0x64 is 8-bit indexed, 0 picks the format from the depth);
-- the stride at +4 and the depth at +6;
-- the bounds `{top, left, bottom, right}` at +8;
-- the payload length at +0x18 and the payload (palette and pixels) at +0x1c.
+An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, or `Property_Drawable` when that is its type. A `Property_Bitmap` answer is a pointer to a `BMap` resource (`BMap_format`, `BMap_stride` in bytes, `BMap_depth`, `BMap_bounds` as `{top, left, bottom, right}`, `BMap_payload_bytes`, `BMap_payload`). Formats seen in stock bitmaps:
+- `BMapFormat_BGRA8888`: depth 32, stride = width × 4, bytes B, G, R, A per pixel (little-endian `0xAARRGGBB`), not premultiplied.
+- `BMapFormat_Indexed8`: depth 8; the payload is a 32-bit palette count, that many 4-byte entries in the same B, G, R, A order, then one byte per pixel at the stride.
+- `BMapFormat_RGB565`: depth 16.
+
+A format of 0 picks one from the depth. The byte order comes from stock palettes: the selected checkmark's edge pixels blend white into the blue selection bar only when read as B, G, R. The Settings pane icons are 78 pixels wide and 121 high, which includes the reflection.
 
 Dropping a stock row while a list loads and binding its id in another screen's `CEVT` is safe for the bindings themselves: events are named by row id, and preview layouts are chosen by name, not by position. The handler strings (`ToggleSetting_*`, `ShowSetting_*`) are understood only by the Settings list controller's action slot, so another screen needs that controller class or its own handler. `MenuItem_SetVisible` still writes the stock row data, which the other list shares.
+
+### Switching layouts
+
+`navigator.SwitchLayout(name)` looks the name up with `ResourceName_GetId` and calls `ScreenController_switch_layout_method(controller, layout_id, 0, 1)`; `navigator.PushLayout` passes 1 as the third argument. Calling the slot directly with a layout id does the same thing. The layout must be in the screen's `SLst`, or `ScreenController_ShowLayout` aborts. To make a name resolve, write the id into the slot that `ResourceNames_FindOrInsertSlot(ResourceNameMap, &name)` returns for a `CppString` key. The map keeps its own copy of the key, so the string can be destroyed afterwards. The Settings list controller is built anew on every push, and its screen definition reads the `SLst` each time, so an `SLst` override only has to be in place before the push. The `ShowSetting_*` handlers only notify the Settings model (Shuffle: `Notify_All` for the pane properties 0x891d and 0x8905) so that views bound to those properties re-read them while the row is highlighted. A layout switch applies the new pane `VLyt` anyway, so a row without a handler leaves nothing stale as long as its `VLyt` binds every pane view.
 
 ## Main, Music and Extras menus
 
