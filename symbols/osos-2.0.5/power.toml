@@ -1,0 +1,13 @@
+# Sleep, state saving and disk power.
+
+[functions]
+Power_EnterLightSleep = { at = 0x0805d0c0, c = "uint32_t Power_EnterLightSleep(int mode)" }
+PowerController_HandleIdleSleep = { at = 0x0819b28c }
+PowerController_HandleRequestedSleep = { at = 0x0819bb18 }
+System_SaveAll = { at = 0x080638d8 }
+Disk_GetPowerState = { at = 0x082b3630, c = "int Disk_GetPowerState(uint32_t *out_powered)" }
+
+[sites]
+Sleep_Idle_call = { at = 0x0819b32c, kind = "call", in = "PowerController_HandleIdleSleep+0xa0" }
+Sleep_Request_call = { at = 0x0819bba8, kind = "call", in = "PowerController_HandleRequestedSleep+0x90" }
+Preferences_FlushIfDirty_call = { at = 0x0806392c, kind = "call", in = "System_SaveAll+0x54" }

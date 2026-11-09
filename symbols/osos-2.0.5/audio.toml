@@ -1,0 +1,37 @@
+# Audio effects chain and EQ.
+
+[functions]
+EQ_LoadPresetCoefficients = { at = 0x082734c0, c = "void EQ_LoadPresetCoefficients(struct ThreeBandEQ *eq)" }
+EQ_ResetAllBiquadStates = { at = 0x08273630, c = "void EQ_ResetAllBiquadStates(struct ThreeBandEQ *eq)" }
+EQ_ResetBiquadState = { at = 0x08273594, c = "void EQ_ResetBiquadState(struct ThreeBandEQ *eq, uint32_t stage)" }
+EQ_ProcessBiquadStereoS16 = { at = 0x08273658, c = "void EQ_ProcessBiquadStereoS16(struct ThreeBandEQ *eq, const int16_t *input, int16_t *output, uint32_t frames, uint32_t stage)" }
+EQ_ProcessThreeBiquadsInPlace = { at = 0x082737fc, c = "void EQ_ProcessThreeBiquadsInPlace(struct ThreeBandEQ *eq, int16_t *input, uint32_t frames, int16_t **output, uint32_t *output_frames)" }
+EQ_SetDspPreset = { at = 0x082735c4 }
+EQ_SetSampleRate = { at = 0x082735f4 }
+EQ_SettingsIdToDspPreset = { at = 0x080b28a0, c = "uint32_t EQ_SettingsIdToDspPreset(uint32_t settings_id)" }
+EQ_SettingsIdToMenuIndex = { at = 0x080bb460 }
+MediaTrack_ApplyEQ = { at = 0x08173b48 }
+Audio_SetPlaybackSource = { at = 0x081a64c4, c = "void Audio_SetPlaybackSource(void *source)" }
+Audio_InitEffectsChain = { at = 0x0818ced8 }
+Audio_ProcessEffectsAndOutput = { at = 0x0818cbe0 }
+Audio_SetPostEffectsGainQ15 = { at = 0x0818cec0 }
+Audio_SetEQPreset = { at = 0x0818ca70 }
+
+[data]
+EQ_Presets = { at = 0x089d4b58, c = "const uint8_t EQ_Presets[]" }
+EQ_PresetIds = { at = 0x083e4110, c = "const uint32_t EQ_PresetIds[]" }
+
+[sites]
+EQ_Process_slot = { at = 0x089ae0e0, kind = "slot" }
+EQ_Reset_slot = { at = 0x089ae0d4, kind = "slot" }
+EQ_SetPreset_Load_call = { at = 0x082735dc, kind = "call", in = "EQ_SetDspPreset+0x18" }
+EQ_SetRate_Load_call = { at = 0x08273610, kind = "call", in = "EQ_SetSampleRate+0x1c" }
+EQ_DspCount_word = { at = 0x082735c8, kind = "word", in = "EQ_SetDspPreset+0x4" }
+EQ_TrackGuard_word = { at = 0x08173b74, kind = "word", in = "MediaTrack_ApplyEQ+0x2c" }
+EQ_SettingsCount_word = { at = 0x080bb498, kind = "word", in = "EQ_SettingsIdToMenuIndex+0x38" }
+EQ_ProviderCount_word = { at = 0x081e1ae8, kind = "word" }
+EQ_MenuIds_literal = { at = 0x0807bfb0, kind = "literal" }
+EQ_SettingsIds_literal = { at = 0x080bb4ac, kind = "literal" }
+EQ_PreviewTable_literal = { at = 0x081e0fa8, kind = "literal" }
+EQ_NameTable_literal = { at = 0x081e0ff0, kind = "literal" }
+EQ_ResourceTable_literal = { at = 0x082955dc, kind = "literal" }

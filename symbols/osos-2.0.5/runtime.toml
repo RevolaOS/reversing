@@ -1,0 +1,39 @@
+# Startup, heap, files, preferences and synchronisation.
+
+[functions]
+Heap_AllocateZeroed = { at = 0x0805232c, c = "void *Heap_AllocateZeroed(uint32_t byte_count)" }
+Heap_Free = { at = 0x080521c0, c = "void Heap_Free(void *allocation)" }
+Runtime_OperatorNew = { at = 0x082a17e0, c = "void *Runtime_OperatorNew(uint32_t byte_count)" }
+Mutex_Lock = { at = 0x08258b34, c = "int Mutex_Lock(void *mutex)" }
+Mutex_Unlock = { at = 0x08258b38, c = "int Mutex_Unlock(void *mutex)" }
+HoldSwitch_GetLogicalState = { at = 0x08048964, c = "int HoldSwitch_GetLogicalState(void)" }
+SystemUI_HandleHoldChange = { at = 0x08108c14, c = "void SystemUI_HandleHoldChange(void *system, int locked)" }
+Platform_HasRegionalVolumeLimit = { at = 0x0804b17c }
+File_OpenLegacyPath = { at = 0x0804f784, c = "int File_OpenLegacyPath(void *path, uint32_t fork, int mode, void **out_handle)" }
+File_ReadLegacyHandle = { at = 0x0804f838, c = "int File_ReadLegacyHandle(void *handle, void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_read)" }
+File_WriteLegacyHandle = { at = 0x0804ff68, c = "int File_WriteLegacyHandle(void *handle, const void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_written)" }
+File_CloseLegacyHandle = { at = 0x0804f6e4, c = "int File_CloseLegacyHandle(void *handle)" }
+BufferedFile_GetPosition = { at = 0x08037f98, c = "int BufferedFile_GetPosition(void *file, uint64_t *position)" }
+Preferences_LoadFile = { at = 0x0809c69c, c = "void Preferences_LoadFile(void *preferences)" }
+Preferences_LoadAndMigrate = { at = 0x080587f4 }
+Startup_CopyImageToRuntimeRegions = { at = 0x22004700 }
+Platform_ImportBootSysInfo = { at = 0x08360668 }
+Platform_GetImportedSysInfo = { at = 0x08360620 }
+Platform_GetHeapRegion = { at = 0x0804b448 }
+Memory_InitPlatformHeapBounds = { at = 0x0806bf34 }
+System_CreateAndStartConfiguredTasks = { at = 0x0805d5f4 }
+Preferences_FlushIfDirty = { at = 0x08063760, c = "void Preferences_FlushIfDirty(void *preferences)" }
+File_DeleteLegacyPath = { at = 0x0804f99c, c = "int File_DeleteLegacyPath(void *path)" }
+
+[sites]
+Preferences_LoadFile_call = { at = 0x08058808, kind = "call", in = "Preferences_LoadAndMigrate+0x14" }
+HeapRegionBase_literal = { at = 0x0804b478, kind = "literal" }
+RuntimeHeapBase_literal = { at = 0x0807c048, kind = "literal" }
+Panic_entry = { at = 0x0803930c, kind = "entry" }
+Abort_entry = { at = 0x0802606c, kind = "entry" }
+RegionalVolumeResult_word = { at = 0x0804b188, kind = "word", in = "Platform_HasRegionalVolumeLimit+0xc" }
+
+[offsets.Preferences]
+object = 0x378
+get_method = 0xdc
+set_method = 0xd4

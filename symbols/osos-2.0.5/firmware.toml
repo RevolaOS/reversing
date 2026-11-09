@@ -1,0 +1,17 @@
+# Firmware identity and memory map.
+
+[firmware]
+version = "2.0.5"
+osos_bytes = 10634496
+osos_sha256 = "660eb6ff5f498bb1a75e85f1f9921bf0c753525a8bca9b4fa47ed260e5ad0f1e"
+runtime_base = 0x08000000
+runtime_file_offset = 0x0000b798
+native_heap_base = 0x08b3b1b0
+
+[constants]
+DRAM_BASE = 0x08000000
+DRAM_END = 0x0c000000
+DRAM_UNCACHED_ALIAS = 0x80000000
+IRAM_BASE = 0x22000000
+MMIO_BASE = 0x38000000
+MMU_TRANSLATION_TABLE = 0x2200c000

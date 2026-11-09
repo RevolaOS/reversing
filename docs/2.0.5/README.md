@@ -1,6 +1,6 @@
 # Apple firmware 2.0.5
 
-iPod Classic (7th generation) running Apple OSOS 2.0.5. Names refer to `symbols/osos-2.0.5.toml`; NOR names refer to the analysis in `ghidra/analysis/2.0.5/NOR`.
+iPod Classic (7th generation) running Apple OSOS 2.0.5. Names refer to `symbols/osos-2.0.5/`; NOR names refer to the analysis in `ghidra/analysis/2.0.5/NOR`.
 
 | File | Subsystem |
 |---|---|

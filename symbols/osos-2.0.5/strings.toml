@@ -1,0 +1,16 @@
+# C++ and native strings, string caches.
+
+[functions]
+CppString_Init = { at = 0x083cf82c, c = "void *CppString_Init(void *string, const char *text)" }
+CppString_InitBytes = { at = 0x083cf87c, c = "void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator)" }
+CppString_Destroy = { at = 0x083cf7d4, c = "void CppString_Destroy(void *string)" }
+StringInputStream_Init = { at = 0x0829e7b8, c = "void StringInputStream_Init(void *stream, void *string, uint32_t mode)" }
+StringInputStream_Destroy = { at = 0x0829e81c, c = "void StringInputStream_Destroy(void *stream, uint32_t flags, void *storage)" }
+NativeString_InitEmpty = { at = 0x0826de38, c = "struct NativeString *NativeString_InitEmpty(struct NativeString *string)" }
+NativeString_Destroy = { at = 0x0826de7c, c = "struct NativeString *NativeString_Destroy(struct NativeString *string)" }
+NativeString_GetUtf8 = { at = 0x0829bac0, c = "char *NativeString_GetUtf8(struct NativeString *string)" }
+NativeString_AssignUtf16 = { at = 0x0826cfa0, c = "void NativeString_AssignUtf16(struct NativeString *string, const uint16_t *text, int characters)" }
+SongText_CompareUtf16 = { at = 0x0803a574, c = "int SongText_CompareUtf16(void *collation, const uint16_t *left, uint32_t left_units, const uint16_t *right, uint32_t right_units)" }
+StringCache_ReadToken = { at = 0x080a94ec, c = "int StringCache_ReadToken(void *cache, uint32_t token, void *destination, uint32_t *bytes, uint32_t maximum_bytes)" }
+StringCache_ReleaseToken = { at = 0x080bb0c8, c = "int StringCache_ReleaseToken(void *cache, uint32_t token)" }
+StringCache_GetTokenView = { at = 0x08093598, c = "int StringCache_GetTokenView(void *cache, uint32_t token, void **data, uint32_t *bytes)" }

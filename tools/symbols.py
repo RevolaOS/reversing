@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
-"""Generate, check and verify a symbols file, and sync it with a Ghidra project.
+"""Generate, check and verify a symbols directory, and sync it with a Ghidra project.
 
-    python tools/symbols.py generate symbols/osos-2.0.5.toml
-    python tools/symbols.py check symbols/osos-2.0.5.toml
-    python tools/symbols.py verify symbols/osos-2.0.5.toml [--analysis <dir>]
-    python tools/symbols.py push symbols/osos-2.0.5.toml --ghidra <project>
-    python tools/symbols.py refresh symbols/osos-2.0.5.toml --ghidra <project>
+    python tools/symbols.py generate symbols/osos-2.0.5
+    python tools/symbols.py check symbols/osos-2.0.5
+    python tools/symbols.py verify symbols/osos-2.0.5 [--analysis <dir>]
+    python tools/symbols.py push symbols/osos-2.0.5 --ghidra <project>
+    python tools/symbols.py refresh symbols/osos-2.0.5 --ghidra <project>
 
-generate writes <name>.ld and <name>.h next to the symbols file.
+A symbols directory holds one TOML file per subsystem; together they form one
+symbol set with unique names. generate writes <dir>.ld and <dir>.h next to it.
 check fails when the written files differ from what generate would produce.
 verify compares every function and site with the exported analysis.
 push names the project's functions and data after the symbols file and applies the
@@ -33,18 +34,48 @@ STRUCT = re.compile(r"\bstruct\s+([A-Za-z_][A-Za-z0-9_]*)")
 SPDX = "/* SPDX-License-Identifier: GPL-3.0-only */"
 
 
+MERGED = ("functions", "data", "sites", "constants", "resources")
+
+
+def files(path):
+    found = sorted(path.glob("*.toml"))
+    if not found:
+        raise SystemExit(f"{path}: no .toml files")
+    return found
+
+
 def load(path):
-    data = tomllib.loads(path.read_text())
-    seen = {}
+    """Merge every file of a symbols directory; names must be unique across files."""
+    data = {"offsets": {}, **{table: {} for table in MERGED}}
+    origin = {}
+    for file in files(path):
+        part = tomllib.loads(file.read_text())
+        for table, entries in part.items():
+            if table == "firmware":
+                if "firmware" in data:
+                    raise SystemExit(f"{file.name}: [firmware] is also in another file")
+                data["firmware"] = entries
+                continue
+            if table not in data:
+                raise SystemExit(f"{file.name}: unknown table [{table}]")
+            for name, entry in entries.items():
+                key = (
+                    (table, name)
+                    if table in ("constants", "resources", "offsets")
+                    else name
+                )
+                if key in origin:
+                    raise SystemExit(f"{name}: in {origin[key]} and {file.name}")
+                origin[key] = file.name
+                data[table][name] = entry
+    if "firmware" not in data:
+        raise SystemExit(f"{path}: no [firmware] table")
     for table in ("functions", "data", "sites"):
-        for name, entry in data.get(table, {}).items():
+        for name, entry in data[table].items():
             if not IDENT.match(name):
                 raise SystemExit(f"{name}: not a C identifier")
             if "at" not in entry:
                 raise SystemExit(f"{name}: missing address")
-            if name in seen:
-                raise SystemExit(f"{name}: defined in {seen[name]} and {table}")
-            seen[name] = table
     return data
 
 
@@ -113,7 +144,7 @@ def header(data):
 
 
 def outputs(path):
-    return path.with_suffix(".ld"), path.with_suffix(".h")
+    return path.parent / f"{path.name}.ld", path.parent / f"{path.name}.h"
 
 
 def generate(path):
@@ -299,32 +330,15 @@ def refresh(path, project):
             "READ ",
         )
         found = json.loads(result.read_text())
+    updates = {}
     moved = {}
-    lines = path.read_text().splitlines(keepends=True)
-    table = None
-    changed = 0
-    for index, line in enumerate(lines):
-        header = re.match(r"^\[([a-z.A-Za-z]+)\]", line)
-        if header:
-            table = header[1]
-            continue
-        match = ENTRY.match(line.rstrip("\n"))
-        if not match or table not in ("functions", "data", "sites"):
-            continue
-        name = match["name"]
-        entry = dict(data[table][name])
-        if table == "sites":
-            if "in" not in entry:
-                continue
-            function, offset = entry["in"].split("+")
-            if function not in moved:
-                continue
-            entry["at"] = moved[function] + int(offset, 16)
-        else:
+    for table in ("functions", "data"):
+        for name, entry in data[table].items():
             ghidra = found[table].get(name)
             if ghidra is None:
                 print(f"{name}: not in the project")
                 continue
+            entry = dict(entry)
             if table == "functions":
                 if ghidra["at"] != entry["at"]:
                     moved[name] = ghidra["at"]
@@ -336,18 +350,27 @@ def refresh(path, project):
                     if not same_prototype(entry["c"], ghidra["c"]):
                         entry["c"] = ghidra["c"]
             entry["at"] = ghidra["at"]
-        ordered = {"at": entry.pop("at"), **entry}
-        if "thumb" in ordered:
-            ordered = {
-                "at": ordered["at"],
-                "thumb": ordered.pop("thumb"),
-                **{k: v for k, v in ordered.items() if k != "at"},
-            }
-        text = format_entry(name, ordered) + "\n"
-        if text != line and tomllib.loads(text) != tomllib.loads(line):
-            lines[index] = text
-            changed += 1
-    path.write_text("".join(lines))
+            updates[name] = entry
+    for name, entry in data["sites"].items():
+        function, _, offset = entry.get("in", "").partition("+")
+        if function in moved:
+            updates[name] = dict(entry, at=moved[function] + int(offset, 16))
+    changed = 0
+    for file in files(path):
+        lines = file.read_text().splitlines(keepends=True)
+        for index, line in enumerate(lines):
+            match = ENTRY.match(line.rstrip("\n"))
+            if not match or match["name"] not in updates:
+                continue
+            entry = dict(updates[match["name"]])
+            ordered = {"at": entry.pop("at")}
+            if "thumb" in entry:
+                ordered["thumb"] = entry.pop("thumb")
+            text = format_entry(match["name"], ordered | entry) + "\n"
+            if text != line and tomllib.loads(text) != tomllib.loads(line):
+                lines[index] = text
+                changed += 1
+        file.write_text("".join(lines))
     print(f"refreshed {changed} entries in {path.name}")
 
 

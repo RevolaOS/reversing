@@ -12,5 +12,5 @@ jobs:
           python-version: "3.11"
       - run: pip install ruff
       - run: ruff check tools && ruff format --check tools
-      - run: python tools/symbols.py check symbols/osos-2.0.5.toml
-      - run: python tools/symbols.py verify symbols/osos-2.0.5.toml
+      - run: python tools/symbols.py check symbols/osos-2.0.5
+      - run: python tools/symbols.py verify symbols/osos-2.0.5

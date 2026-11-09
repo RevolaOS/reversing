@@ -1,0 +1,155 @@
+# Media player, media lists and orders, library import and browser.
+
+[functions]
+MediaPlayer_GetInstance = { at = 0x08172824, c = "void *MediaPlayer_GetInstance(void)" }
+MediaPlayer_ClearPreparedTrack = { at = 0x0817190c, c = "int MediaPlayer_ClearPreparedTrack(void *player)" }
+MediaPlayer_RebuildArtwork = { at = 0x08170238, c = "int MediaPlayer_RebuildArtwork(void *player)" }
+MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
+MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
+MediaItem_HasRecordFlag8F01 = { at = 0x0829af84, c = "uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item)" }
+MediaItem_HasKind8 = { at = 0x0829a9d4, c = "uint32_t MediaItem_HasKind8(struct MediaItem *item)" }
+MediaItem_HasKind8062 = { at = 0x0829aad8, c = "uint32_t MediaItem_HasKind8062(struct MediaItem *item)" }
+MediaItem_HasKind200000 = { at = 0x0829afb4, c = "uint32_t MediaItem_HasKind200000(struct MediaItem *item)" }
+MediaListView_IsValid = { at = 0x0829d030, c = "int MediaListView_IsValid(void *list_view)" }
+PlaybackList_GetEntryByIndex = { at = 0x0829cab8, c = "struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index)" }
+MediaList_InvalidateOrderCache = { at = 0x080d1928, c = "void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode)" }
+MediaList_CopyEntryAtPosition = { at = 0x0803bbf0, c = "void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags)" }
+MediaList_GetEntryByOrderIndex = { at = 0x08047870, c = "struct MediaEntry *MediaList_GetEntryByOrderIndex(struct MediaList *list, int order_mode, uint32_t reverse, uint32_t index)" }
+MediaList_GetEntryOrderIndex = { at = 0x080497ac }
+MediaList_BuildOrderIndex = { at = 0x080d438c, c = "int MediaList_BuildOrderIndex(struct MediaList *list, uint32_t order)" }
+MediaList_ResolveOrderMode = { at = 0x080a9ab0, c = "void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse)" }
+MediaListController_AddSelectionToOnTheGo = { at = 0x0820f8d4, c = "int MediaListController_AddSelectionToOnTheGo(void *controller)" }
+MediaListController_DispatchAction = { at = 0x0820f5a4, c = "int MediaListController_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+OnTheGo_AddBrowserSelection = { at = 0x081095f8, c = "int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save)" }
+MediaListSelection_SelectArtworkSource = { at = 0x08169c98, c = "uint32_t MediaListSelection_SelectArtworkSource(void *selection, uint32_t category)" }
+MediaListSelection_SetList = { at = 0x08169db4 }
+ArtworkSession_Stop = { at = 0x0820a76c, c = "void ArtworkSession_Stop(void *session)" }
+ArtworkSource_CreateProvider = { at = 0x08138b84 }
+AlbumArtworkProvider_Create = { at = 0x08140030, c = "void *AlbumArtworkProvider_Create(uint32_t source_kind, uint32_t selector)" }
+Genius_GetInstance = { at = 0x08121a4c, c = "void *Genius_GetInstance(void)" }
+Genius_MapVisibleRow = { at = 0x08122180, c = "int Genius_MapVisibleRow(void *genius, int row)" }
+Genius_GetItem = { at = 0x08121a7c, c = "void Genius_GetItem(void *genius, uint32_t row, void *item)" }
+ITunesDB_ImportLibrary = { at = 0x08058afc }
+ITunesDB_ImportTrackDataset = { at = 0x0808a488, c = "int ITunesDB_ImportTrackDataset(void *reader)" }
+ITunesDB_ImportCachedString = { at = 0x080cdee0, c = "int ITunesDB_ImportCachedString(void *reader, uint32_t encoding, uint32_t mhod_type, void *cache, uint32_t *token, uint32_t glyph_field, int collect)" }
+ITunesDB_SkipImportBytes = { at = 0x08069000, c = "int ITunesDB_SkipImportBytes(void *reader, int bytes)" }
+TrackData_AcquireStringCaches = { at = 0x08051370, c = "void TrackData_AcquireStringCaches(void *track_data)" }
+TrackData_ReleaseStringCaches = { at = 0x08061284, c = "void TrackData_ReleaseStringCaches(void *track_data)" }
+TrackData_DestroyStorage = { at = 0x080cfaf4, c = "void TrackData_DestroyStorage(void *track_data)" }
+TrackData_Destroy = { at = 0x0803e58c }
+MediaBrowser_GetOwner = { at = 0x08046ee0, c = "void *MediaBrowser_GetOwner(void *browser)" }
+MediaBrowser_GetCurrentList = { at = 0x08046e00, c = "struct MediaList *MediaBrowser_GetCurrentList(void *browser)" }
+MediaBrowser_CreateChild = { at = 0x0804d80c, c = "int MediaBrowser_CreateChild(void *owner, void **out)" }
+MediaBrowser_EvaluateEntryFilters = { at = 0x080d7a98, c = "int MediaBrowser_EvaluateEntryFilters(void *browser, struct MediaEntry *entry, struct MediaList *list_override)" }
+MediaBrowser_InvalidateEntryMatches = { at = 0x0804ec24, c = "int MediaBrowser_InvalidateEntryMatches(void *browser)" }
+MediaBrowser_ClearArtists = { at = 0x0804e850, c = "void MediaBrowser_ClearArtists(void *browser)" }
+MediaBrowser_ClearAlbums = { at = 0x0804e794, c = "void MediaBrowser_ClearAlbums(void *browser)" }
+MediaBrowser_ClearSongs = { at = 0x0804ebe8, c = "void MediaBrowser_ClearSongs(void *browser)" }
+MediaBrowser_GetRecordArtworkId = { at = 0x080464b0, c = "uint32_t MediaBrowser_GetRecordArtworkId(void *owner, void *record)" }
+MediaBrowser_AccumulateArtistGroup = { at = 0x080c6bf0, c = "int MediaBrowser_AccumulateArtistGroup(void *browser, void *callback, uint32_t field_low, uint32_t field_high, uint32_t index, struct MediaEntry *entry, void *record, int first)" }
+MediaBrowser_AccumulateAlbumGroup = { at = 0x080bf518, c = "int MediaBrowser_AccumulateAlbumGroup(void *browser, void *callback, uint32_t field_low, uint32_t field_high, uint32_t index, struct MediaEntry *entry, void *record, int first)" }
+MediaBrowser_BuildArtists = { at = 0x08048fe8, c = "uint32_t MediaBrowser_BuildArtists(void *browser)" }
+MediaBrowser_BuildSongs = { at = 0x0807b858, c = "int MediaBrowser_BuildSongs(void *browser)" }
+MediaBrowser_ReadArtistName = { at = 0x08047b54, c = "int MediaBrowser_ReadArtistName(void *browser, int index, uint16_t *counted_out)" }
+MediaBrowser_ReadArtistJumpLabel = { at = 0x08047bc8, c = "int MediaBrowser_ReadArtistJumpLabel(void *browser, int index, uint16_t *counted_out)" }
+MediaBrowser_GetOrderMode = { at = 0x0804af48, c = "uint32_t MediaBrowser_GetOrderMode(void *browser)" }
+AlbumGroupVector_Append = { at = 0x083d8b74, c = "void AlbumGroupVector_Append(void *vector, const void *row)" }
+LibraryBrowser_Create = { at = 0x0825012c, c = "void *LibraryBrowser_Create(uint32_t ownership)" }
+LibraryBrowser_InitBorrowed = { at = 0x08133be8, c = "void *LibraryBrowser_InitBorrowed(void *model, uint8_t item_flags, void *browser)" }
+LibraryBrowser_Destroy = { at = 0x08133c30, c = "void *LibraryBrowser_Destroy(void *model)" }
+LibraryBrowser_CopyAlbumArtistSubtitle = { at = 0x08133168, c = "void LibraryBrowser_CopyAlbumArtistSubtitle(void *model, int index, struct NativeString *out)" }
+LibraryModelRef_Init = { at = 0x0839576c, c = "void *LibraryModelRef_Init(void *reference, void *model, int synchronized)" }
+LibraryModelRef_Assign = { at = 0x08395818, c = "void *LibraryModelRef_Assign(void *destination, void *source)" }
+LibraryModelRef_Release = { at = 0x083937cc, c = "void LibraryModelRef_Release(void *reference)" }
+LibraryModelRef_Get = { at = 0x083ccd1c, c = "void *LibraryModelRef_Get(void *reference)" }
+Library_FinishImport = { at = 0x0805d6c8 }
+MediaPlayer_ReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_ReadAheadBytes(void *player)" }
+
+[data]
+BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
+
+[sites]
+AlbumSubtitle_slot = { at = 0x0898cbf4, kind = "slot" }
+Albums_CancelAppend_call = { at = 0x0821c004, kind = "call" }
+MediaList_DispatchAction_entry = { at = 0x0820f5a4, kind = "entry" }
+MediaList_OnTheGoAdd_call = { at = 0x0820f9cc, kind = "call" }
+ITunesDB_ImportTrackDataset_call = { at = 0x08058f1c, kind = "call", in = "ITunesDB_ImportLibrary+0x420" }
+ITunesDB_AlbumArtist_slot = { at = 0x0808adcc, kind = "word", in = "ITunesDB_ImportTrackDataset+0x944" }
+ITunesDB_SortArtist_slot = { at = 0x0808add0, kind = "word", in = "ITunesDB_ImportTrackDataset+0x948" }
+ITunesDB_SortAlbumArtist_slot = { at = 0x0808ade8, kind = "word", in = "ITunesDB_ImportTrackDataset+0x960" }
+TrackData_DestroyStorage_call = { at = 0x0803e650, kind = "call", in = "TrackData_Destroy+0xc4" }
+MediaBrowser_BuildArtists_entry = { at = 0x08048fe8, kind = "entry" }
+MediaBrowser_ReadArtistName_entry = { at = 0x08047b54, kind = "entry" }
+MediaBrowser_ReadArtistJumpLabel_entry = { at = 0x08047bc8, kind = "entry" }
+MediaBrowser_ArtistFilterCompare_call = { at = 0x080d7bd8, kind = "call", in = "MediaBrowser_EvaluateEntryFilters+0x140" }
+AlbumGroup_literal = { at = 0x08048fe4, kind = "literal" }
+LibraryBrowser_Destroy_entry = { at = 0x08133c30, kind = "entry" }
+MediaListSelection_SelectArtworkSource_call = { at = 0x08169e30, kind = "call", in = "MediaListSelection_SetList+0x7c" }
+AlbumArtworkProvider_Create_call = { at = 0x08138c34, kind = "call", in = "ArtworkSource_CreateProvider+0xb0" }
+BlockCache_ImportCost_word = { at = 0x0805ddd4, kind = "word", in = "Library_FinishImport+0x70c" }
+BlockCache_ReserveNative_word = { at = 0x0805ddd8, kind = "word", in = "Library_FinishImport+0x710" }
+BlockCache_FloorTest_word = { at = 0x0805dddc, kind = "word", in = "Library_FinishImport+0x714" }
+BlockCache_FloorSet_word = { at = 0x0805dde0, kind = "word", in = "Library_FinishImport+0x718" }
+MediaPlayer_ReadAheadMinTest_word = { at = 0x0822c944, kind = "word", in = "MediaPlayer_ReadAheadBytes+0x18" }
+MediaPlayer_ReadAheadMinSet_word = { at = 0x0822c948, kind = "word", in = "MediaPlayer_ReadAheadBytes+0x1c" }
+MediaList_GetEntryOrderIndex_entry = { at = 0x080497ac, kind = "entry" }
+TrackData_ArtworkId_word = { at = 0x0808a868, kind = "word", in = "ITunesDB_ImportTrackDataset+0x3e0" }
+
+[offsets.ITunesReader]
+file = 0x40000
+owner = 0x40004
+
+[offsets.MediaBrowser]
+library = 0xf64
+track_data = 0xf60
+artists = 0xe64
+albums = 0xeb0
+artist_tokens = 0xe4c
+artist_jump = 0xe50
+artist_count = 0xe54
+order_flag = 0xe3c
+
+[offsets.MediaEntry]
+list = 0x0
+parent = 0x4
+next = 0x8
+previous = 0xc
+id = 0x10
+flags = 0x1c
+song_record = 0x20
+song_shuffle_rank = 0x24
+group_first = 0x20
+group_last = 0x24
+groups = 0x2c
+tracks = 0x2e
+size = 0x30
+
+[offsets.MediaList]
+flags = 0x18c
+order_flags = 0x18d
+shuffle_index = 0x3b4
+order_index = 0x3ac
+jump_index = 0x544
+
+[offsets.MediaListSelection]
+artwork_category = 0x83f
+
+[offsets.MediaOrder]
+capacity = 0x4
+bytes = 0x8
+count = 0xc
+entries = 0x10
+
+[offsets.MediaPlayer]
+current_item_method = 0x15c
+
+[offsets.SongModel]
+get_item_method = 0x22c
+
+[offsets.TrackData]
+artist_cache = 0x118
+artwork_id = 0xf0
+dbid = 0x110
+
+[constants]
+AlbumArtist_order_mode = 0x2d

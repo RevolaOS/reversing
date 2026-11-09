@@ -1,0 +1,61 @@
+# Settings model, menu settings and Reset All Settings.
+
+[functions]
+Settings_HandleAction = { at = 0x0821daf4, c = "int Settings_HandleAction(void *controller, const char *action, uint32_t argument)" }
+Settings_CollectPropertyResources = { at = 0x08295174 }
+SettingsModel_GetProperty = { at = 0x081e11f4, c = "int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out)" }
+SettingsModel_GetIndexedProperty = { at = 0x081e30ac, c = "int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out)" }
+SettingsModel_ToggleMainMenuItem = { at = 0x081e3460, c = "void SettingsModel_ToggleMainMenuItem(void *model, uint32_t index)" }
+SettingsModel_ToggleMusicMenuItem = { at = 0x081e36ac, c = "void SettingsModel_ToggleMusicMenuItem(void *model, uint32_t index)" }
+SettingsModel_ApplyMusicMenuPreferences = { at = 0x081e2e48, c = "void *SettingsModel_ApplyMusicMenuPreferences(void *model)" }
+SettingsModel_ResetMainMenu = { at = 0x081e1024, c = "void *SettingsModel_ResetMainMenu(void *model)" }
+SettingsModel_ResetMusicMenu = { at = 0x081e1134, c = "void *SettingsModel_ResetMusicMenu(void *model)" }
+SettingsModel_LoadPreferences = { at = 0x081e3f00 }
+SettingsModel_GetEQPresetPreview = { at = 0x081e0f74, c = "void *SettingsModel_GetEQPresetPreview(void *model, uint32_t menu_index)" }
+SettingsModel_GetEQPresetName = { at = 0x081e0fc0, c = "void *SettingsModel_GetEQPresetName(void *model, uint32_t menu_index)" }
+MainMenuSettings_HandleSelection = { at = 0x081d2200 }
+MusicMenuSettings_HandleSelection = { at = 0x081dd6c8 }
+SettingsModel_ResetAllSettings = { at = 0x081e1e6c, c = "void SettingsModel_ResetAllSettings(void *model)" }
+SettingsController_ConfirmResetAll = { at = 0x08212820 }
+
+[data]
+MainMenuSettingsRows = { at = 0x08a815f0, c = "uint32_t MainMenuSettingsRows[]" }
+MusicMenuSettingsRows = { at = 0x08a81898, c = "uint32_t MusicMenuSettingsRows[]" }
+
+[sites]
+Settings_Action_slot = { at = 0x089a3bf4, kind = "slot" }
+Settings_SecondaryAction_slot = { at = 0x089a7c3c, kind = "slot" }
+Settings_Property_slot = { at = 0x08997b60, kind = "slot" }
+Settings_IndexedProperty_slot = { at = 0x08997b7c, kind = "slot" }
+EQ_PreviewCount_word = { at = 0x081e0f74, kind = "word", in = "SettingsModel_GetEQPresetPreview+0x0" }
+EQ_NameCount_word = { at = 0x081e0fc0, kind = "word", in = "SettingsModel_GetEQPresetName+0x0" }
+EQ_ResourceCount_word = { at = 0x08295420, kind = "word", in = "Settings_CollectPropertyResources+0x2ac" }
+MainMenu_Index_call = { at = 0x081d2214, kind = "call", in = "MainMenuSettings_HandleSelection+0x14" }
+MusicMenu_Index_call = { at = 0x081dd6dc, kind = "call", in = "MusicMenuSettings_HandleSelection+0x14" }
+MainMenu_Toggle_call = { at = 0x081d225c, kind = "call", in = "MainMenuSettings_HandleSelection+0x5c" }
+MusicMenu_Toggle_call = { at = 0x081dd724, kind = "call", in = "MusicMenuSettings_HandleSelection+0x5c" }
+MusicMenu_Apply_call = { at = 0x081e3f48, kind = "call", in = "SettingsModel_LoadPreferences+0x48" }
+SettingsModel_ResetMainMenu_entry = { at = 0x081e1024, kind = "entry" }
+SettingsModel_ResetMusicMenu_entry = { at = 0x081e1134, kind = "entry" }
+SettingsModel_ResetAllSettings_call = { at = 0x08212844, kind = "call", in = "SettingsController_ConfirmResetAll+0x24" }
+
+[constants]
+MainMenuSettings_row_count = 0x22
+MusicMenuSettings_row_count = 13
+
+[resources]
+Settings_Off_String = 0x0dad0bda
+Settings_On_String = 0x0dad0bdb
+Settings_Speaker_String = 0x0dad0bd3
+Settings_Headphones_String = 0x0dad0bd4
+Settings_Both_String = 0x0dad0bd5
+Settings_ClickerOff_Description = 0x0dad0bd6
+Settings_ClickerSpeaker_Description = 0x0dad0bd7
+Settings_ClickerHeadphones_Description = 0x0dad0bd8
+Settings_ClickerBoth_Description = 0x0dad0bd9
+Settings_ClickerOn_Image = 0x0dad0c03
+Settings_ClickerOff_Image = 0x0dad0c04
+Settings_Brightness_Image = 0x0dad0bff
+Settings_MainMenu_Item = 0x0dad0c91
+Settings_MusicMenu_Item = 0x0dad0c94
+SettingsMenu_Legal_Item = 0x0dad0c7b

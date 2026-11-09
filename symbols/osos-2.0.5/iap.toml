@@ -1,0 +1,7 @@
+# iAP accessory authentication.
+
+[functions]
+IAP_VerifyDeviceSignatureRSA = { at = 0x0812dca8 }
+IAP_VerifyDeviceSignatureAlternate = { at = 0x081592fc }
+IAP_HandleDeviceAuthenticationSignature = { at = 0x081892b8 }
+IAP_SetAccessoryAuthState = { at = 0x08185e18 }

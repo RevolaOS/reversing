@@ -1,0 +1,89 @@
+# Block cache, eApp blocks, fixed pools and heap totals.
+
+[functions]
+FixedPool_Create = { at = 0x08053074, c = "int FixedPool_Create(uint32_t slot_bytes, uint32_t argument, void **out_pool)" }
+Heap_GetTotalBytes = { at = 0x0809cc58, c = "uint32_t Heap_GetTotalBytes(void)" }
+BlockCache_Get = { at = 0x08180830, c = "void *BlockCache_Get(void)" }
+BlockCache_GetBlockBytes = { at = 0x0817fd4c, c = "uint32_t BlockCache_GetBlockBytes(void)" }
+BlockCache_GetTotalBlocks = { at = 0x08180628, c = "uint32_t BlockCache_GetTotalBlocks(void)" }
+BlockCache_Grow = { at = 0x080ca238, c = "int BlockCache_Grow(uint32_t bytes)" }
+BlockCache_Trim = { at = 0x080cd16c, c = "void BlockCache_Trim(void)" }
+BlockCache_PostRebalance = { at = 0x0817fd68, c = "int BlockCache_PostRebalance(void *cache, uint32_t argument)" }
+BlockCache_PostWaitPending = { at = 0x0817fdd0, c = "int BlockCache_PostWaitPending(void *cache, uint32_t argument)" }
+BlockCache_PostClientRequest = { at = 0x0817fd9c, c = "int BlockCache_PostClientRequest(void *cache, uint32_t argument)" }
+BlockCache_AddBlocks = { at = 0x081804e8, c = "uint32_t BlockCache_AddBlocks(void *cache, uint32_t count)" }
+BlockCache_PushFreeBlock = { at = 0x081801a4, c = "int BlockCache_PushFreeBlock(void *cache, void *block)" }
+BlockCache_AssignedBlocks = { at = 0x08180690, c = "uint32_t BlockCache_AssignedBlocks(void *cache)" }
+BlockCache_CountPendingClients = { at = 0x08180840, c = "uint32_t BlockCache_CountPendingClients(void *cache)" }
+BlockCache_PendingInc = { at = 0x08180700, c = "void BlockCache_PendingInc(void *cache)" }
+BlockCache_PendingDec = { at = 0x08180644 }
+BlockList_Erase = { at = 0x083cc960, c = "void BlockList_Erase(void **out_next, void *list, void **node)" }
+BlockCacheClient_SetDesired = { at = 0x081f1f50, c = "int BlockCacheClient_SetDesired(void *client, uint32_t bytes, uint32_t weight)" }
+BlockCacheClient_ReturnBlock = { at = 0x081f2888, c = "void BlockCacheClient_ReturnBlock(void *client, void *block)" }
+BlockCacheClient_CancelPending = { at = 0x081f2988, c = "int BlockCacheClient_CancelPending(void *client)" }
+EAppBlockManager_HandleMessage = { at = 0x0819d67c, c = "int EAppBlockManager_HandleMessage(void *manager, void *message)" }
+EAppBlocks_Acquire = { at = 0x0819d870, c = "void EAppBlocks_Acquire(void *manager)" }
+EAppBlocks_Release = { at = 0x0819d40c, c = "void EAppBlocks_Release(void *manager)" }
+
+[data]
+BlockCache = { at = 0x089d380c, c = "void *BlockCache" }
+MainHeap = { at = 0x089d2c78, c = "void *MainHeap" }
+ATA_Identify = { at = 0x08ae087c, c = "uint16_t ATA_Identify[256]" }
+
+[sites]
+FixedPool_SlotRoundAdd_word = { at = 0x080530b4, kind = "word", in = "FixedPool_Create+0x40" }
+FixedPool_SlotRoundMask_word = { at = 0x080530b8, kind = "word", in = "FixedPool_Create+0x44" }
+EAppBlocks_Acquire_call = { at = 0x0819d6d0, kind = "call", in = "EAppBlockManager_HandleMessage+0x54" }
+EAppBlocks_Release_call = { at = 0x0819d6d8, kind = "call", in = "EAppBlockManager_HandleMessage+0x5c" }
+
+[offsets.BlockCache]
+free_blocks = 0x04
+free_count = 0x14
+clients = 0x28
+block_bytes = 0x30
+total_blocks = 0x34
+trimmed = 0x38
+task_queue = 0x3c
+lock = 0x148
+core_mutex = 0x180
+pending_cond = 0x19c
+assigned_cache = 0x1bc
+pending_count = 0x1c0
+
+[offsets.BlockClient]
+cache = 0x04
+blocks = 0x08
+block_count = 0x18
+assigned_blocks = 0x1c
+mutex = 0x24
+weight = 0x40
+flags = 0x44
+desired_bytes = 0x48
+
+[offsets.EAppBlockManager]
+client = 0x14
+block_list = 0x28
+block_count = 0x2c
+request_blocks = 0x34
+
+[offsets.FixedPool]
+magic = 0x0
+slot_size = 0x4
+slots = 0x8
+chunks = 0xc
+
+[offsets.FixedPoolChunk]
+magic = 0x0
+pool = 0x4
+next = 0x8
+slots = 0xc
+free = 0x10
+first = 0x14
+last = 0x18
+free_list = 0x1c
+bytes = 0x20
+
+[offsets.MainHeap]
+free_bytes = 0x0
+total_bytes = 0x4
+used_bytes = 0x8

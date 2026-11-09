@@ -4,14 +4,14 @@ What is known about Apple's iPod Classic firmware, and the symbols the RevolaOS 
 
 | Path | Contents |
 |---|---|
-| `symbols/` | One file per firmware version plus its generated linker script and C header |
+| `symbols/` | One directory per firmware version plus its generated linker script and C header |
 | `docs/<version>/` | One file per Apple subsystem |
 | `ghidra/` | Headless scripts, the program manifest and the exported analysis (names, prototypes, comments, types) |
-| `tools/` | `symbols.py` (symbols file), `ghidra.py` (Ghidra project) |
+| `tools/` | `symbols.py` (symbols), `ghidra.py` (Ghidra project) |
 
 ## Symbols
 
-`symbols/osos-2.0.5.toml` is the source of truth for every address RevolaOS code uses. Prose in `docs/` uses the names from it, never raw addresses.
+`symbols/osos-2.0.5/` is the source of truth for every address RevolaOS code uses. It holds one TOML file per subsystem, such as `media.toml` or `artwork.toml`; `firmware.toml` carries the image identity and memory map. Each file can use every table below, so a subsystem's functions, sites and struct offsets sit together. Names are unique across the directory. Prose in `docs/` uses the names, never raw addresses.
 
 | Table | Entry | Generated as |
 |---|---|---|
@@ -24,12 +24,12 @@ What is known about Apple's iPod Classic firmware, and the symbols the RevolaOS 
 Site kinds: `call` (a `BL` to redirect), `slot` (a pointer in a vtable or table), `word` (a constant), `entry` (a function start for a jump hook), `literal` (an address held in a literal pool). `in` names the containing function and offset; `verify` checks it.
 
 ```sh
-python tools/symbols.py generate symbols/osos-2.0.5.toml
-python tools/symbols.py check symbols/osos-2.0.5.toml
-python tools/symbols.py verify symbols/osos-2.0.5.toml
+python tools/symbols.py generate symbols/osos-2.0.5
+python tools/symbols.py check symbols/osos-2.0.5
+python tools/symbols.py verify symbols/osos-2.0.5
 ```
 
-`generate` writes `osos-2.0.5.ld` and `osos-2.0.5.h` next to the source; both are committed. `check` fails when they are stale. `verify` compares every function and site with `ghidra/analysis/2.0.5/osos` (or `--analysis <dir>`) and lists functions Ghidra has not defined yet. CI runs `check` and `verify`.
+`generate` writes `osos-2.0.5.ld` and `osos-2.0.5.h` next to the directory; both are committed. `check` fails when they are stale. `verify` compares every function and site with `ghidra/analysis/2.0.5/osos` (or `--analysis <dir>`) and lists functions Ghidra has not defined yet. CI runs `check` and `verify`.
 
 Code links against the linker script with `-Wl,--just-symbols=osos-2.0.5.ld` and includes the header. Functions without a prototype exist only so sites can name them.
 
@@ -41,8 +41,8 @@ Requires Ghidra 12.1.4, JDK 21 and the `revola` CLI from the installer repositor
 
 ```sh
 python tools/ghidra.py import --inputs <decrypted 2.0.5 inputs>   # builds build/ghidra
-python tools/symbols.py push symbols/osos-2.0.5.toml --ghidra build/ghidra
-python tools/symbols.py refresh symbols/osos-2.0.5.toml --ghidra build/ghidra
+python tools/symbols.py push symbols/osos-2.0.5 --ghidra build/ghidra
+python tools/symbols.py refresh symbols/osos-2.0.5 --ghidra build/ghidra
 python tools/ghidra.py export                                      # writes ghidra/analysis
 ```
 

@@ -1,0 +1,115 @@
+# UI framework: services, controllers, views, menus, actions, events and timers.
+
+[functions]
+UI_FindServiceById = { at = 0x081c7d44, c = "void *UI_FindServiceById(uint32_t service_id)" }
+UI_GetRootView = { at = 0x08113600, c = "void *UI_GetRootView(void)" }
+UI_GetSelectionModel = { at = 0x0817dde4, c = "void *UI_GetSelectionModel(void)" }
+UI_GetControllerRegistry = { at = 0x081d5950, c = "void *UI_GetControllerRegistry(void)" }
+UI_CreateScreenController = { at = 0x081d59e0, c = "void *UI_CreateScreenController(void *registry, uint32_t screen_id, uint32_t layout_id, uint32_t transition)" }
+UI_RegisterControllerFactories = { at = 0x081d5ac8, c = "void UI_RegisterControllerFactories(void *registry, const char *name, void *ordinary_factory, void *resource_factory)" }
+UI_RegisterViewFactory = { at = 0x081d70d8, c = "void UI_RegisterViewFactory(uint32_t view_type, void *create)" }
+UI_LoadLayoutEventTables = { at = 0x081d61b0, c = "void UI_LoadLayoutEventTables(void *layout)" }
+UI_GetLayoutEventTable = { at = 0x081d63e0 }
+UIEventMap_ReadStream = { at = 0x082a191c, c = "void UIEventMap_ReadStream(void *stream, void *map)" }
+ScreenController_CreateNamed = { at = 0x0812a0d8, c = "void *ScreenController_CreateNamed(const char *name, uint32_t screen_id, uint32_t layout_id, uint32_t transition)" }
+ScreenController_HandleEvent = { at = 0x0812a39c, c = "int ScreenController_HandleEvent(void *controller, void *event)" }
+ResourceScreen_Activate = { at = 0x08398954, c = "uint32_t ResourceScreen_Activate(void *controller, uint32_t entering)" }
+ResourceScreen_Deactivate = { at = 0x08398b6c, c = "uint32_t ResourceScreen_Deactivate(void *controller, uint32_t leaving)" }
+MenuItem_SetVisible = { at = 0x08194ff0, c = "int MenuItem_SetVisible(uint32_t item_id, uint32_t visible)" }
+ContextMenuItems_Append = { at = 0x08162390, c = "void ContextMenuItems_Append(void *items, uint32_t item_id, const char *action, uint32_t flags)" }
+WheelEvent_DecodeMotion = { at = 0x08289490, c = "void WheelEvent_DecodeMotion(void *event)" }
+ButtonEvent_GetUIKeyCode = { at = 0x0829b978, c = "uint32_t ButtonEvent_GetUIKeyCode(void *event)" }
+WheelAccumulator_Init = { at = 0x081b0efc, c = "void *WheelAccumulator_Init(void *state, int threshold, uint8_t accelerate, uint32_t interval)" }
+WheelAccumulator_ConsumeMotion = { at = 0x081b0e4c, c = "int WheelAccumulator_ConsumeMotion(void *state, int motion, uint32_t speed)" }
+WheelAccumulator_Reset = { at = 0x081b0e7c, c = "void WheelAccumulator_Reset(void *accumulator)" }
+View_InitOptionsFromDescriptor = { at = 0x0829b090, c = "void View_InitOptionsFromDescriptor(const void *descriptor, void *options)" }
+View_Construct = { at = 0x08265bf8, c = "void *View_Construct(void *view, void *unused, void *parent, void *event_target, const void *options)" }
+View_BindGraphicsContext = { at = 0x08264bdc, c = "void View_BindGraphicsContext(void *view, void *context)" }
+View_GetLocalContentRect = { at = 0x08299014, c = "void View_GetLocalContentRect(void *view, int32_t *rect)" }
+View_InvalidateRect = { at = 0x082655a0, c = "void View_InvalidateRect(void *view, const int32_t *rect)" }
+View_DrawBackgroundAndBorder = { at = 0x08263530 }
+TextView_DrawTextWithColor = { at = 0x08287218 }
+MarqueeTextView_Draw = { at = 0x081a8dc8 }
+CoverFlowView_UpdateActiveState = { at = 0x0813818c }
+GLAlbumArtView_UpdateActiveState = { at = 0x081641b8 }
+MainMediaMenu_DispatchCommonAction = { at = 0x08223d20, c = "int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument)" }
+NowPlaying_DispatchAction = { at = 0x08212dbc, c = "int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+NowPlaying_BuildAndShowContextualMenu = { at = 0x0821505c }
+SongList_DispatchAction = { at = 0x08218b24, c = "int SongList_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+SongList_BuildAndShowContextualMenu = { at = 0x08219478 }
+NestedPlaylists_DispatchAction = { at = 0x0822ea1c, c = "int NestedPlaylists_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+NestedPlaylists_BuildAndShowContextualMenu = { at = 0x0822fdb4 }
+Genius_DispatchAction = { at = 0x0821c0e4, c = "int Genius_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+Genius_BuildAndShowContextualMenu = { at = 0x0821d0cc }
+ArtistsController_ShowContextMenu = { at = 0x0821fe9c }
+UI_InitializeEventTimer = { at = 0x0810635c, c = "void UI_InitializeEventTimer(void *controller, void *timer, uint32_t period, void *event_queue)" }
+Timer_Start = { at = 0x08121268, c = "void Timer_Start(void *timer)" }
+UITask_Create = { at = 0x081391b8 }
+UITask_Main = { at = 0x08139118 }
+
+[data]
+ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
+View_vtable = { at = 0x089ad8ec, c = "void *const View_vtable[]" }
+
+[sites]
+UI_LoadLayoutEvents_call = { at = 0x081d63f8, kind = "call", in = "UI_GetLayoutEventTable+0x18" }
+UI_TemplateEventsGet_call = { at = 0x081d6218, kind = "call", in = "UI_LoadLayoutEventTables+0x68" }
+UI_LayoutEventsGet_call = { at = 0x081d62b4, kind = "call", in = "UI_LoadLayoutEventTables+0x104" }
+UI_ControllerEventsGet_call = { at = 0x081d634c, kind = "call", in = "UI_LoadLayoutEventTables+0x19c" }
+NowPlaying_Action_slot = { at = 0x0899be50, kind = "slot" }
+NowPlaying_SecondaryAction_slot = { at = 0x089a2e00, kind = "slot" }
+Music_Action_slot = { at = 0x089a940c, kind = "slot" }
+Music_SecondaryAction_slot = { at = 0x089a507c, kind = "slot" }
+Main_Action_slot = { at = 0x089a4c9c, kind = "slot" }
+Main_SecondaryAction_slot = { at = 0x089a8fa4, kind = "slot" }
+TextView_DrawColor_call = { at = 0x082872a8, kind = "call", in = "TextView_DrawTextWithColor+0x90" }
+View_BackgroundFill_call = { at = 0x082636b4, kind = "call", in = "View_DrawBackgroundAndBorder+0x184" }
+MarqueeTextView_DrawColor_call = { at = 0x081a8f0c, kind = "call", in = "MarqueeTextView_Draw+0x144" }
+CoverFlow_ClearColor_call = { at = 0x08138304, kind = "call", in = "CoverFlowView_UpdateActiveState+0x178" }
+AlbumArt_ClearColor_call = { at = 0x08164230, kind = "call", in = "GLAlbumArtView_UpdateActiveState+0x78" }
+SongList_CancelAppend_call = { at = 0x082195ec, kind = "call", in = "SongList_BuildAndShowContextualMenu+0x174" }
+NestedPlaylists_CancelAppend_call = { at = 0x0822ffb8, kind = "call", in = "NestedPlaylists_BuildAndShowContextualMenu+0x204" }
+Genius_CancelAppend_call = { at = 0x0821d26c, kind = "call", in = "Genius_BuildAndShowContextualMenu+0x1a0" }
+NowPlaying_CancelAppend_call = { at = 0x0821526c, kind = "call", in = "NowPlaying_BuildAndShowContextualMenu+0x210" }
+Artists_CancelAppend_call = { at = 0x0821fee8, kind = "call", in = "ArtistsController_ShowContextMenu+0x4c" }
+SongList_DispatchAction_entry = { at = 0x08218b24, kind = "entry" }
+NestedPlaylists_DispatchAction_entry = { at = 0x0822ea1c, kind = "entry" }
+Genius_DispatchAction_entry = { at = 0x0821c0e4, kind = "entry" }
+UITask_StackShift_word = { at = 0x081391dc, kind = "word", in = "UITask_Create+0x24" }
+
+[offsets.Model]
+notify_method = 0x58
+
+[offsets.ScreenController]
+screen = 0xb4
+settings_model = 0xb0
+event_method = 0x30
+activate_method = 0xec
+deactivate_method = 0xf0
+
+[offsets.Service]
+interface_method = 0x14
+
+[offsets.View]
+draw_method = 0x74
+bounds = 0x80
+graphics_options = 0x4c
+
+[constants]
+Property_String = 0x53747220
+Property_Count = 0x564d6178
+Notify_None = 0x4e6f6e65
+Notify_All = 0x2a2a2a2a
+Service_Settings = 0x8900
+Service_NowPlaying = 0x7f00
+ActionSupportQuery = 0xdeadbeef
+
+[resources]
+Menu_Checked_Bitmap = 0x0dad0c08
+Menu_Reset_Bitmap = 0x0dad0125
+CoverFlow_Backside_Border_Color = 0x0dad05d8
+NowPlaying_White_Background_View = 0x0dad08c5
+NowPlaying_Idle_Template = 0x0dad0925
+NowPlaying_ChapterArt_BackgroundImage_View = 0x0dad092d
+RentalInfo_White_Background_View = 0x0dad09ae
+Search_Input_Text = 0x0dad0ddc
