@@ -31,6 +31,13 @@ BufferedFile_GetPosition = { at = 0x08037f98, c = "int BufferedFile_GetPosition(
 Preferences_LoadFile = { at = 0x0809c69c, c = "void Preferences_LoadFile(void *preferences)" }
 Preferences_LoadAndMigrate = { at = 0x080587f4 }
 
+Startup_CopyImageToRuntimeRegions = { at = 0x22004700 }
+Platform_ImportBootSysInfo = { at = 0x08360668 }
+Platform_GetImportedSysInfo = { at = 0x08360620 }
+Platform_GetHeapRegion = { at = 0x0804b448 }
+Memory_InitPlatformHeapBounds = { at = 0x0806bf34 }
+System_CreateAndStartConfiguredTasks = { at = 0x0805d5f4 }
+
 # ---------------------------------------------------------------- strings
 
 CppString_Init = { at = 0x083cf82c, c = "void *CppString_Init(void *string, const char *text)" }
@@ -148,6 +155,10 @@ EQ_SettingsIdToDspPreset = { at = 0x080b28a0, c = "uint32_t EQ_SettingsIdToDspPr
 EQ_SettingsIdToMenuIndex = { at = 0x080bb460 }
 MediaTrack_ApplyEQ = { at = 0x08173b48 }
 Audio_SetPlaybackSource = { at = 0x081a64c4, c = "void Audio_SetPlaybackSource(void *source)" }
+Audio_InitEffectsChain = { at = 0x0818ced8 }
+Audio_ProcessEffectsAndOutput = { at = 0x0818cbe0 }
+Audio_SetPostEffectsGainQ15 = { at = 0x0818cec0 }
+Audio_SetEQPreset = { at = 0x0818ca70 }
 
 # ---------------------------------------------------------------- player and media
 
@@ -232,6 +243,8 @@ GameManifest_InitReader = { at = 0x0825e510, c = "void GameManifest_InitReader(v
 GameLoader_LoadVerifiedManifest = { at = 0x080f9374 }
 IAP_VerifyDeviceSignatureRSA = { at = 0x0812dca8 }
 IAP_VerifyDeviceSignatureAlternate = { at = 0x081592fc }
+IAP_HandleDevAuthenticationSignature = { at = 0x081892b8 }
+IAP_SetAccessoryAuthState = { at = 0x08185e18 }
 
 # ---------------------------------------------------------------- data
 
@@ -397,6 +410,12 @@ graphics_options = 0x4c
 # ---------------------------------------------------------------- constants
 
 [constants]
+DRAM_BASE = 0x08000000
+DRAM_END = 0x0c000000
+DRAM_UNCACHED_ALIAS = 0x80000000
+IRAM_BASE = 0x22000000
+MMIO_BASE = 0x38000000
+MMU_TRANSLATION_TABLE = 0x2200c000
 AlbumArtist_order_mode = 0x2d
 MainMenuSettings_row_count = 0x22
 MusicMenuSettings_row_count = 13

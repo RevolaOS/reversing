@@ -194,6 +194,12 @@ extern uint32_t MusicMenuSettingsRows[];
 #define ADDR_BufferedFile_GetPosition 0x08037f98
 #define ADDR_Preferences_LoadFile 0x0809c69c
 #define ADDR_Preferences_LoadAndMigrate 0x080587f4
+#define ADDR_Startup_CopyImageToRuntimeRegions 0x22004700
+#define ADDR_Platform_ImportBootSysInfo 0x08360668
+#define ADDR_Platform_GetImportedSysInfo 0x08360620
+#define ADDR_Platform_GetHeapRegion 0x0804b448
+#define ADDR_Memory_InitPlatformHeapBounds 0x0806bf34
+#define ADDR_System_CreateAndStartConfiguredTasks 0x0805d5f4
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
 #define ADDR_CppString_Destroy 0x083cf7d4
@@ -292,6 +298,10 @@ extern uint32_t MusicMenuSettingsRows[];
 #define ADDR_EQ_SettingsIdToMenuIndex 0x080bb460
 #define ADDR_MediaTrack_ApplyEQ 0x08173b48
 #define ADDR_Audio_SetPlaybackSource 0x081a64c4
+#define ADDR_Audio_InitEffectsChain 0x0818ced8
+#define ADDR_Audio_ProcessEffectsAndOutput 0x0818cbe0
+#define ADDR_Audio_SetPostEffectsGainQ15 0x0818cec0
+#define ADDR_Audio_SetEQPreset 0x0818ca70
 #define ADDR_MediaPlayer_GetInstance 0x08172824
 #define ADDR_MediaPlayer_ClearPreparedTrack 0x0817190c
 #define ADDR_MediaPlayer_RebuildArtwork 0x08170238
@@ -364,6 +374,8 @@ extern uint32_t MusicMenuSettingsRows[];
 #define ADDR_GameLoader_LoadVerifiedManifest 0x080f9374
 #define ADDR_IAP_VerifyDeviceSignatureRSA 0x0812dca8
 #define ADDR_IAP_VerifyDeviceSignatureAlternate 0x081592fc
+#define ADDR_IAP_HandleDevAuthenticationSignature 0x081892b8
+#define ADDR_IAP_SetAccessoryAuthState 0x08185e18
 #define ADDR_ResourceNameMap 0x08ae02c4
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
@@ -485,6 +497,12 @@ extern uint32_t MusicMenuSettingsRows[];
 #define View_bounds 0x80
 #define View_graphics_options 0x4c
 
+#define DRAM_BASE 0x8000000
+#define DRAM_END 0xc000000
+#define DRAM_UNCACHED_ALIAS 0x80000000
+#define IRAM_BASE 0x22000000
+#define MMIO_BASE 0x38000000
+#define MMU_TRANSLATION_TABLE 0x2200c000
 #define AlbumArtist_order_mode 0x2d
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
