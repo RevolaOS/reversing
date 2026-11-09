@@ -50,32 +50,36 @@ The current preset is highlighted from the controller's event slot. When `UI_Tra
 
 ### Row style catalogue
 
-The row-style table holds one object per style, 2 to 27 and 31. Every style draws the title (destination 1). The other cells and the destinations they read come from the objects in emulator memory. The looks come from stock screens on the 20k library. Styles that share a vtable come in pairs, and the second of a pair adds the arrow or the indent.
+The row-style table holds one object per style, 2 to 27 and 31. Every style draws the title (destination 1); the object maps the style's other cells to `SORC` destinations. The table below comes from rendering each style in Settings > Main Menu in the emulator. A row with `MenuRowStyle_ModelLayout` was answered with each style in turn, a checked row tested the checkmark, the selected row tested the chevron, and the second binding was repointed to destination 10 to test the second line. A combination counts as supported only if it rendered like a stock row.
 
-| Style | Pair | Destinations besides the title | Stock example | Looks |
-|---|---|---|---|---|
-| `MenuRowStyle_ModelLayout` (1) | | asks `Property_Layout` per row | Settings > Main Menu | the style the model answers |
-| `MenuRowStyle_Text` (2) | 5 | 8, 9, 19, 20 | Settings > EQ, Songs (one line) | one line |
-| `MenuRowStyle_Check` (3) | 4 | 8, 9, 12 | Main Menu rows | one line, bitmap on the right |
-| `MenuRowStyle_CheckIndented` (4) | 3 | 8, 9, 12 | Main Menu rows | indented, bitmap on the right |
-| `MenuRowStyle_Submenu` (5) | 2 | 8, 9, 19, 20 | Artists, Extras | one line, arrow when selected |
-| `MenuRowStyle_TwoLine` (6) | 7 | 8, 9, 10, 19, 20 | Songs (two lines) | title, grey line from destination 10 |
-| `MenuRowStyle_TwoLineSubmenu` (7) | 6 | 8, 9, 10, 19, 20 | Genres | two lines, arrow when selected |
-| 8, 9 | | 8, 9, 10, 13 to 16 | none | not seen |
-| 10, 11 | | 8, 9, 10, 17 to 20 | Podcast episodes (10) | not seen |
-| `MenuRowStyle_InlineValue` (12) | | 8, 9, 10 | Settings > Shuffle | title left, value right |
-| `MenuRowStyle_Artwork` (13) | 14 | 8, 9, 10, 12, 19, 20 | Songs (artwork layout), Movies | not seen |
-| `MenuRowStyle_ArtworkSubmenu` (14) | 13 | 8, 9, 10, 12, 19, 20 | Albums, TV Shows, Games | artwork from destination 12 on the left, two lines, arrow when selected |
-| 15 to 18 | | 8, 9, (10,) 17 to 20 | none | not seen |
-| 19, 20 | | 8, 9, 12, 17 to 20 | Genius | not seen |
-| 21, 22 | | 8, 9, 10, 12, 13 to 16 | none | not seen |
-| 23, 24 | | 8, 9, 10, 12, 17, 18 | Podcasts (24) | not seen |
-| 25 | | 8, 9, 10 | none | not seen |
-| 26 | | 8 | none | not seen |
-| 27 | | 8, 9, 10 | none | not seen |
-| 31 | | 8 to 13, 32 | none | not seen |
+| Style | Height | Second line (destination 10) | Checkmark (destination 12) | Chevron when selected | Stock example |
+|---|---|---|---|---|---|
+| `MenuRowStyle_Text` (2) | one line | no | no | no | Settings > EQ |
+| `MenuRowStyle_Check` (3) | one line | no | yes, right | no | Main Menu rows |
+| `MenuRowStyle_CheckIndented` (4) | one line, indented | no | yes, right | no | Main Menu rows |
+| `MenuRowStyle_Submenu` (5) | one line | no | no | yes | Extras, Artists |
+| `MenuRowStyle_TwoLine` (6) | two lines | not drawn from a Settings source | no | no | Songs |
+| `MenuRowStyle_TwoLineSubmenu` (7) | two lines | yes | no | yes | Genres |
+| 8, 10 | two lines | yes | no | no | Podcast episodes (10) |
+| 9, 11 | two lines | yes | no | yes | none |
+| `MenuRowStyle_InlineValue` (12) | one line | value on the right | no | no | Settings > Shuffle |
+| `MenuRowStyle_Artwork` (13) | tall | yes | broken: drawn in the empty artwork slot | no | Songs (artwork layout), Movies |
+| `MenuRowStyle_ArtworkSubmenu` (14) | tall | yes | broken: drawn in the empty artwork slot | yes | Albums, TV Shows, Games |
+| 15, 16 | tall, indented | no; the left area stays empty | no | 16 only | none |
+| 17 | tall | yes | no | no | none |
+| 18 | tall | yes | no | yes | none |
+| 19 | one line | no | no | a fixed refresh icon on every row | Genius |
+| 20 | one line | no | no | yes | Genius |
+| 21, 23 | tall | yes | broken: drawn in the empty left slot | no | none |
+| 22, 24 | tall | yes | broken: drawn in the empty left slot | yes | Podcasts (24) |
+| 25, 26, 27, 31 | — | — | — | — | crash the firmware when built this way |
 
-Destination 10 is the second line or the right-hand value, depending on the style, and destination 12 is the right-hand check or the left-hand artwork. What destinations 8, 9, 13 to 20 and 32 draw has not been mapped; Artists and Songs carry destination-8 bindings that are never asked for. Only styles 1 to 4, 6 and 12 have been used with `Service_Settings` sources so far.
+Supported:
+- One line: 2, 5 (chevron), 12 (value on the right), 20 (chevron).
+- Two lines: 7 (chevron), 8, 9 (chevron), 10, 11 (chevron).
+- Tall two lines: 13, 14 (chevron), 17, 18 (chevron), 21 to 24 (22 and 24 chevron).
+
+Single selection is the list highlight on the current row (see the EQ list), so it works with any style. A checkmark (multiple selection) renders correctly only in 3 and 4, and neither has a second line or a chevron; the tall styles draw destination 12 in their artwork slot instead. Style 6 drew its second line from the music library in Songs but not from a Settings source; why has not been traced. Destinations 8, 9, 13 to 20 and 32 were not given sources here; Artists and Songs carry destination-8 bindings that are never asked for.
 
 ## Settings preview pane
 
