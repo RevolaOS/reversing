@@ -21,3 +21,6 @@ ArtworkReflection_GenerateRGB565 = { at = 0x0826a7c0 }
 [sites]
 GraphicsContext_FillRect_call = { at = 0x0825ae9c, kind = "call", in = "GraphicsContext_FillRect+0x68" }
 ArtworkReflection_Blend_call = { at = 0x0826a890, kind = "call", in = "ArtworkReflection_GenerateRGB565+0xd0" }
+
+[offsets.GraphicsContext]
+bytes = 0x44

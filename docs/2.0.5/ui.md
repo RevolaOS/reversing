@@ -65,7 +65,15 @@ The stock Settings rows bind `list.pid.<row id>.chosen` and `delayedselected` in
 
 ## Views
 
-`UI_RegisterViewFactory` maps a view type (the descriptor's `ViewDescriptor_type`) to `create(owner, parent, event_target, descriptor)`. A custom view fills `View_options_bytes` of options with `View_InitOptionsFromDescriptor`, allocates `View_bytes`, calls `View_Construct` and installs its own vtable: a copy of `View_vtable` (`View_vtable_bytes`, the last four slots null) with `View_draw_method` replaced. `View_destroy_method` is the deleting destructor. A full redraw is `View_InvalidateRect(UI_GetRootView(), root + View_bounds)`.
+`UI_RegisterViewFactory` maps a view type (the descriptor's `ViewDescriptor_type`) to `create(owner, parent, event_target, descriptor)`. A custom view fills `View_options_bytes` of options with `View_InitOptionsFromDescriptor`, allocates `View_bytes`, calls `View_Construct` and installs its own vtable: a copy of `View_vtable` (`View_vtable_bytes`, the last four slots null) with `View_draw_method` replaced. `View_destroy_method` is the deleting destructor. Stock factories allocate with `Runtime_OperatorNew` and return the new view. The factories live in a map keyed by view type with no fixed size. The first registration for a type wins, so a built-in type cannot be replaced. `UITask_Main` registers the built-in types (`UI_RegisterBuiltinViewFactories`) before `UI_InitResourceProviders`. A type used by a template must be registered before `UI_InitializeViewTemplates` builds that template.
+
+### Drawing
+
+`View_DrawClipped` calls `View_draw_method` as `draw(view, draw_argument, clip)`, where `clip` is the part of the view to redraw. The base method, `View_Draw`, draws the view's shape layer and then `View_DrawBackgroundAndBorder(view)`. No graphics context is passed in. A draw method builds its own: it initialises `GraphicsContext_bytes` with `GraphicsContext_ConstructDefault`, then `View_BindGraphicsContext` attaches the window bitmap, puts the origin at the view's top-left corner and clips to the visible part. `View_GetLocalContentRect` then gives the drawable area in those local coordinates. Rects are `{top, left, bottom, right}`, and that includes `View_bounds`, which holds window coordinates. A replacement draw method can call `View_Draw` first to keep the stock background.
+
+`View_InvalidateRect` draws nothing itself. It clips the rect to the view and its parent and queues a window invalidation, and only when the view is visible and drawing is enabled. It keeps no lock, so call it from the UI task, for example from an action handler or a UI timer. A full redraw is `View_InvalidateRect(UI_GetRootView(), root + View_bounds)`.
+
+A view bound to a model (`View_model`, `View_property`) is refreshed through `View_refresh_method` when `View_HandleModelNotification` receives an `Event_ModelChange` for its property, with either the view's own type or `Notify_All`. Descriptor words +0x34 and +0x38 bind a second service and property of type `Property_Visible`, which shows or hides the view. A view whose service is not registered when the template is built stays unbound until a `VCvs` binding sets a source.
 
 ### Templates
 
@@ -75,7 +83,7 @@ The stock Settings rows bind `list.pid.<row id>.chosen` and `delayedselected` in
 
 The stock Legal page binds only its title this way. Its paragraph text comes from the template's view descriptors.
 
-Settings > Brightness is the slider prototype: its template has a `ViewType_Progress` bar (`RES_Settings_Brightness_Bar`) and a `ViewType_Text` value (`RES_Settings_Brightness_Value_Text`). Bound to a Settings property, the bar asks for type `Property_Control` and reads three signed words (`ControlRange_*`); the text asks for `Property_String`.
+Settings > Brightness is the slider prototype. Its controller class is `TCSettings_Brightness`, and its template has five image views, a `ViewType_Progress` bar (`RES_Settings_Brightness_Bar`) and a `ViewType_Text` value (`RES_Settings_Brightness_Value_Text`). A progress descriptor holds `ProgressDescriptor_maximum` (100 for Brightness), `ProgressDescriptor_minimum` (also the initial value), a `SORC` id at `ProgressDescriptor_source` and `ProgressDescriptor_style`; `ProgressBar_CreateFromResource` decodes it. `ProgressBar_RefreshFromModel` asks the bound service for `Property_Control`. The provider stores a pointer to a `ControlRange_bytes` record (`ControlRange_value`, `ControlRange_minimum`, `ControlRange_maximum`) in `*out`; the bar copies the three words at once. The text asks for `Property_String`. Turning the wheel reaches `BrightnessController_HandleEvent`, which calls `BrightnessController_HandleWheel`. That converts the motion to steps with `WheelInput_QuantizeMotion(motion, 16)` and passes them to `SettingsModel_AdjustBrightness`. The model clamps the value to 0 to 100 and notifies `Property_Control` for the bar and `Notify_All` for the text.
 
 A row whose `SORC` has a second binding with destination `SourceDestination_InlineValue` shows that source as the blue value beside the title (the Sound Check row, `RES_SettingsMenu_SoundCheck_Item`).
 
@@ -84,6 +92,10 @@ The selection model's current row index comes from its vtable slot `SelectionMod
 ## Input events
 
 `InputEvent_kind` is `InputEvent_ButtonDown`, kinds 7 and 8 for further button phases, `InputEvent_ButtonUp` or `InputEvent_Wheel`. For a wheel event, `WheelEvent_DecodeMotion` fills `InputEvent_wheel_delta`. For a button, `ButtonEvent_GetUIKeyCode` returns the key from `InputEvent_key`: `UIKey_Menu`, `UIKey_Center`, `UIKey_Next`, `UIKey_Previous` or `UIKey_Play`.
+
+A screen controller receives events in `ScreenController_event_method` as `handle(controller, event)`; a nonzero return means handled. The base handlers (`ScreenController_HandleEvent`, and `ResourceScreen_HandleEvent` for resource screens) pass every event to `ScreenController_named_event_method` (`ScreenController_DispatchNamedEvent`). That method turns the event into a name such as `button.menu.up` and runs the matching `SEVT` and `CEVT` bindings. A timer event for the controller's own timer then goes to the timer slot. A subclass handles its own kinds first and falls back to this base code, which is how `BrightnessController_HandleEvent` takes wheel events on a screen without a list. A hook on the event slot that calls the original for keys it does not handle therefore keeps all layout and controller bindings. In which order a focused view and the controller see an event has not been traced. List screens take the wheel in their list view.
+
+`WheelAccumulator_Init(state, threshold, accelerate, interval)` needs `WheelAccumulator_bytes` of storage that stays valid until it is unregistered. Stock values are 5, 1, 350 for menu lists and 8, 0, 350 for a lock-screen code entry. `WheelAccumulator_ConsumeMotion(state, motion, speed)` returns signed steps. `motion` is `InputEvent_wheel_delta` and `speed` is `WheelEvent_GetSpeed(event)` (`InputEvent_wheel_speed`); menu lists pass speed 0. `WheelInput_QuantizeMotion(motion, threshold)` uses one shared accumulator and needs no state; Brightness uses it with threshold 16.
 
 ## Navigation
 

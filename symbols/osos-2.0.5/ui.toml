@@ -31,7 +31,13 @@ View_Construct = { at = 0x08265bf8, c = "void *View_Construct(void *view, void *
 View_BindGraphicsContext = { at = 0x08264bdc, c = "void View_BindGraphicsContext(void *view, void *context)" }
 View_GetLocalContentRect = { at = 0x08299014, c = "void View_GetLocalContentRect(void *view, int32_t *rect)" }
 View_InvalidateRect = { at = 0x082655a0, c = "void View_InvalidateRect(void *view, const int32_t *rect)" }
-View_DrawBackgroundAndBorder = { at = 0x08263530 }
+View_DrawBackgroundAndBorder = { at = 0x08263530, c = "void View_DrawBackgroundAndBorder(void *view)" }
+View_Draw = { at = 0x0826576c, c = "void View_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+View_DrawClipped = { at = 0x08265388, c = "void View_DrawClipped(void *view, void *draw_argument, const int32_t *clip)" }
+View_HandleModelNotification = { at = 0x08265a2c, c = "int View_HandleModelNotification(void *view, void *event)" }
+ProgressBar_CreateFromResource = { at = 0x081d5fac }
+UI_RegisterBuiltinViewFactories = { at = 0x081d7110, c = "void UI_RegisterBuiltinViewFactories(void)" }
+ProgressBar_RefreshFromModel = { at = 0x082053a4, c = "void ProgressBar_RefreshFromModel(void *view)" }
 TextView_CreateFromDescriptor = { at = 0x0817b238, c = "void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor)" }
 TextView_DrawTextWithColor = { at = 0x08287218 }
 MarqueeTextView_Draw = { at = 0x081a8dc8 }
@@ -61,6 +67,12 @@ ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchActio
 UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts)" }
 UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
 SettingsMenuListController_Deactivate = { at = 0x083a4a90, c = "uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving)" }
+ResourceScreen_HandleEvent = { at = 0x08398bdc, c = "int ResourceScreen_HandleEvent(void *controller, void *event)" }
+ScreenController_DispatchNamedEvent = { at = 0x0812a070, c = "int ScreenController_DispatchNamedEvent(void *controller, void *event)" }
+BrightnessController_HandleEvent = { at = 0x081ec9d4, c = "int BrightnessController_HandleEvent(void *controller, void *event)" }
+BrightnessController_HandleWheel = { at = 0x081ec864, c = "int BrightnessController_HandleWheel(void *controller, void *event)" }
+WheelInput_QuantizeMotion = { at = 0x08289794, c = "int WheelInput_QuantizeMotion(uint32_t motion, int threshold)" }
+WheelEvent_GetSpeed = { at = 0x082894e8, c = "uint32_t WheelEvent_GetSpeed(void *event)" }
 ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 UI_CreateTemplateFromResource = { at = 0x081df580 }
@@ -117,6 +129,7 @@ notify_method = 0x58
 push_method = 0xd0
 pop_method = 0xbc
 switch_layout_method = 0x120
+named_event_method = 0x110
 show_layout_method = 0x124
 action_method = 0x114
 vtable_bytes = 0x128
@@ -130,6 +143,9 @@ deactivate_method = 0xf0
 interface_method = 0x14
 
 [offsets.View]
+model = 0x38
+property = 0x44
+refresh_method = 0xd4
 destroy_method = 0x4
 bytes = 0xa4
 options_bytes = 0x5c
@@ -162,6 +178,8 @@ ViewBinding_ItemTable = 0x3f1
 Service_String = 0x80
 SourceDestination_Title = 0x1
 Property_Control = 0x436e746c
+Property_Visible = 0x56566973
+Event_ModelChange = 0x13
 SourceDestination_InlineValue = 0xa
 ViewType_Progress = 0x70676f67
 ViewType_Text = 0x74657874
@@ -181,6 +199,9 @@ Notes_List_Screen_Alt_Default = 0x0dad09fb
 Settings_Legal_Template = 0x0dad0041
 StatusBarWhite_Template = 0x0dad01a1
 StatusBarWhite_Text = 0x0dad01a6
+StatusBar_Template = 0x0dad020c
+StatusBar_Title_Text = 0x0dad020e
+FullScreenImage_Template = 0x0dad06b4
 MainMenu_Items = 0x0000001a
 MusicMenu_Items = 0x0000001b
 MainMenus_Main_Screen = 0x0dad076e
@@ -319,6 +340,15 @@ options_bytes = 0x5c
 source = 0x64
 font = 0x68
 color = 0x70
+
+[offsets.ProgressDescriptor]
+maximum = 0x5c
+minimum = 0x60
+source = 0x64
+style = 0x6c
+
+[offsets.WheelAccumulator]
+bytes = 0x34
 
 [offsets.ItemTableBinding]
 item_table = 0x4

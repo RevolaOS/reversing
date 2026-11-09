@@ -32,4 +32,5 @@ UIKey_Center = 0x6f
 [offsets.InputEvent]
 kind = 0x4
 wheel_delta = 0xc
+wheel_speed = 0x14
 key = 0x10

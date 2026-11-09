@@ -17,6 +17,7 @@ MainMenuSettings_HandleSelection = { at = 0x081d2200 }
 MusicMenuSettings_HandleSelection = { at = 0x081dd6c8 }
 SettingsModel_ResetAllSettings = { at = 0x081e1e6c, c = "void SettingsModel_ResetAllSettings(void *model)" }
 SettingsController_ConfirmResetAll = { at = 0x08212820 }
+SettingsModel_AdjustBrightness = { at = 0x081e2ee8, c = "void SettingsModel_AdjustBrightness(void *model, int delta)" }
 
 [data]
 MainMenuSettingsRows = { at = 0x08a815f0, c = "uint32_t MainMenuSettingsRows[]" }

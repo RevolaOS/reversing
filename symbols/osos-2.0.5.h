@@ -175,6 +175,7 @@ void *SettingsModel_ResetMusicMenu(void *model);
 void *SettingsModel_GetEQPresetPreview(void *model, uint32_t menu_index);
 void *SettingsModel_GetEQPresetName(void *model, uint32_t menu_index);
 void SettingsModel_ResetAllSettings(void *model);
+void SettingsModel_AdjustBrightness(void *model, int delta);
 void *CppString_Init(void *string, const char *text);
 void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator);
 void CppString_Destroy(void *string);
@@ -217,6 +218,12 @@ void *View_Construct(void *view, void *unused, void *parent, void *event_target,
 void View_BindGraphicsContext(void *view, void *context);
 void View_GetLocalContentRect(void *view, int32_t *rect);
 void View_InvalidateRect(void *view, const int32_t *rect);
+void View_DrawBackgroundAndBorder(void *view);
+void View_Draw(void *view, void *draw_argument, const int32_t *clip);
+void View_DrawClipped(void *view, void *draw_argument, const int32_t *clip);
+int View_HandleModelNotification(void *view, void *event);
+void UI_RegisterBuiltinViewFactories(void);
+void ProgressBar_RefreshFromModel(void *view);
 void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor);
 int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument);
 int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument);
@@ -235,6 +242,12 @@ int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t arg
 void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
 void UI_LoadScreenLayouts(void *definition);
 uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving);
+int ResourceScreen_HandleEvent(void *controller, void *event);
+int ScreenController_DispatchNamedEvent(void *controller, void *event);
+int BrightnessController_HandleEvent(void *controller, void *event);
+int BrightnessController_HandleWheel(void *controller, void *event);
+int WheelInput_QuantizeMotion(uint32_t motion, int threshold);
+uint32_t WheelEvent_GetSpeed(void *event);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
@@ -461,6 +474,7 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_MusicMenuSettings_HandleSelection 0x081dd6c8
 #define ADDR_SettingsModel_ResetAllSettings 0x081e1e6c
 #define ADDR_SettingsController_ConfirmResetAll 0x08212820
+#define ADDR_SettingsModel_AdjustBrightness 0x081e2ee8
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
 #define ADDR_CppString_Destroy 0x083cf7d4
@@ -505,6 +519,12 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_View_GetLocalContentRect 0x08299014
 #define ADDR_View_InvalidateRect 0x082655a0
 #define ADDR_View_DrawBackgroundAndBorder 0x08263530
+#define ADDR_View_Draw 0x0826576c
+#define ADDR_View_DrawClipped 0x08265388
+#define ADDR_View_HandleModelNotification 0x08265a2c
+#define ADDR_ProgressBar_CreateFromResource 0x081d5fac
+#define ADDR_UI_RegisterBuiltinViewFactories 0x081d7110
+#define ADDR_ProgressBar_RefreshFromModel 0x082053a4
 #define ADDR_TextView_CreateFromDescriptor 0x0817b238
 #define ADDR_TextView_DrawTextWithColor 0x08287218
 #define ADDR_MarqueeTextView_Draw 0x081a8dc8
@@ -534,6 +554,12 @@ extern void *const AlbumsController_vtable[];
 #define ADDR_UI_ConstructScreenDefinition 0x0813ca44
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
 #define ADDR_SettingsMenuListController_Deactivate 0x083a4a90
+#define ADDR_ResourceScreen_HandleEvent 0x08398bdc
+#define ADDR_ScreenController_DispatchNamedEvent 0x0812a070
+#define ADDR_BrightnessController_HandleEvent 0x081ec9d4
+#define ADDR_BrightnessController_HandleWheel 0x081ec864
+#define ADDR_WheelInput_QuantizeMotion 0x08289794
+#define ADDR_WheelEvent_GetSpeed 0x082894e8
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
@@ -748,10 +774,12 @@ extern void *const AlbumsController_vtable[];
 #define ArtworkThumb_size 0x1c
 #define ArtworkThumb_file 0x20
 #define ArtworkThumb_bytes 0x24
+#define GraphicsContext_bytes 0x44
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
 #define InputEvent_kind 0x4
 #define InputEvent_wheel_delta 0xc
+#define InputEvent_wheel_speed 0x14
 #define InputEvent_key 0x10
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
@@ -856,6 +884,7 @@ extern void *const AlbumsController_vtable[];
 #define ScreenController_push_method 0xd0
 #define ScreenController_pop_method 0xbc
 #define ScreenController_switch_layout_method 0x120
+#define ScreenController_named_event_method 0x110
 #define ScreenController_show_layout_method 0x124
 #define ScreenController_action_method 0x114
 #define ScreenController_vtable_bytes 0x128
@@ -865,6 +894,9 @@ extern void *const AlbumsController_vtable[];
 #define ScreenController_activate_method 0xec
 #define ScreenController_deactivate_method 0xf0
 #define Service_interface_method 0x14
+#define View_model 0x38
+#define View_property 0x44
+#define View_refresh_method 0xd4
 #define View_destroy_method 0x4
 #define View_bytes 0xa4
 #define View_options_bytes 0x5c
@@ -916,6 +948,11 @@ extern void *const AlbumsController_vtable[];
 #define TextViewDescriptor_source 0x64
 #define TextViewDescriptor_font 0x68
 #define TextViewDescriptor_color 0x70
+#define ProgressDescriptor_maximum 0x5c
+#define ProgressDescriptor_minimum 0x60
+#define ProgressDescriptor_source 0x64
+#define ProgressDescriptor_style 0x6c
+#define WheelAccumulator_bytes 0x34
 #define ItemTableBinding_item_table 0x4
 #define ViewLayout_title 0x24
 #define SourceBinding_service 0x0
@@ -995,6 +1032,8 @@ extern void *const AlbumsController_vtable[];
 #define Service_String 0x80
 #define SourceDestination_Title 0x1
 #define Property_Control 0x436e746c
+#define Property_Visible 0x56566973
+#define Event_ModelChange 0x13
 #define SourceDestination_InlineValue 0xa
 #define ViewType_Progress 0x70676f67
 #define ViewType_Text 0x74657874
@@ -1048,6 +1087,9 @@ extern void *const AlbumsController_vtable[];
 #define RES_Settings_Legal_Template 0x0dad0041
 #define RES_StatusBarWhite_Template 0x0dad01a1
 #define RES_StatusBarWhite_Text 0x0dad01a6
+#define RES_StatusBar_Template 0x0dad020c
+#define RES_StatusBar_Title_Text 0x0dad020e
+#define RES_FullScreenImage_Template 0x0dad06b4
 #define RES_MainMenu_Items 0x0000001a
 #define RES_MusicMenu_Items 0x0000001b
 #define RES_MainMenus_Main_Screen 0x0dad076e
