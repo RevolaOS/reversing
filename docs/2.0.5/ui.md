@@ -106,6 +106,8 @@ An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, o
 
 A format of 0 picks one from the depth. The byte order comes from stock palettes: the selected checkmark's edge pixels blend white into the blue selection bar only when read as B, G, R. 
 
+In `RES_SettingsMenu_Main_Screen`'s `CEVT`, About and the rows with values (Shuffle, Repeat, Sound Check, Clicker, Sort By) handle `chosen` in place with `ShowSetting_*` or `ToggleSetting_*`. Volume Limit (`GotoVolumeLimit_or_Lock_or_EU_Screen`) and Backlight (`HandleSetting_BacklightTimer`) also use handlers. Main Menu, Music Menu, Brightness, Audiobooks, Radio Regions, EQ, Date & Time, Language, Legal and Reset Settings push a screen with `navigator.PushScreen`. These handlers in `Settings_HandleAction` work on the controller's Settings model and the stored preferences, not on the screen id, the `ITEM` table or the selection index. Two rows change visibility with state through `MenuItem_SetVisible`: `RES_SettingsMenu_VolumeLimit_Item` and `RES_SettingsMenu_RadioRegions_Item`. A stock Settings layout keeps its own status bar `VCvs`, so switching to it shows the title "Settings". Its list instance is bound through the `VSlt` of whichever screen shows it.
+
 Dropping a stock row while a list loads and binding its id in another screen's `CEVT` is safe for the bindings themselves: events are named by row id, and preview layouts are chosen by name, not by position. The handler strings (`ToggleSetting_*`, `ShowSetting_*`) are understood only by the Settings list controller's action slot, so another screen needs that controller class or its own handler. `MenuItem_SetVisible` still writes the stock row data, which the other list shares.
 
 ### Switching layouts
