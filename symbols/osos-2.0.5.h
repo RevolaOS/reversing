@@ -315,6 +315,10 @@ int MenuList_GetRowProperty(void *list_model, uint32_t type, uint32_t property, 
 void MenuItems_RegisterAll(void);
 void BitmapView_LoadBitmap(void *view);
 void *Object_GetInterface(void *object, uint32_t interface);
+uint8_t Layout_GetKind(void *layout);
+int UI_InstanceEnterStyle(void *manager, void *instance, int transition_5, int other_kind);
+int UI_InstanceLeaveStyle(void *manager, void *instance, int transition_5, int other_kind);
+void *UI_GetCompositorLayer(void *layers, uint32_t index);
 int UI_EmitControllerEvent(void *controller, void *event_name);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
 void *View_FindViewById(void *view, uint32_t id);
@@ -357,6 +361,7 @@ extern uint32_t MusicMenuSettingsRows[];
 extern void *const ScreenController_vtable[];
 extern void *const View_vtable[];
 extern void *const TemplateView_vtable[];
+extern void *const SportTimerChosenDispatcher_vtable[];
 extern void *const SettingsMenuListController_vtable[];
 extern void *const ExtrasMenuController_vtable[];
 extern void *const ArtistsController_vtable[];
@@ -729,6 +734,20 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_BitmapView_LoadBitmap 0x08100020
 #define ADDR_Object_GetInterface 0x0826c594
 #define ADDR_UI_TransitionToLayout 0x0817518c
+#define ADDR_Layout_GetKind 0x081d6ad4
+#define ADDR_UI_AnimateInstanceIn 0x081774c8
+#define ADDR_UI_AnimateInstanceOut 0x08177d84
+#define ADDR_UI_AnimateSharedInstance 0x08176b28
+#define ADDR_UI_InstanceEnterStyle 0x08179d04
+#define ADDR_UI_InstanceLeaveStyle 0x0817a040
+#define ADDR_UI_SlideLayerIn 0x081786c8
+#define ADDR_UI_SlideLayerOut 0x08178924
+#define ADDR_UI_MoveViewToLayer 0x08179684
+#define ADDR_UI_HoldViewInBackgroundLayer 0x08179dbc
+#define ADDR_UI_SlideStatusBarChildren 0x08178e2c
+#define ADDR_UI_SlideLayerFromPane 0x081790ec
+#define ADDR_UI_GetCompositorLayer 0x0826dfec
+#define ADDR_SportTimerChosenDispatcher_Activate 0x0821abc4
 #define ADDR_UI_EmitControllerEvent 0x0812a150
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
@@ -783,6 +802,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
 #define ADDR_TemplateView_vtable 0x08997824
+#define ADDR_SportTimerChosenDispatcher_vtable 0x089a72dc
 #define ADDR_SettingsMenuListController_vtable 0x089a3ae0
 #define ADDR_ExtrasMenuController_vtable 0x0899cb30
 #define ADDR_ArtistsController_vtable 0x089a40e4
@@ -1237,6 +1257,9 @@ extern void *const MenuListModel_vtable[];
 #define SsinInstance_template 0x4
 #define SsinInstance_layout_events_id 0x8
 #define SsinInstance_flags 0x10
+#define SsinInstance_enter_style 0xc
+#define SsinInstance_leave_style 0xe
+#define SsinInstance_shared_style 0x10
 #define ViewDescriptor_frame 0x0
 #define ViewDescriptor_top_offset 0xc
 #define ViewDescriptor_top_reference_view 0x10
@@ -1268,6 +1291,16 @@ extern void *const MenuListModel_vtable[];
 #define MenuList_item_blocks 0x18
 #define LayoutManager_screen 0x20
 #define LayoutManager_layout 0x28
+#define LayoutManager_saved_transition 0x80
+#define TemplateView_enter_styles 0xfc
+#define TemplateView_leave_styles 0x107
+#define TemplateView_shared_styles 0x112
+#define TemplateResource_has_styles 0x4
+#define TemplateResource_styles 0x6
+#define TemplateStyle_enter 0x0
+#define TemplateStyle_leave 0x2
+#define TemplateStyle_shared 0x8
+#define TemplateStyle_bytes 0xc
 #define ContextMenuModel_items 0x18
 #define ContextMenuItem_item 0x0
 #define ContextMenuItem_action 0x4
@@ -1424,6 +1457,7 @@ extern void *const MenuListModel_vtable[];
 #define ViewType_Capacity 0x63706374
 #define UITask_stack_bytes 0x20000
 #define Transition_Instant 0x6
+#define Transition_Hidden 0x1
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
@@ -1521,12 +1555,21 @@ extern void *const MenuListModel_vtable[];
 #define RES_StatusBar_Template 0x0dad020c
 #define RES_StatusBar_Title_Text 0x0dad020e
 #define RES_FullScreenImage_Template 0x0dad06b4
+#define RES_About_Top_Template 0x0dad0b24
+#define RES_About_Screen 0x0dad0b6c
+#define RES_About_Accessory_Screen 0x0dad0b70
+#define RES_Background_Template 0x0dad01d8
+#define RES_Stopwatch_Template 0x0dad0d1d
+#define RES_Stopwatch_Screen 0x0dad0d46
+#define RES_Stopwatch_Screen_Stopped 0x0dad0d47
+#define RES_Stopwatch_Menu_Screen 0x0dad0d49
 #define RES_MainMenu_Items 0x0000001a
 #define RES_MusicMenu_Items 0x0000001b
 #define RES_MainMenus_Main_Screen 0x0dad076e
 #define RES_MainMenus_Music_Screen 0x0dad07c8
 #define RES_ExtrasMenu_Screen 0x0dad01cc
-#define RES_ExtrasMenu_Layout 0x0dad01f0
+#define RES_ExtrasMenu_Layout 0x0dad01d6
+#define RES_ExtrasMenu_Stopwatch_Layout 0x0dad01ed
 #define RES_MainMenu_Music_Item 0x0dad076f
 #define RES_MainMenu_CoverFlow_Item 0x0dad0770
 #define RES_MainMenu_GeniusMixes_Item 0x0dad0771

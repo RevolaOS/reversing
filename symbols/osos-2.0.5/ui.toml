@@ -88,6 +88,20 @@ MenuItems_RegisterAll = { at = 0x081951cc, c = "void MenuItems_RegisterAll(void)
 BitmapView_LoadBitmap = { at = 0x08100020, c = "void BitmapView_LoadBitmap(void *view)" }
 Object_GetInterface = { at = 0x0826c594, c = "void *Object_GetInterface(void *object, uint32_t interface)" }
 UI_TransitionToLayout = { at = 0x0817518c }
+Layout_GetKind = { at = 0x081d6ad4, c = "uint8_t Layout_GetKind(void *layout)" }
+UI_AnimateInstanceIn = { at = 0x081774c8 }
+UI_AnimateInstanceOut = { at = 0x08177d84 }
+UI_AnimateSharedInstance = { at = 0x08176b28 }
+UI_InstanceEnterStyle = { at = 0x08179d04, c = "int UI_InstanceEnterStyle(void *manager, void *instance, int transition_5, int other_kind)" }
+UI_InstanceLeaveStyle = { at = 0x0817a040, c = "int UI_InstanceLeaveStyle(void *manager, void *instance, int transition_5, int other_kind)" }
+UI_SlideLayerIn = { at = 0x081786c8 }
+UI_SlideLayerOut = { at = 0x08178924 }
+UI_MoveViewToLayer = { at = 0x08179684 }
+UI_HoldViewInBackgroundLayer = { at = 0x08179dbc }
+UI_SlideStatusBarChildren = { at = 0x08178e2c }
+UI_SlideLayerFromPane = { at = 0x081790ec }
+UI_GetCompositorLayer = { at = 0x0826dfec, c = "void *UI_GetCompositorLayer(void *layers, uint32_t index)" }
+SportTimerChosenDispatcher_Activate = { at = 0x0821abc4 }
 UI_EmitControllerEvent = { at = 0x0812a150, c = "int UI_EmitControllerEvent(void *controller, void *event_name)" }
 ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
@@ -112,6 +126,7 @@ CapacityView_Draw = { at = 0x08137738 }
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
 View_vtable = { at = 0x089ad8ec, c = "void *const View_vtable[]" }
 TemplateView_vtable = { at = 0x08997824, c = "void *const TemplateView_vtable[]" }
+SportTimerChosenDispatcher_vtable = { at = 0x089a72dc, c = "void *const SportTimerChosenDispatcher_vtable[]" }
 SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const SettingsMenuListController_vtable[]" }
 ExtrasMenuController_vtable = { at = 0x0899cb30, c = "void *const ExtrasMenuController_vtable[]" }
 ArtistsController_vtable = { at = 0x089a40e4, c = "void *const ArtistsController_vtable[]" }
@@ -254,6 +269,7 @@ ViewType_Text = 0x74657874
 ViewType_Capacity = 0x63706374
 UITask_stack_bytes = 0x20000
 Transition_Instant = 0x6
+Transition_Hidden = 0x1
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
@@ -290,12 +306,21 @@ StatusBarWhite_Text = 0x0dad01a6
 StatusBar_Template = 0x0dad020c
 StatusBar_Title_Text = 0x0dad020e
 FullScreenImage_Template = 0x0dad06b4
+About_Top_Template = 0x0dad0b24
+About_Screen = 0x0dad0b6c
+About_Accessory_Screen = 0x0dad0b70
+Background_Template = 0x0dad01d8
+Stopwatch_Template = 0x0dad0d1d
+Stopwatch_Screen = 0x0dad0d46
+Stopwatch_Screen_Stopped = 0x0dad0d47
+Stopwatch_Menu_Screen = 0x0dad0d49
 MainMenu_Items = 0x0000001a
 MusicMenu_Items = 0x0000001b
 MainMenus_Main_Screen = 0x0dad076e
 MainMenus_Music_Screen = 0x0dad07c8
 ExtrasMenu_Screen = 0x0dad01cc
-ExtrasMenu_Layout = 0x0dad01f0
+ExtrasMenu_Layout = 0x0dad01d6
+ExtrasMenu_Stopwatch_Layout = 0x0dad01ed
 MainMenu_Music_Item = 0x0dad076f
 MainMenu_CoverFlow_Item = 0x0dad0770
 MainMenu_GeniusMixes_Item = 0x0dad0771
@@ -417,6 +442,9 @@ view_bindings = 0x0
 template = 0x4
 layout_events_id = 0x8
 flags = 0x10
+enter_style = 0xc
+leave_style = 0xe
+shared_style = 0x10
 
 [offsets.ViewDescriptor]
 frame = 0x0
@@ -474,6 +502,22 @@ item_blocks = 0x18
 [offsets.LayoutManager]
 screen = 0x20
 layout = 0x28
+saved_transition = 0x80
+
+[offsets.TemplateView]
+enter_styles = 0xfc
+leave_styles = 0x107
+shared_styles = 0x112
+
+[offsets.TemplateResource]
+has_styles = 0x4
+styles = 0x6
+
+[offsets.TemplateStyle]
+enter = 0x0
+leave = 0x2
+shared = 0x8
+bytes = 0xc
 
 [offsets.ContextMenuModel]
 items = 0x18
