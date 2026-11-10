@@ -315,6 +315,7 @@ void UI_DisplayPreparedLayout(void *manager, void *layout);
 void *Navigator_Get(void);
 void *UI_GetRootOwner(void);
 void TextView_DrawString(void *view, const char *text, void *argument);
+void *UI_ResolveTemplateView(void *manager, uint32_t template_id, uint8_t *out_from_root);
 void USB_HandleSetupPacket(void *usb);
 void *USB_DispatchControlRead(void *usb, uint32_t *inout_length);
 void *USB_HandleVendorDeviceRead(void *usb, uint32_t *inout_length);
@@ -726,6 +727,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_TextView_DrawTextLayout 0x082872f8
 #define ADDR_MenuList_RestoreState 0x0827d77c
 #define ADDR_MenuList_SelectRow 0x0827d1b4
+#define ADDR_UI_ResolveTemplateView 0x0817481c
 #define ADDR_USB_HandleSetupPacket 0x0828a404
 #define ADDR_USB_DispatchControlRead 0x0828a7d4
 #define ADDR_USB_HandleVendorDeviceRead 0x0828a27c

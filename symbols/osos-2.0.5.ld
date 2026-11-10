@@ -368,6 +368,7 @@ TextView_DrawString = 0x082883f8;
 TextView_DrawTextLayout = 0x082872f8;
 MenuList_RestoreState = 0x0827d77c;
 MenuList_SelectRow = 0x0827d1b4;
+UI_ResolveTemplateView = 0x0817481c;
 USB_HandleSetupPacket = 0x0828a404;
 USB_DispatchControlRead = 0x0828a7d4;
 USB_HandleVendorDeviceRead = 0x0828a27c;
