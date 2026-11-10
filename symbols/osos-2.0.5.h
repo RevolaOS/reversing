@@ -361,6 +361,7 @@ extern uint8_t AudioOutputQueue[];
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
 extern const uint8_t DisplayLayerOrders[];
+extern const uint32_t DisplayBlendRegisters[];
 extern void *const Bitmap_vtable[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
@@ -416,6 +417,13 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Audio_SetEQPreset 0x0818ca70
 #define ADDR_Audio_FillOutputBuffer 0x22007840
 #define ADDR_AudioOutputQueue_Read 0x22006b84
+#define ADDR_DisplayLayer_Commit 0x08114be4
+#define ADDR_DisplayPipe_ConfigureWindow 0x08143c30
+#define ADDR_DisplayPipe_SetWindowSource 0x081445cc
+#define ADDR_DisplayPipe_SetWindowEnable 0x081440b8
+#define ADDR_DisplayPipe_SetWindowBlendMode 0x0814472c
+#define ADDR_DisplayPipe_SetWindowAlpha 0x08144410
+#define ADDR_DisplayPipe_SetOrder 0x0814482c
 #define ADDR_GameManifest_InitReader 0x0825e510
 #define ADDR_GameLoader_LoadVerifiedManifest 0x080f9374
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
@@ -826,6 +834,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_DisplayLayerOrders 0x083f35ec
+#define ADDR_DisplayBlendRegisters 0x083f35e0
 #define ADDR_Bitmap_vtable 0x08989298
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
@@ -1072,6 +1081,17 @@ extern void *const MenuListModel_vtable[];
 #define AudioOutputQueue_underruns_since_reset 0x28
 #define AudioOutputQueue_underruns 0x2c
 #define DisplayPipe_control 0x8
+#define DisplayPipe_video_mode 0x28
+#define DisplayPipe_video_strides 0x2c
+#define DisplayPipe_video_source_start 0x30
+#define DisplayPipe_video_source_end 0x34
+#define DisplayPipe_video_plane0 0x38
+#define DisplayPipe_video_plane1 0x3c
+#define DisplayPipe_video_plane2 0x40
+#define DisplayPipe_video_plane3 0x44
+#define DisplayPipe_video_scale 0x4c
+#define DisplayPipe_video_position 0x50
+#define DisplayPipe_video_size 0x54
 #define DisplayPipe_slot0 0x58
 #define DisplayPipe_slot_step 0x18
 #define DisplayPipe_order 0xd4
@@ -1419,8 +1439,13 @@ extern void *const MenuListModel_vtable[];
 #define DisplayLayerEnable_Layer0 0x40
 #define DisplayLayerEnable_Layer1 0x20
 #define DisplayLayerEnable_Layer2 0x10
+#define DisplayLayerEnable_Layer3 0x8
+#define DisplayLayerEnable_Layer4 0x4
+#define DisplayLayerEnable_Video 0x80
 #define DisplayFormat_RGB565 0x3
 #define DisplayFormat_ARGB8888 0x7
+#define DisplayFormat_YUV420 0x8
+#define DisplayVideoMode_YUV420 0x100
 #define DRAM_BASE 0x8000000
 #define DRAM_END 0xc000000
 #define DRAM_UNCACHED_ALIAS 0x80000000

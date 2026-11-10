@@ -1,18 +1,44 @@
-# LCD display pipe: three layers composited by the display controller.
+# LCD display pipe: RGB windows and a scaled YUV window composited by the display controller.
+
+[functions]
+DisplayLayer_Commit = { at = 0x08114be4 }
+DisplayPipe_ConfigureWindow = { at = 0x08143c30 }
+DisplayPipe_SetWindowSource = { at = 0x081445cc }
+DisplayPipe_SetWindowEnable = { at = 0x081440b8 }
+DisplayPipe_SetWindowBlendMode = { at = 0x0814472c }
+DisplayPipe_SetWindowAlpha = { at = 0x08144410 }
+DisplayPipe_SetOrder = { at = 0x0814482c }
 
 [data]
 DisplayLayerOrders = { at = 0x083f35ec, c = "const uint8_t DisplayLayerOrders[]" }
+DisplayBlendRegisters = { at = 0x083f35e0, c = "const uint32_t DisplayBlendRegisters[]" }
 
 [constants]
 DISPLAY_PIPE_BASE = 0x38900000
 DisplayLayerEnable_Layer0 = 0x40
 DisplayLayerEnable_Layer1 = 0x20
 DisplayLayerEnable_Layer2 = 0x10
+DisplayLayerEnable_Layer3 = 0x08
+DisplayLayerEnable_Layer4 = 0x04
+DisplayLayerEnable_Video = 0x80
 DisplayFormat_RGB565 = 3
 DisplayFormat_ARGB8888 = 7
+DisplayFormat_YUV420 = 8
+DisplayVideoMode_YUV420 = 0x100
 
 [offsets.DisplayPipe]
 control = 0x8
+video_mode = 0x28
+video_strides = 0x2c
+video_source_start = 0x30
+video_source_end = 0x34
+video_plane0 = 0x38
+video_plane1 = 0x3c
+video_plane2 = 0x40
+video_plane3 = 0x44
+video_scale = 0x4c
+video_position = 0x50
+video_size = 0x54
 slot0 = 0x58
 slot_step = 0x18
 order = 0xd4
