@@ -6,12 +6,17 @@ ResourceBank_SetResource = { at = 0x08111e20, c = "void ResourceBank_SetResource
 ResourceBank_GetResource = { at = 0x08111d74, c = "void *ResourceBank_GetResource(void *bank, uint32_t type, uint32_t id, uint32_t *out_bytes)" }
 ResourceBank_FirstResource = { at = 0x081120f4, c = "const void *ResourceBank_FirstResource(void *bank, uint32_t type, uint32_t *id, uint32_t *bytes)" }
 ResourceBank_NextResource = { at = 0x08112000, c = "const void *ResourceBank_NextResource(void *bank, uint32_t *id, uint32_t *bytes)" }
+ResourceBank_RemoveHeapResource = { at = 0x08111fbc, c = "void ResourceBank_RemoveHeapResource(void *bank, uint32_t type, uint32_t id)" }
+ResourceBank_Destroy = { at = 0x081124a4, c = "void *ResourceBank_Destroy(void *bank)" }
+ResourceOverrides_Find = { at = 0x0812252c, c = "int ResourceOverrides_Find(void *map, uint32_t type, uint32_t id, uint32_t **entry)" }
+ResourceOverrides_EraseEntry = { at = 0x08122574, c = "int ResourceOverrides_EraseEntry(void *map, uint32_t type, const uint32_t *entry)" }
 ResourceNames_FindOrInsertSlot = { at = 0x083d242c, c = "uint32_t *ResourceNames_FindOrInsertSlot(void *map, const void *name)" }
 ResourceBlockList_AppendBorrowedBlock = { at = 0x0817a7ec, c = "void ResourceBlockList_AppendBorrowedBlock(void *list, const void *data, uint32_t bytes, uint32_t metadata)" }
 ResourceBlockList_Load = { at = 0x0817a82c }
 ResourceService_GetString = { at = 0x08268d94, c = "char *ResourceService_GetString(void *service, uint32_t id)" }
 ResourceService_GetBitmap = { at = 0x08268d84, c = "void *ResourceService_GetBitmap(void *service, uint32_t id)" }
 UI_GetResourceBank = { at = 0x0819579c, c = "void *UI_GetResourceBank(void)" }
+UI_SetResourceBank = { at = 0x081957c0, c = "void UI_SetResourceBank(void *bank)" }
 UI_GetResourceService = { at = 0x08268d34, c = "void *UI_GetResourceService(void)" }
 UI_InitResourceProviders = { at = 0x081c7e68 }
 UI_InitializeViewTemplates = { at = 0x081af5b4 }
@@ -44,8 +49,24 @@ Resource_View = 0x56696577
 Resource_TMLT = 0x544d4c54
 Resource_String = 0x53747220
 Resource_VSlt = 0x56536c74
+ResourceBankKind_Heap = 1
+ResourceBankKind_Rom = 2
 
 [offsets.ResourceBlock]
 bytes = 0x0
 kind = 0x4
 data = 0x8
+
+[offsets.ResourceBlockList]
+type = 0x8
+id = 0xc
+
+[offsets.ResourceBank]
+kind = 0x0
+rom_index = 0x4
+overrides = 0x18
+
+[offsets.ResourceOverride]
+length = 0x0
+data = 0x4
+bytes = 0x8

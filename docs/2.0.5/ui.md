@@ -126,7 +126,71 @@ Sites `MainMenu_Index_call` and `MusicMenu_Index_call` are `BLX r1` through the 
 
 UI resources are a 32-bit count followed by blocks of `{bytes, kind, data}`, each padded to 4 bytes. `ResourceBlockList_Load` passes the kind word to `ResourceBlockList_AppendBorrowedBlock` as its metadata.
 
-`ResourceBank_SetResource` copies the data into the heap; replacing an override frees the previous copy, so pointers into it become invalid. There is no call to remove an override.
+`ResourceBank_SetResource` copies the data into the heap; replacing an override frees the previous copy, so pointers into it become invalid.
+
+## Resource lifetime
+
+### Override storage
+
+`UITask_Main` builds one ROM-backed bank per language plus the UI bank (`ResourceBank_kind` = `ResourceBankKind_Rom`), installs the UI bank with `UI_SetResourceBank`, and then runs `MenuItems_RegisterAll`. `UI_SetResourceBank` destroys the bank it replaces, but nothing else calls it, so the UI bank and its overrides last until reset. `ResourceBank_GetResource` looks in `ResourceBank_overrides` first and then in the ROM index at `ResourceBank_rom_index`.
+
+`ResourceBank_overrides` maps a type to a per-type map, which maps an id to an entry of `ResourceOverride_bytes`: `ResourceOverride_length` and `ResourceOverride_data`. Both maps are the firmware's sorted array map: 8-byte {key, value} slots searched by bisection. The slot array grows by 4 slots when full and shrinks by 4 when 4 are free. A heap block is the request rounded up to 4, plus an 8-byte header, rounded up to 8, and at least 16 bytes. One override of n bytes costs:
+- the copy: max(16, round8(round4(n) + 8)) bytes;
+- the entry: 16 bytes;
+- an 8-byte slot in the per-type map.
+
+The first override of a type also allocates the per-type map (0x28 bytes, a 48-byte block), its slot array, and a slot in the outer map.
+
+### Removing an override
+
+No function removes an override from a ROM-backed bank. A heap-only bank (`ResourceBankKind_Heap`) keeps the same kind of map at `ResourceBank_rom_index`, and `ResourceBank_RemoveHeapResource` removes from it. It finds the entry with `ResourceOverrides_Find`, removes the slot with `ResourceOverrides_EraseEntry` and frees the copy, but not the entry. `ResourceOverrides_EraseEntry(map, type, entry)` removes the slot whose value is `entry`. When the per-type map becomes empty, it also removes that map from the outer map and frees it. It returns 1 if a slot was removed. Both helpers take the map itself, so the same steps work on `ResourceBank_overrides`: find the entry, erase it, then `Heap_Free` the copy (`ResourceOverride_data`) and the entry. `Heap_Free` ends in the same free routine that `ResourceBank_SetResource` uses. This sequence has not been run in the emulator. Afterwards `ResourceBank_GetResource` returns the ROM resource again for a stock id, and NULL for an id that exists only as an override.
+
+`ResourceBank_Destroy` on a ROM-backed bank frees the ROM index and the outer map object. It frees no per-type maps, entries or copies.
+
+`ResourceBank_SetResource` with 0 bytes stores a 0-length override. Its copy is still a 16-byte block, the same as for 4 bytes. `ResourceBank_GetResource` then returns a non-NULL pointer and a length of 0. `ResourceBlockList_Load` reads a length of 0, or a 4-byte count of 0, as a list with no blocks. `UI_LoadLayoutInstances` aborts on an `SLyt` with no blocks. `UI_ConstructScreenDefinition` checks only that the `SCST` pointer is non-NULL. How `UIEventMap_ReadStream` handles an empty event table has not been traced.
+
+### Pointers into resources
+
+| Holder | Points into | Released |
+|---|---|---|
+| Prepared layout in `ScreenDefinition_layout_cache` | the `SLst` block (`Layout_screen_list_record`) and every `SSin` block of its instances (`Layout_instances`) | when the screen definition is destroyed, which deletes every prepared layout |
+| `Layout_events` | nothing; `TEVT`, `SEVT` and `CEVT` are copied into a string and parsed | not applicable |
+| A `ResourceBlockList` | every block it loaded, including blocks lent through `ResourceBlockList_AppendBorrowedBlock` | when the list is destroyed; it frees block data only if it owns it |
+| A list view's `MenuList_item_blocks` | its `ITEM` blocks and any rows lent into them | when another table id is bound, or the list is destroyed |
+| The menu registry | the row data of every row loaded while `MenuItems_RegisterAll` ran | never |
+| The context-menu model (`ContextMenuModel_Get`) | the action strings | when the next context menu is shown |
+| Views bound by `View_ApplyPropertyBindings` | `Ui32` (destination 0x15) and `BMap` (destinations 0x1a to 0x1e) resources fetched from the bound service | when the view is bound again |
+
+`UI_ApplyInstanceResources` reads `VLyt`, `VSlt` and `VCvs` into temporary lists each time a layout is displayed. `UI_CreateTemplateFromResource` copies the `TMLT` block, and `View_Construct` copies the descriptor's options. Which type-specific view factories keep a descriptor pointer has not been checked.
+
+The layout manager (`UI_GetLayoutManager`) keeps the ids of the last displayed screen and layout in `LayoutManager_screen` and `LayoutManager_layout`. When the next layout is displayed, `UI_DisplayPreparedLayout` and `ScreenController_ShowLayout` rebuild a temporary layout from `LayoutManager_layout`, which reads its `SLyt` and `SSin` by id again. A second, unnamed path applies the `VLyt`, `VSlt` and `VCvs` of that layout and screen again. If that `SLyt` is missing or empty, `UI_LoadLayoutInstances` aborts. A screen's `SLst`, `SLyt` and `SSin` overrides can therefore be replaced or removed only after its controllers are destroyed and another layout has been displayed.
+
+### Lent menu rows
+
+The menu registry maps a row id to its row data. `MenuItems_RegisterAll` fills it once, from `UITask_Main`, and `MenuItems_RegisterResourceType` is its only writer. Rows lent while it loads the ROM `ITEM` tables are registered by pointer, and no entry is ever removed. `MenuItem_SetVisible` writes `MenuRow_visible` through that pointer.
+
+List views come from templates built once at UI start. A list view's `MenuList` loads its default table when the template is built. After that, `MenuList_SetItemTable` (called for a `ViewBinding_ItemTable` block in `UI_ApplyInstanceResources`) builds a new block list only if the bound table id differs from the one it holds. Otherwise it keeps the old list. Opening Main, Music, Extras or Settings reloads the table, and runs an `AppendBorrowedBlock` hook again, only if that list view last showed a different table. Which screens share a list template has not been traced. Closing a screen releases nothing.
+
+A freed lent row can still be read through:
+- the menu registry, if the row was lent while `MenuItems_RegisterAll` ran: `MenuItem_SetVisible` for its id writes into it;
+- every list view whose `MenuList_item_blocks` still holds the table: `MenuList_RebuildVisibleItems`, `MenuList_GetRowProperty` and `MenuList_QueryProperty` read it. `MenuList_HandleNotification` rebuilds such a list on a `Property_ItemChanged` for one of its items without checking whether it is on screen.
+
+Replacing or removing an `ITEM` override has the same effect: a list view that holds that table id keeps pointers into the freed copy, and binding the same id again does not reload it.
+
+### Context menu rows
+
+`ContextMenuItems_Append` stores the action pointer without copying the string. The stock builders keep the item vector on the stack. `UI_ShowContextMenuItems` copies the 12-byte items, pointers included, into `ContextMenuModel_items` of the context-menu model, a singleton that is never destroyed. `ContextMenuController_DispatchAction` reads the action string from there when a row is chosen. The model keeps the pointers until the next `UI_ShowContextMenuItems` replaces the vector.
+
+### Reusing ids
+
+State keyed by id that outlives an override:
+- `ResourceNameMap`: a name keeps its id. Only `ResourceName_GetId` and the code that fills the map at start use it, and nothing removes a name.
+- The menu registry: entries keyed by row id, never removed.
+- List views: `MenuList_SetItemTable` compares only the table id.
+- Templates: one per `View` id, built once at UI start.
+- `LayoutManager_screen` and `LayoutManager_layout`: the last displayed screen and layout.
+
+Layout event tables belong to the prepared layout and go away with its screen definition. State keyed by id in the Settings model has not been examined.
 
 ## Screen resources
 
