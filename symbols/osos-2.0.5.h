@@ -701,6 +701,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_UI_GetRootOwner 0x0813e204
 #define ADDR_TextView_DrawString 0x082883f8
 #define ADDR_TextView_DrawTextLayout 0x082872f8
+#define ADDR_MenuList_RestoreState 0x0827d77c
+#define ADDR_MenuList_SelectRow 0x0827d1b4
 #define ADDR_USB_HandleSetupPacket 0x0828a404
 #define ADDR_USB_DispatchControlRead 0x0828a7d4
 #define ADDR_USB_HandleVendorDeviceRead 0x0828a27c

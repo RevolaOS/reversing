@@ -94,6 +94,8 @@ Navigator_Get = { at = 0x08104d00, c = "void *Navigator_Get(void)" }
 UI_GetRootOwner = { at = 0x0813e204, c = "void *UI_GetRootOwner(void)" }
 TextView_DrawString = { at = 0x082883f8, c = "void TextView_DrawString(void *view, const char *text, void *argument)" }
 TextView_DrawTextLayout = { at = 0x082872f8 }
+MenuList_RestoreState = { at = 0x0827d77c }
+MenuList_SelectRow = { at = 0x0827d1b4 }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
