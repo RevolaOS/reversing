@@ -276,7 +276,6 @@ Capacity_Other_Swatch_Bitmap = 0x0dad0ae7
 SettingsPreview_Capacity_Template = 0x0dad07c6
 SettingsList_Template = 0x0dad01b2
 SettingsList_View = 0x0dad01b3
-Menu_Reset_Bitmap = 0x0dad0125
 CoverFlow_Backside_Border_Color = 0x0dad05d8
 NowPlaying_White_Background_View = 0x0dad08c5
 NowPlaying_Idle_Template = 0x0dad0925
@@ -361,7 +360,7 @@ NowPlaying_Screen = 0x0dad096c
 ExtrasMenu_Items = 0x00000002
 
 [offsets.EventTimer]
-period = 0x4
+period_ms = 0x4
 recipient = 0x24
 event_queue = 0x28
 bytes = 0x2c
@@ -416,14 +415,14 @@ layout_cache = 0xc
 [offsets.SsinInstance]
 view_bindings = 0x0
 template = 0x4
-substitute = 0x8
+layout_events_id = 0x8
 flags = 0x10
 
 [offsets.ViewDescriptor]
 frame = 0x0
 top_offset = 0xc
-anchor = 0x10
-anchor_mode = 0x14
+top_reference_view = 0x10
+top_anchor_mode = 0x14
 id = 0x30
 type = 0x4c
 options_bytes = 0x5c

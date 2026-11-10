@@ -53,7 +53,7 @@ ResourceBankKind_Heap = 1
 ResourceBankKind_Rom = 2
 
 [offsets.ResourceBlock]
-bytes = 0x0
+length = 0x0
 kind = 0x4
 data = 0x8
 

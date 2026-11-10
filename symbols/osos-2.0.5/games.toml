@@ -5,4 +5,4 @@ GameManifest_InitReader = { at = 0x0825e510, c = "void GameManifest_InitReader(v
 GameLoader_LoadVerifiedManifest = { at = 0x080f9374 }
 
 [sites]
-GameManifest_Init_call = { at = 0x080f9418, kind = "call", in = "GameLoader_LoadVerifiedManifest+0xa4" }
+GameManifest_InitReader_call = { at = 0x080f9418, kind = "call", in = "GameLoader_LoadVerifiedManifest+0xa4" }

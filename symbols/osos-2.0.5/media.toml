@@ -63,8 +63,8 @@ LibraryModelRef_Init = { at = 0x0839576c, c = "void *LibraryModelRef_Init(void *
 LibraryModelRef_Assign = { at = 0x08395818, c = "void *LibraryModelRef_Assign(void *destination, void *source)" }
 LibraryModelRef_Release = { at = 0x083937cc, c = "void LibraryModelRef_Release(void *reference)" }
 LibraryModelRef_Get = { at = 0x083ccd1c, c = "void *LibraryModelRef_Get(void *reference)" }
-Library_FinishImport = { at = 0x0805d6c8 }
-MediaPlayer_ReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_ReadAheadBytes(void *player)" }
+Library_LoadDatabases = { at = 0x0805d6c8 }
+MediaPlayer_GetReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_GetReadAheadBytes(void *player)" }
 
 [data]
 BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
@@ -72,7 +72,7 @@ BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
 [sites]
 AlbumSubtitle_slot = { at = 0x0898cbf4, kind = "slot" }
 Albums_CancelAppend_call = { at = 0x0821c004, kind = "call" }
-MediaList_DispatchAction_entry = { at = 0x0820f5a4, kind = "entry" }
+MediaListController_DispatchAction_entry = { at = 0x0820f5a4, kind = "entry" }
 MediaList_OnTheGoAdd_call = { at = 0x0820f9cc, kind = "call" }
 ITunesDB_ImportTrackDataset_call = { at = 0x08058f1c, kind = "call", in = "ITunesDB_ImportLibrary+0x420" }
 ITunesDB_AlbumArtist_word = { at = 0x0808adcc, kind = "word", in = "ITunesDB_ImportTrackDataset+0x944" }
@@ -87,12 +87,12 @@ AlbumGroup_literal = { at = 0x08048fe4, kind = "literal" }
 LibraryBrowser_Destroy_entry = { at = 0x08133c30, kind = "entry" }
 MediaListSelection_SelectArtworkSource_call = { at = 0x08169e30, kind = "call", in = "MediaListSelection_SetList+0x7c" }
 AlbumArtworkProvider_Create_call = { at = 0x08138c34, kind = "call", in = "ArtworkSource_CreateProvider+0xb0" }
-BlockCache_ImportCost_word = { at = 0x0805ddd4, kind = "word", in = "Library_FinishImport+0x70c" }
-BlockCache_ReserveNative_word = { at = 0x0805ddd8, kind = "word", in = "Library_FinishImport+0x710" }
-BlockCache_FloorTest_word = { at = 0x0805dddc, kind = "word", in = "Library_FinishImport+0x714" }
-BlockCache_FloorSet_word = { at = 0x0805dde0, kind = "word", in = "Library_FinishImport+0x718" }
-MediaPlayer_ReadAheadMinTest_word = { at = 0x0822c944, kind = "word", in = "MediaPlayer_ReadAheadBytes+0x18" }
-MediaPlayer_ReadAheadMinSet_word = { at = 0x0822c948, kind = "word", in = "MediaPlayer_ReadAheadBytes+0x1c" }
+BlockCache_ImportCost_word = { at = 0x0805ddd4, kind = "word", in = "Library_LoadDatabases+0x70c" }
+BlockCache_ReserveNative_word = { at = 0x0805ddd8, kind = "word", in = "Library_LoadDatabases+0x710" }
+BlockCache_FloorTest_word = { at = 0x0805dddc, kind = "word", in = "Library_LoadDatabases+0x714" }
+BlockCache_FloorSet_word = { at = 0x0805dde0, kind = "word", in = "Library_LoadDatabases+0x718" }
+MediaPlayer_ReadAheadMinTest_word = { at = 0x0822c944, kind = "word", in = "MediaPlayer_GetReadAheadBytes+0x18" }
+MediaPlayer_ReadAheadMinSet_word = { at = 0x0822c948, kind = "word", in = "MediaPlayer_GetReadAheadBytes+0x1c" }
 MediaList_GetEntryOrderIndex_entry = { at = 0x080497ac, kind = "entry" }
 TrackData_ArtworkId_word = { at = 0x0808a868, kind = "word", in = "ITunesDB_ImportTrackDataset+0x3e0" }
 

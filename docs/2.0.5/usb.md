@@ -14,24 +14,24 @@ A request nobody accepts stalls. `USB_StartControlTransfer` starts the data stag
 
 ## Disk mode
 
-The data volume has one owner at a time, kept by the storage arbiter (`StorageArbiter_Get`, `StorageArbiter_*` offsets). At boot the owner is `DiskClient`, the OS side. USB mass storage uses a `ScsiDiskClient`, created with `ScsiDiskClient_Create`.
+The data volume has one owner at a time, kept by the storage arbiter (`StorageArbiter_Get`, `StorageArbiter_*` offsets). `StorageArbiter_Activate` enables arbitration, chooses the initial owner and notifies registered clients. At boot the owner is `DiskClient`, the OS side. USB mass storage uses a `ScsiDiskClient`, created with `ScsiDiskClient_Create`.
 
 1. A SCSI command that needs the medium calls `SCSI_AcquireMedium`. That calls `ScsiDiskClient_Request` and polls `ScsiDiskClient_state` up to 80 times at 100 ms intervals. If the request is not granted, the command fails with NOT READY, medium not present (ASC 0x3a).
 2. `StorageArbiter_Request` asks the current owner through its yield slot. For `DiskClient` that is `DiskClient_Yield` (site `DiskClient_Yield_slot`), which posts `HardwareSource_DiskModeRequest` once with `HardwareEvent_Post` and returns 1. A yield slot that returns 0 refuses: the requester's state becomes `ScsiDiskClientState_Refused`, the SCSI side answers medium not present, and the UI stays up.
-3. `HardwareEvent_MapSource` and `HardwareEvent_Dispatch` turn the source into `AppMessage_DiskModeRequest`. `SystemUI_DispatchSystemEvent` passes that to `App_HandleUsbConnected` (site `App_HandleUsbConnected_call`), which sets `App_disk_mode_requested` and shows the disk-mode screen.
+3. `HardwareEvent_MapSource` and `HardwareEvent_Dispatch` turn the source into `AppMessage_DiskModeRequest`. `SystemUI_DispatchSystemEvent` passes that to `App_HandleDiskModeRequest` (site `App_HandleDiskModeRequest_call`), which sets `App_disk_mode_requested` and shows the disk-mode screen.
 4. `App_PollDiskModeEntry` then calls `App_EnterDiskMode`, which sets `App_in_disk_mode` and runs `System_PrepareDiskMode`. That logs "Enter Disk Mode", stops playback, calls `System_SaveAll` and frees the databases. The volume is then released to the SCSI client, whose state becomes `ScsiDiskClientState_Granted`.
 
 `DiskClient_OnGranted` posts `HardwareSource_DiskGranted` (`AppMessage_DiskGranted`) when the volume comes back. `App` holds the pointer to the app object. The disk-mode sequence and the refusal were checked in the emulator.
 
 ## Leaving disk mode
 
-At boot the library is opened inline: `MediaBrowser_CreateRoot` opens the database and calls `Library_FinishImport` on the task that builds the app. `App_library_ready` starts set. No music-loading task runs at boot.
+At boot the library is opened inline: `MediaBrowser_CreateRoot` opens the database and calls `Library_LoadDatabases` on the task that builds the app. `App_library_load_started` starts set. No music-loading task runs at boot. This flag records that loading has started, not that it has finished; reload completion is checked by `App_PollMusicLoading`.
 
-`App_EnterDiskMode` clears `App_library_ready`. When the volume comes back, everything below runs on the UI task except the loading task itself:
+`App_EnterDiskMode` clears `App_library_load_started`. When the volume comes back, everything below runs on the UI task except the loading task itself:
 
-1. `AppMessage_DiskGranted` reaches `App_HandleDiskGranted`. If `App_library_ready` is clear, it starts a short app timer, whose handler is `App_HandleReloadTimer`.
-2. `App_HandleReloadTimer` calls `App_StartMusicLoading`. That function returns early unless the storage arbiter's owner is `DiskClient` again and the app state allows the reload. Otherwise it creates the task with `MusicLoadingTask_Create`, starts it, starts a polling timer and sets `App_library_ready`.
-3. `MusicLoadingTask_Run` (site `MusicLoadingTask_Run_slot`) runs on its own task, "TMusicLoadingTask". It calls `Library_FinishImport` when a database is loaded, and then refreshes the selection model unless the reload was cancelled.
+1. `AppMessage_DiskGranted` reaches `App_HandleDiskGranted`. If `App_library_load_started` is clear, it starts a short app timer, whose handler is `App_HandleReloadTimer`.
+2. `App_HandleReloadTimer` calls `App_StartMusicLoading`. That function returns early unless the storage arbiter's owner is `DiskClient` again and the app state allows the reload. Otherwise it creates the task with `MusicLoadingTask_Create`, starts it, starts a polling timer and sets `App_library_load_started`.
+3. `MusicLoadingTask_Run` (site `MusicLoadingTask_Run_slot`) runs on its own task, "TMusicLoadingTask". It calls `Library_LoadDatabases` when a database is loaded, and then refreshes the selection model unless the reload was cancelled.
 4. `App_PollMusicLoading` runs on each polling tick until the task has finished, then calls `App_ExitDiskMode`. `App_ExitDiskMode` first checks `iPod_Control/Device` on the volume. If the check fails, it sets warm-boot tag 4 and resets. Otherwise it clears `App_in_disk_mode`, returns to the main menu with `Navigator_PopToMainScreen` (site `DiskModeExit_PopToMainScreen_call`) and calls `System_SaveAll`.
 
 The volume belongs to the OS from `AppMessage_DiskGranted` onwards and can be read by `App_ExitDiskMode`, the UI-task point after the reload. The order of steps 1–4 was traced in the emulator. On the device, a sync and eject returns to the main menu without a reset.

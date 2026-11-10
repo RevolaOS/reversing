@@ -13,12 +13,12 @@ BlockCache_PostWaitPending = { at = 0x0817fdd0, c = "int BlockCache_PostWaitPend
 BlockCache_PostClientRequest = { at = 0x0817fd9c, c = "int BlockCache_PostClientRequest(void *cache, uint32_t argument)" }
 BlockCache_AddBlocks = { at = 0x081804e8, c = "uint32_t BlockCache_AddBlocks(void *cache, uint32_t count)" }
 BlockCache_PushFreeBlock = { at = 0x081801a4, c = "int BlockCache_PushFreeBlock(void *cache, void *block)" }
-BlockCache_AssignedBlocks = { at = 0x08180690, c = "uint32_t BlockCache_AssignedBlocks(void *cache)" }
+BlockCache_GetAssignedBlockCount = { at = 0x08180690, c = "uint32_t BlockCache_GetAssignedBlockCount(void *cache)" }
 BlockCache_CountPendingClients = { at = 0x08180840, c = "uint32_t BlockCache_CountPendingClients(void *cache)" }
-BlockCache_PendingInc = { at = 0x08180700, c = "void BlockCache_PendingInc(void *cache)" }
-BlockCache_PendingDec = { at = 0x08180644 }
+BlockCache_IncrementPendingClientCount = { at = 0x08180700, c = "void BlockCache_IncrementPendingClientCount(void *cache)" }
+BlockCache_DecrementPendingClientCount = { at = 0x08180644 }
 BlockList_Erase = { at = 0x083cc960, c = "void BlockList_Erase(void **out_next, void *list, void **node)" }
-BlockCacheClient_SetDesired = { at = 0x081f1f50, c = "int BlockCacheClient_SetDesired(void *client, uint32_t bytes, uint32_t weight)" }
+BlockCacheClient_SetDesiredBytes = { at = 0x081f1f50, c = "int BlockCacheClient_SetDesiredBytes(void *client, uint32_t bytes, uint32_t weight)" }
 BlockCacheClient_ReturnBlock = { at = 0x081f2888, c = "void BlockCacheClient_ReturnBlock(void *client, void *block)" }
 BlockCacheClient_CancelPending = { at = 0x081f2988, c = "int BlockCacheClient_CancelPending(void *client)" }
 EAppBlockManager_HandleMessage = { at = 0x0819d67c, c = "int EAppBlockManager_HandleMessage(void *manager, void *message)" }
@@ -50,7 +50,7 @@ pending_cond = 0x19c
 assigned_cache = 0x1bc
 pending_count = 0x1c0
 
-[offsets.BlockClient]
+[offsets.BlockCacheClient]
 cache = 0x04
 blocks = 0x08
 block_count = 0x18

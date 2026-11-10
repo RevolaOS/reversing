@@ -115,7 +115,7 @@ void *LibraryModelRef_Init(void *reference, void *model, int synchronized);
 void *LibraryModelRef_Assign(void *destination, void *source);
 void LibraryModelRef_Release(void *reference);
 void *LibraryModelRef_Get(void *reference);
-uint32_t MediaPlayer_ReadAheadBytes(void *player);
+uint32_t MediaPlayer_GetReadAheadBytes(void *player);
 int FixedPool_Create(uint32_t slot_bytes, uint32_t argument, void **out_pool);
 uint32_t Heap_GetTotalBytes(void);
 void *BlockCache_Get(void);
@@ -128,11 +128,11 @@ int BlockCache_PostWaitPending(void *cache, uint32_t argument);
 int BlockCache_PostClientRequest(void *cache, uint32_t argument);
 uint32_t BlockCache_AddBlocks(void *cache, uint32_t count);
 int BlockCache_PushFreeBlock(void *cache, void *block);
-uint32_t BlockCache_AssignedBlocks(void *cache);
+uint32_t BlockCache_GetAssignedBlockCount(void *cache);
 uint32_t BlockCache_CountPendingClients(void *cache);
-void BlockCache_PendingInc(void *cache);
+void BlockCache_IncrementPendingClientCount(void *cache);
 void BlockList_Erase(void **out_next, void *list, void **node);
-int BlockCacheClient_SetDesired(void *client, uint32_t bytes, uint32_t weight);
+int BlockCacheClient_SetDesiredBytes(void *client, uint32_t bytes, uint32_t weight);
 void BlockCacheClient_ReturnBlock(void *client, void *block);
 int BlockCacheClient_CancelPending(void *client);
 int EAppBlockManager_HandleMessage(void *manager, void *message);
@@ -141,7 +141,7 @@ void EAppBlocks_Release(void *manager);
 uint32_t Power_EnterLightSleep(int mode);
 int Disk_GetPowerState(uint32_t *out_powered);
 void *StorageArbiter_Get(void);
-void StorageArbiter_Register(void *arbiter, void *owner);
+void StorageArbiter_Activate(void *arbiter, void *owner);
 void StorageArbiter_SetOwner(void *arbiter, void *client);
 void StorageArbiter_Request(void *arbiter, void *client);
 void StorageArbiter_Release(void *arbiter, void *client);
@@ -149,10 +149,10 @@ int DiskClient_Yield(void *client);
 void *ScsiDiskClient_Create(void *memory, void *scsi_context);
 void ScsiDiskClient_Request(void *client);
 void HardwareEvent_Post(uint32_t source);
-void HardwareEvent_PostArgument(uint32_t source, uint32_t argument);
+void HardwareEvent_PostWithArgument(uint32_t source, uint32_t argument);
 int HardwareEvent_MapSource(uint32_t source, uint8_t *out_index);
 int HardwareEvent_Dispatch(uint32_t index, uint32_t *argument);
-void App_HandleUsbConnected(void *app);
+void App_HandleDiskModeRequest(void *app);
 void App_PollDiskModeEntry(void *app);
 void App_EnterDiskMode(void *app);
 void App_ExitDiskMode(void *app);
@@ -488,8 +488,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_LibraryModelRef_Assign 0x08395818
 #define ADDR_LibraryModelRef_Release 0x083937cc
 #define ADDR_LibraryModelRef_Get 0x083ccd1c
-#define ADDR_Library_FinishImport 0x0805d6c8
-#define ADDR_MediaPlayer_ReadAheadBytes 0x0822c92c
+#define ADDR_Library_LoadDatabases 0x0805d6c8
+#define ADDR_MediaPlayer_GetReadAheadBytes 0x0822c92c
 #define ADDR_FixedPool_Create 0x08053074
 #define ADDR_Heap_GetTotalBytes 0x0809cc58
 #define ADDR_BlockCache_Get 0x08180830
@@ -502,12 +502,12 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_BlockCache_PostClientRequest 0x0817fd9c
 #define ADDR_BlockCache_AddBlocks 0x081804e8
 #define ADDR_BlockCache_PushFreeBlock 0x081801a4
-#define ADDR_BlockCache_AssignedBlocks 0x08180690
+#define ADDR_BlockCache_GetAssignedBlockCount 0x08180690
 #define ADDR_BlockCache_CountPendingClients 0x08180840
-#define ADDR_BlockCache_PendingInc 0x08180700
-#define ADDR_BlockCache_PendingDec 0x08180644
+#define ADDR_BlockCache_IncrementPendingClientCount 0x08180700
+#define ADDR_BlockCache_DecrementPendingClientCount 0x08180644
 #define ADDR_BlockList_Erase 0x083cc960
-#define ADDR_BlockCacheClient_SetDesired 0x081f1f50
+#define ADDR_BlockCacheClient_SetDesiredBytes 0x081f1f50
 #define ADDR_BlockCacheClient_ReturnBlock 0x081f2888
 #define ADDR_BlockCacheClient_CancelPending 0x081f2988
 #define ADDR_EAppBlockManager_HandleMessage 0x0819d67c
@@ -519,7 +519,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_System_SaveAll 0x080638d8
 #define ADDR_Disk_GetPowerState 0x082b3630
 #define ADDR_StorageArbiter_Get 0x0807bf3c
-#define ADDR_StorageArbiter_Register 0x0815dde4
+#define ADDR_StorageArbiter_Activate 0x0815dde4
 #define ADDR_StorageArbiter_SetOwner 0x0815dc00
 #define ADDR_StorageArbiter_Request 0x0815dcec
 #define ADDR_StorageArbiter_Release 0x0815dc58
@@ -528,10 +528,10 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ScsiDiskClient_Create 0x08130648
 #define ADDR_ScsiDiskClient_Request 0x08130620
 #define ADDR_HardwareEvent_Post 0x0807c5b4
-#define ADDR_HardwareEvent_PostArgument 0x0807c5bc
+#define ADDR_HardwareEvent_PostWithArgument 0x0807c5bc
 #define ADDR_HardwareEvent_MapSource 0x080d9f18
 #define ADDR_HardwareEvent_Dispatch 0x081dc214
-#define ADDR_App_HandleUsbConnected 0x0810b6e8
+#define ADDR_App_HandleDiskModeRequest 0x0810b6e8
 #define ADDR_App_PollDiskModeEntry 0x081089ec
 #define ADDR_App_EnterDiskMode 0x08106854
 #define ADDR_App_ExitDiskMode 0x0810b5e0
@@ -811,12 +811,12 @@ extern void *const MenuListModel_vtable[];
 #define SITE_EQ_PreviewTable_literal 0x081e0fa8
 #define SITE_EQ_NameTable_literal 0x081e0ff0
 #define SITE_EQ_ResourceTable_literal 0x082955dc
-#define SITE_GameManifest_Init_call 0x080f9418
+#define SITE_GameManifest_InitReader_call 0x080f9418
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
 #define SITE_AlbumSubtitle_slot 0x0898cbf4
 #define SITE_Albums_CancelAppend_call 0x0821c004
-#define SITE_MediaList_DispatchAction_entry 0x0820f5a4
+#define SITE_MediaListController_DispatchAction_entry 0x0820f5a4
 #define SITE_MediaList_OnTheGoAdd_call 0x0820f9cc
 #define SITE_ITunesDB_ImportTrackDataset_call 0x08058f1c
 #define SITE_ITunesDB_AlbumArtist_word 0x0808adcc
@@ -847,7 +847,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_Sleep_Request_call 0x0819bba8
 #define SITE_Preferences_FlushIfDirty_call 0x0806392c
 #define SITE_DiskClient_Yield_slot 0x08996ba0
-#define SITE_App_HandleUsbConnected_call 0x0810ad54
+#define SITE_App_HandleDiskModeRequest_call 0x0810ad54
 #define SITE_MusicLoadingTask_Run_slot 0x0899417c
 #define SITE_DiskModeExit_PopToMainScreen_call 0x0810b65c
 #define SITE_ResourceBlockList_AppendBorrowedBlock_call 0x0817a88c
@@ -1098,14 +1098,14 @@ extern void *const MenuListModel_vtable[];
 #define BlockCache_pending_cond 0x19c
 #define BlockCache_assigned_cache 0x1bc
 #define BlockCache_pending_count 0x1c0
-#define BlockClient_cache 0x4
-#define BlockClient_blocks 0x8
-#define BlockClient_block_count 0x18
-#define BlockClient_assigned_blocks 0x1c
-#define BlockClient_mutex 0x24
-#define BlockClient_weight 0x40
-#define BlockClient_flags 0x44
-#define BlockClient_desired_bytes 0x48
+#define BlockCacheClient_cache 0x4
+#define BlockCacheClient_blocks 0x8
+#define BlockCacheClient_block_count 0x18
+#define BlockCacheClient_assigned_blocks 0x1c
+#define BlockCacheClient_mutex 0x24
+#define BlockCacheClient_weight 0x40
+#define BlockCacheClient_flags 0x44
+#define BlockCacheClient_desired_bytes 0x48
 #define EAppBlockManager_client 0x14
 #define EAppBlockManager_block_list 0x28
 #define EAppBlockManager_block_count 0x2c
@@ -1127,7 +1127,7 @@ extern void *const MenuListModel_vtable[];
 #define MainHeap_total_bytes 0x4
 #define MainHeap_used_bytes 0x8
 #define App_disk_mode_requested 0x4cc
-#define App_library_ready 0x4d2
+#define App_library_load_started 0x4d2
 #define App_in_disk_mode 0x4d3
 #define StorageArbiter_active 0x10
 #define StorageArbiter_clients 0x14
@@ -1136,7 +1136,7 @@ extern void *const MenuListModel_vtable[];
 #define ScsiDiskClient_context 0x8
 #define ScsiDiskClient_wanted 0xc
 #define ScsiDiskClient_state 0xd
-#define ResourceBlock_bytes 0x0
+#define ResourceBlock_length 0x0
 #define ResourceBlock_kind 0x4
 #define ResourceBlock_data 0x8
 #define ResourceBlockList_type 0x8
@@ -1202,7 +1202,7 @@ extern void *const MenuListModel_vtable[];
 #define View_children 0xa8
 #define View_child_count 0xac
 #define View_child_items 0xb0
-#define EventTimer_period 0x4
+#define EventTimer_period_ms 0x4
 #define EventTimer_recipient 0x24
 #define EventTimer_event_queue 0x28
 #define EventTimer_bytes 0x2c
@@ -1235,12 +1235,12 @@ extern void *const MenuListModel_vtable[];
 #define ScreenDefinition_layout_cache 0xc
 #define SsinInstance_view_bindings 0x0
 #define SsinInstance_template 0x4
-#define SsinInstance_substitute 0x8
+#define SsinInstance_layout_events_id 0x8
 #define SsinInstance_flags 0x10
 #define ViewDescriptor_frame 0x0
 #define ViewDescriptor_top_offset 0xc
-#define ViewDescriptor_anchor 0x10
-#define ViewDescriptor_anchor_mode 0x14
+#define ViewDescriptor_top_reference_view 0x10
+#define ViewDescriptor_top_anchor_mode 0x14
 #define ViewDescriptor_id 0x30
 #define ViewDescriptor_type 0x4c
 #define ViewDescriptor_options_bytes 0x5c
@@ -1507,7 +1507,6 @@ extern void *const MenuListModel_vtable[];
 #define RES_SettingsPreview_Capacity_Template 0x0dad07c6
 #define RES_SettingsList_Template 0x0dad01b2
 #define RES_SettingsList_View 0x0dad01b3
-#define RES_Menu_Reset_Bitmap 0x0dad0125
 #define RES_CoverFlow_Backside_Border_Color 0x0dad05d8
 #define RES_NowPlaying_White_Background_View 0x0dad08c5
 #define RES_NowPlaying_Idle_Template 0x0dad0925
