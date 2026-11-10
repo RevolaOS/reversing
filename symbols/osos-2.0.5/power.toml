@@ -25,6 +25,12 @@ App_EnterDiskMode = { at = 0x08106854, c = "void App_EnterDiskMode(void *app)" }
 App_ExitDiskMode = { at = 0x0810b5e0, c = "void App_ExitDiskMode(void *app)" }
 System_PrepareDiskMode = { at = 0x0805df34, c = "void System_PrepareDiskMode(void *system)" }
 SystemUI_DispatchSystemEvent = { at = 0x0810acd0 }
+App_HandleDiskGranted = { at = 0x08108bf0, c = "void App_HandleDiskGranted(void *app)" }
+App_HandleReloadTimer = { at = 0x081084d0, c = "void App_HandleReloadTimer(void *app)" }
+App_StartMusicLoading = { at = 0x0810b974, c = "void App_StartMusicLoading(void *app)" }
+App_PollMusicLoading = { at = 0x0810a514, c = "void App_PollMusicLoading(void *app)" }
+MusicLoadingTask_Create = { at = 0x081aec48, c = "void *MusicLoadingTask_Create(void *memory)" }
+MusicLoadingTask_Run = { at = 0x081aec04, c = "int MusicLoadingTask_Run(void *task)" }
 
 [sites]
 Sleep_Idle_call = { at = 0x0819b32c, kind = "call", in = "PowerController_HandleIdleSleep+0xa0" }
@@ -32,17 +38,19 @@ Sleep_Request_call = { at = 0x0819bba8, kind = "call", in = "PowerController_Han
 Preferences_FlushIfDirty_call = { at = 0x0806392c, kind = "call", in = "System_SaveAll+0x54" }
 DiskClient_Yield_slot = { at = 0x08996ba0, kind = "slot" }
 App_HandleUsbConnected_call = { at = 0x0810ad54, kind = "call", in = "SystemUI_DispatchSystemEvent+0x84" }
+MusicLoadingTask_Run_slot = { at = 0x0899417c, kind = "slot" }
 
 [data]
 StorageArbiter = { at = 0x08a7e8f8, c = "uint8_t StorageArbiter[]" }
 DiskClient = { at = 0x08a7e920, c = "uint8_t DiskClient[]" }
 DiskClient_vtable = { at = 0x08996b78, c = "void *const DiskClient_vtable[]" }
 ScsiDiskClient_vtable = { at = 0x0898c96c, c = "void *const ScsiDiskClient_vtable[]" }
+MusicLoadingTask_vtable = { at = 0x08994174, c = "void *const MusicLoadingTask_vtable[]" }
 App = { at = 0x089d2cb4, c = "void *App" }
 
 [offsets.App]
 disk_mode_requested = 0x4cc
-usb_connected = 0x4d2
+library_ready = 0x4d2
 in_disk_mode = 0x4d3
 
 [offsets.StorageArbiter]

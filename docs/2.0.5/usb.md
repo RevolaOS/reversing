@@ -22,3 +22,16 @@ The data volume has one owner at a time, kept by the storage arbiter (`StorageAr
 4. `App_PollDiskModeEntry` then calls `App_EnterDiskMode`, which sets `App_in_disk_mode` and runs `System_PrepareDiskMode`. That logs "Enter Disk Mode", stops playback, calls `System_SaveAll` and frees the databases. The volume is then released to the SCSI client, whose state becomes `ScsiDiskClientState_Granted`.
 
 `DiskClient_OnGranted` posts `HardwareSource_DiskGranted` (`AppMessage_DiskGranted`) when the volume comes back. `App` holds the pointer to the app object. The disk-mode sequence and the refusal were checked in the emulator.
+
+## Leaving disk mode
+
+At boot the library is opened inline: `MediaBrowser_CreateRoot` opens the database and calls `Library_FinishImport` on the task that builds the app. `App_library_ready` starts set. No music-loading task runs at boot.
+
+`App_EnterDiskMode` clears `App_library_ready`. When the volume comes back, everything below runs on the UI task except the loading task itself:
+
+1. `AppMessage_DiskGranted` reaches `App_HandleDiskGranted`. If `App_library_ready` is clear, it starts a short app timer, whose handler is `App_HandleReloadTimer`.
+2. `App_HandleReloadTimer` calls `App_StartMusicLoading`. That function returns early unless the storage arbiter's owner is `DiskClient` again and the app state allows the reload. Otherwise it creates the task with `MusicLoadingTask_Create`, starts it, starts a polling timer and sets `App_library_ready`.
+3. `MusicLoadingTask_Run` (site `MusicLoadingTask_Run_slot`) runs on its own task, "TMusicLoadingTask". It calls `Library_FinishImport` when a database is loaded, and then refreshes the selection model unless the reload was cancelled.
+4. `App_PollMusicLoading` runs on each polling tick until the task has finished, then calls `App_ExitDiskMode`. `App_ExitDiskMode` first probes `iPod_Control/Device` and, depending on the result, may set warm-boot tag 4 and reset. Otherwise it clears `App_in_disk_mode`, returns to the main menu and calls `System_SaveAll`.
+
+The volume belongs to the OS from `AppMessage_DiskGranted` onwards. The UI-task point after the reload is `App_ExitDiskMode`. The order of steps 1–4 was traced in the emulator with a posted disk-mode request and no USB host; that run reset in step 4.

@@ -39,6 +39,7 @@ TrackData_DestroyStorage = { at = 0x080cfaf4, c = "void TrackData_DestroyStorage
 TrackData_Destroy = { at = 0x0803e58c }
 MediaBrowser_GetOwner = { at = 0x08046ee0, c = "void *MediaBrowser_GetOwner(void *browser)" }
 MediaBrowser_GetCurrentList = { at = 0x08046e00, c = "struct MediaList *MediaBrowser_GetCurrentList(void *browser)" }
+MediaBrowser_CreateRoot = { at = 0x0804d6e4, c = "int MediaBrowser_CreateRoot(void *system, void **out_browser)" }
 MediaBrowser_CreateChild = { at = 0x0804d80c, c = "int MediaBrowser_CreateChild(void *owner, void **out)" }
 MediaBrowser_EvaluateEntryFilters = { at = 0x080d7a98, c = "int MediaBrowser_EvaluateEntryFilters(void *browser, struct MediaEntry *entry, struct MediaList *list_override)" }
 MediaBrowser_InvalidateEntryMatches = { at = 0x0804ec24, c = "int MediaBrowser_InvalidateEntryMatches(void *browser)" }
