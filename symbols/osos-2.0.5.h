@@ -1480,6 +1480,10 @@ extern void *const MenuListModel_vtable[];
 #define RES_Capacity_Video_Segment 0x0dad0af5
 #define RES_Capacity_Photos_Segment 0x0dad0af8
 #define RES_Capacity_Other_Segment 0x0dad0afb
+#define RES_Capacity_Audio_Swatch_Bitmap 0x0dad0ae4
+#define RES_Capacity_Video_Swatch_Bitmap 0x0dad0ae5
+#define RES_Capacity_Photos_Swatch_Bitmap 0x0dad0ae6
+#define RES_Capacity_Other_Swatch_Bitmap 0x0dad0ae7
 #define RES_SettingsPreview_Capacity_Template 0x0dad07c6
 #define RES_SettingsList_Template 0x0dad01b2
 #define RES_SettingsList_View 0x0dad01b3
