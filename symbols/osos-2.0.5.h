@@ -261,6 +261,8 @@ int MenuList_SetItemTable(void *menu_list, uint32_t table_id, void *view);
 void MenuItems_RegisterResourceType(uint32_t type);
 void UI_ShowContextMenuItems(void *controller, void *items);
 void *ContextMenuModel_Get(void);
+int ContextMenuModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
+int ContextMenuModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, int index, uintptr_t *out);
 void UI_LoadLayoutInstances(void *layout);
 int ContextMenuController_DispatchAction(void *controller, const char *action, uint32_t argument);
 void ScreenController_SwitchLayoutDefault(void *controller);
@@ -681,6 +683,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MenuItems_RegisterResourceType 0x08194df0
 #define ADDR_UI_ShowContextMenuItems 0x08129d78
 #define ADDR_ContextMenuModel_Get 0x081debd0
+#define ADDR_ContextMenuModel_GetProperty 0x081dec28
+#define ADDR_ContextMenuModel_GetIndexedProperty 0x081ded30
 #define ADDR_UI_LoadLayoutInstances 0x081d64cc
 #define ADDR_ContextMenuController_DispatchAction 0x081de6f8
 #define ADDR_ScreenController_SwitchLayoutDefault 0x08129994
@@ -1011,6 +1015,8 @@ extern void *const MenuListModel_vtable[];
 #define SITE_View_BackgroundFill_call 0x082636b4
 #define SITE_MarqueeTextView_DrawColor_call 0x081a8f0c
 #define SITE_UI_DisplayPreparedLayout_call 0x08175208
+#define SITE_ContextMenuModel_Property_slot 0x08997648
+#define SITE_ContextMenuModel_IndexedProperty_slot 0x08997664
 #define SITE_ContextMenu_ScreenActionCompare_call 0x081de7b0
 #define SITE_CoverFlow_ClearColor_call 0x08138304
 #define SITE_AlbumArt_ClearColor_call 0x08164230
@@ -1352,6 +1358,7 @@ extern void *const MenuListModel_vtable[];
 #define TemplateStyle_shared 0x8
 #define TemplateStyle_bytes 0xc
 #define ContextMenuModel_items 0x18
+#define ContextMenuModel_remembered_item 0x30
 #define ContextMenuItem_item 0x0
 #define ContextMenuItem_action 0x4
 #define ContextMenuItem_flags 0x8
@@ -1487,6 +1494,7 @@ extern void *const MenuListModel_vtable[];
 #define Notify_All 0x2a2a2a2a
 #define Service_Settings 0x8900
 #define Service_NowPlaying 0x7f00
+#define Service_ContextMenu 0x8180
 #define ActionSupportQuery 0xdeadbeef
 #define Event_Timer 0xf
 #define EventPayload_Timer 0xd00
@@ -1655,6 +1663,10 @@ extern void *const MenuListModel_vtable[];
 #define RES_MainMenus_Main_Screen 0x0dad076e
 #define RES_MainMenus_Main_Layout 0x0dad0798
 #define RES_MainMenus_Music_Screen 0x0dad07c8
+#define RES_ContextMenu_Screen 0x0dad01c9
+#define RES_ContextMenu_Layout 0x0dad01ca
+#define RES_ContextMenu_Items 0x00000001
+#define RES_ContextMenu_Item 0x0dad01cb
 #define RES_ExtrasMenu_Screen 0x0dad01cc
 #define RES_ExtrasMenu_Layout 0x0dad01d6
 #define RES_ExtrasMenu_Stopwatch_Layout 0x0dad01ed

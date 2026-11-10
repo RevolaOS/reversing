@@ -6,6 +6,8 @@ MenuList_SetItemTable = { at = 0x08194d1c, c = "int MenuList_SetItemTable(void *
 MenuItems_RegisterResourceType = { at = 0x08194df0, c = "void MenuItems_RegisterResourceType(uint32_t type)" }
 UI_ShowContextMenuItems = { at = 0x08129d78, c = "void UI_ShowContextMenuItems(void *controller, void *items)" }
 ContextMenuModel_Get = { at = 0x081debd0, c = "void *ContextMenuModel_Get(void)" }
+ContextMenuModel_GetProperty = { at = 0x081dec28, c = "int ContextMenuModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out)" }
+ContextMenuModel_GetIndexedProperty = { at = 0x081ded30, c = "int ContextMenuModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, int index, uintptr_t *out)" }
 UI_LoadLayoutInstances = { at = 0x081d64cc, c = "void UI_LoadLayoutInstances(void *layout)" }
 ContextMenuController_DispatchAction = { at = 0x081de6f8, c = "int ContextMenuController_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 ScreenController_SwitchLayoutDefault = { at = 0x08129994, c = "void ScreenController_SwitchLayoutDefault(void *controller)" }
@@ -156,6 +158,8 @@ TextView_DrawColor_call = { at = 0x082872a8, kind = "call", in = "TextView_DrawT
 View_BackgroundFill_call = { at = 0x082636b4, kind = "call", in = "View_DrawBackgroundAndBorder+0x184" }
 MarqueeTextView_DrawColor_call = { at = 0x081a8f0c, kind = "call", in = "MarqueeTextView_Draw+0x144" }
 UI_DisplayPreparedLayout_call = { at = 0x08175208, kind = "call", in = "UI_TransitionToLayout+0x7c" }
+ContextMenuModel_Property_slot = { at = 0x08997648, kind = "slot" }
+ContextMenuModel_IndexedProperty_slot = { at = 0x08997664, kind = "slot" }
 ContextMenu_ScreenActionCompare_call = { at = 0x081de7b0, kind = "call", in = "ContextMenuController_DispatchAction+0xb8" }
 CoverFlow_ClearColor_call = { at = 0x08138304, kind = "call", in = "CoverFlowView_UpdateActiveState+0x178" }
 AlbumArt_ClearColor_call = { at = 0x08164230, kind = "call", in = "GLAlbumArtView_UpdateActiveState+0x78" }
@@ -228,6 +232,7 @@ Notify_None = 0x4e6f6e65
 Notify_All = 0x2a2a2a2a
 Service_Settings = 0x8900
 Service_NowPlaying = 0x7f00
+Service_ContextMenu = 0x8180
 ActionSupportQuery = 0xdeadbeef
 Event_Timer = 0xf
 EventPayload_Timer = 0xd00
@@ -335,6 +340,10 @@ MusicMenu_Items = 0x0000001b
 MainMenus_Main_Screen = 0x0dad076e
 MainMenus_Main_Layout = 0x0dad0798
 MainMenus_Music_Screen = 0x0dad07c8
+ContextMenu_Screen = 0x0dad01c9
+ContextMenu_Layout = 0x0dad01ca
+ContextMenu_Items = 0x00000001
+ContextMenu_Item = 0x0dad01cb
 ExtrasMenu_Screen = 0x0dad01cc
 ExtrasMenu_Layout = 0x0dad01d6
 ExtrasMenu_Stopwatch_Layout = 0x0dad01ed
@@ -539,6 +548,7 @@ bytes = 0xc
 
 [offsets.ContextMenuModel]
 items = 0x18
+remembered_item = 0x30
 
 [offsets.ContextMenuItem]
 item = 0x0
