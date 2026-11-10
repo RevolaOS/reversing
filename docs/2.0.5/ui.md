@@ -283,16 +283,108 @@ A screen controller receives events in `ScreenController_event_method` as `handl
 
 Transitions are `Transition_Standard` (`standard`), `Transition_ForegroundPush` (`foregroundpush`) and `Transition_ScreenPush` (`screenpush`). `navigator.PushScreen` passes its third argument through this name lookup, and a missing or unknown name gives `Transition_Standard`. The factories store the value in `ScreenDefinition_transition`. When `UI_DisplayPreparedLayout` replaces one layout with another, instances whose `SsinInstance_template` appears in both layouts stay in place, and only the others are taken down and brought in. That is why a half-screen Settings push animates only the list: the status bar, background and pane templates are shared.
 
-Each `SLst` block also gives the layout a kind (`ScreenLayoutEntry_kind`, kept as `Layout_kind`): 4 for the Settings lists (main, EQ, Main Menu), 8 for Brightness, 9 for Legal. `UI_TransitionToLayout` picks the animation as follows:
-- A transition saved by the leaving screen's deactivate replaces the requested one.
+Each `SLst` block also gives the layout a kind (`ScreenLayoutEntry_kind`, kept as `Layout_kind` and read through `Layout_GetKind`). Kinds seen in stock layouts:
+
+| Kind | Layouts |
+|---|---|
+| 1 | Now Playing |
+| 2 | Cover Flow |
+| 3 | Main, Music, Videos and Photos menus |
+| 4 | lists with a pane: Settings, Extras, the Settings sub-lists, the Stopwatch menu |
+| 5 | full-width lists (`RES_Notes_List_Screen_Alt`, songs, contacts, context menus) |
+| 6 | the main menu with the Extras pane |
+| 7 | Clocks |
+| 8 | full screens: Brightness, About, Stopwatch, date pickers |
+| 9 | text and detail pages: Legal, contact details, calendar month |
+| 10 | Disk Mode, Charging, Remote UI |
+
+`UI_TransitionToLayout(manager, old, new, popping, transition)` picks the animation as follows. `popping` is 0 for a push and 1 for a pop.
+- A transition saved in `LayoutManager_saved_transition` replaces the requested one and is cleared.
+- `Transition_Hidden` displays nothing. The layout manager keeps the old layout, and the next transition starts from it.
 - `Transition_Instant`, or either layout of kind 10, displays the new layout at once.
 - Some pairs of old and new kinds override the request: 4 with 1, 5 or 9 and 3 with 5 (in either order) become `Transition_ForegroundPush`; 1, 5 or 9 with 9, and 1 with 5, become 4; and 1 with 8 becomes `Transition_Standard`. Other pairs keep the requested transition.
-- `Transition_ForegroundPush` and `Transition_ScreenPush` take a snapshot of the whole screen and slide it, so everything moves.
-- With the other values there is no snapshot, and only the instances that are not shared move.
+- `Transition_ForegroundPush` and `Transition_ScreenPush` copy the whole old screen into layer 3. The instances that leave or enter are only hidden or shown; the instance styles below are not used. In the emulator, `Transition_ScreenPush` slid layer 3 and layer 1 (the leaving list) out in step with the new window; `Transition_ForegroundPush` started moving layer 3 four frames after the new window.
+- `Transition_Standard` takes no whole-screen copy. Each instance that is not shared runs its own enter or leave style, and each shared one its shared style.
 
-So Settings (4) to Legal (9) always slides the whole screen, while Settings (4) to Brightness (8) keeps the requested `Transition_Standard` and moves only the list. A binding may carry both a handler and an action. Pops reach a screen through several paths, so a screen learns that it left from its controller's `ScreenController_deactivate_method`. Its second argument is 0 when another screen is pushed on top and nonzero when the screen is popped (checked in the emulator with Settings and About). Each class's deactivate function appears in exactly one vtable: `ScreenController_Deactivate_slot` holds `ResourceScreen_Deactivate`, and `SettingsMenuListController_Deactivate_slot` holds `SettingsMenuListController_Deactivate`. Vtables are in writable DRAM, so a slot can be patched in place, but the patch then runs for every controller of that class (Settings lists include About), and it must call the original for controllers it does not own.
+So Settings (4) to Legal (9) always uses `Transition_ForegroundPush`, while Settings (4) to Brightness (8) keeps `Transition_Standard` and animates through the instance styles.
+
+A binding may carry both a handler and an action. Pops reach a screen through several paths, so a screen learns that it left from its controller's `ScreenController_deactivate_method`. Its second argument is 0 when another screen is pushed on top and nonzero when the screen is popped (checked in the emulator with Settings and About). Each class's deactivate function appears in exactly one vtable: `ScreenController_Deactivate_slot` holds `ResourceScreen_Deactivate`, and `SettingsMenuListController_Deactivate_slot` holds `SettingsMenuListController_Deactivate`. Vtables are in writable DRAM, so a slot can be patched in place, but the patch then runs for every controller of that class (Settings lists include About), and it must call the original for controllers it does not own.
 
 `UI_CreateScreenController` reads the class name from the screen's `SCST` and calls the registered factory. `ScreenController_CreateNamed` builds the plain resource screen (`TSilverCntlr`, `ResourceScreenController_bytes`, vtable `ScreenController_vtable`) and stores the controller name. The Settings list controller is `SettingsMenuListController_bytes` with vtable `SettingsMenuListController_vtable`; both vtables are `ScreenController_vtable_bytes` long and are preceded by `CxxVtable_prefix_bytes` of offset-to-top and type info.
+
+### Instance styles
+
+`UI_AnimateInstanceIn` runs for each instance of the new layout that the old one lacks, `UI_AnimateInstanceOut` for each old instance the new one lacks, and `UI_AnimateSharedInstance` for each instance both share. The style comes from, in order:
+1. The `SSin` block: `SsinInstance_enter_style`, `SsinInstance_leave_style` or `SsinInstance_shared_style` (int16; the shared style is the low half of `SsinInstance_flags`). -1 means none.
+2. The template's table for the kind of the other layout (the old layout's kind when entering, the new layout's when leaving). Entry 0 is the fallback when that kind's entry is -1.
+3. Style 0.
+
+`UI_InstanceEnterStyle` and `UI_InstanceLeaveStyle` implement this. Under transition 5 the template's single reverse entry replaces step 2.
+
+A `TMLT` block holds a colour id at +0, a nonzero byte at `TemplateResource_has_styles` when the tables are present, and 11 records of `TemplateStyle_bytes` from `TemplateResource_styles`, one per kind. A record's int16s at `TemplateStyle_enter`, `TemplateStyle_leave` and `TemplateStyle_shared` are that kind's styles. `UI_CreateTemplateFromResource` copies them into `TemplateView_enter_styles`, `TemplateView_leave_styles` and `TemplateView_shared_styles` (int8 each). A template built from a copied `TMLT` therefore animates like the stock template the copy came from.
+
+The styles move compositor layers (`UI_GetCompositorLayer(layers, index)`, called with the root view's layer container). Layers 0 to 3 appeared in the display trace as the hardware layers of the same index; layer 4 was never enabled. Each layer moves at most once per transition. Styles seen here:
+
+| Style | Function | Effect |
+|---|---|---|
+| 0 | | shows or hides the instance in place |
+| 5 | `UI_SlideStatusBarChildren` | moves each visible child of the status bar on a layer of its own |
+| 8 | `UI_SlideLayerIn` (layer 0) | the new window slides in from x = 320 |
+| 14 | `UI_HoldViewInBackgroundLayer` (layer 4) | a shared background stays still |
+| 15 | `UI_MoveViewToLayer` and `UI_SlideLayerIn` / `UI_SlideLayerOut` (layer 1) | the instance is copied into layer 1, which slides out to the left, or in from the left on a pop |
+| 17, 18 | | About card switches |
+| 19 | | leaving a kind-8 screen for a kind-4 list: the screen slides out to the right |
+| 24 | `UI_SlideLayerFromPane` (layer 0) | entering, the new window slides from x = 160 to 0; leaving, from 0 to 160 |
+
+The remaining values up to 28 have not been mapped. Effects of 5, 14, 17 and 18 come from the code; the others were also seen in the display trace.
+
+Stock tables, by the other layout's kind (-1 entries left out):
+
+| Template | Enter | Leave | Shared |
+|---|---|---|---|
+| `RES_StatusBarWhite_Template` | 0: 20, 8: 15 | 0: 20, 1: 23, 8: 15 | |
+| `RES_SettingsList_Template` | 0: 20, 8: 15, 9: 28 | 0: 20, 1: 23, 8: 15, 9: 28 | 7: 0 |
+| `RES_SettingsPreview_Template` | 0: 2, 8: 15 | 0: 2, 8: 15 | |
+| `RES_SettingsPreview_Capacity_Template` (About's pane) | 3: 12, 8: 15 | 3: 12, 8: 15 | |
+| `RES_StatusBar_Template` | 0: 5 | 0: 5 | |
+| `RES_Settings_Brightness_Template`, `RES_About_Top_Template` | 4: 8 | 4: 19 | |
+| `RES_About_Capacity_Template` and the other About cards | 8: 17 | 4: 19, 8: 18 | |
+| `RES_FullScreenImage_Template` | | 8: 14 | 4: 14, 8: 14 |
+| `RES_Background_Template` | 0: 12, 3: 12, 4: 0 | 0: 12, 3: 12 | 4: 14, 7: 0, 8: 14 |
+| `RES_Stopwatch_Template` | 4: 24 | 4: 24 | |
+| `RES_Settings_Legal_Template` | | | |
+
+So a kind-8 screen pushed with `Transition_Standard` from a kind-4 list animates fully. From a kind-3 or kind-5 list its content template has no entry, so it appears in place while the list slides out.
+
+### Settings > About
+
+The About row's `chosen` runs `ShowSetting_About`. The controller emits `controller.GotoThreeCard_About`, or `controller.GotoFourCard_About` with an accessory attached. The `SEVT` of `RES_SettingsMenu_Main_Layout` (the About row's layout) turns it into `navigator.PushScreen` of `RES_About_Screen` or `RES_About_Accessory_Screen` with the Capacity layout and no transition argument, so `Transition_Standard`. It is a real push of a new `TSilverSettingsMenuListCntlr`. The About layouts (Capacity, Count, Basic and Accessory) are kind 8, and each one's `SEVT` switches to the next on Next, Previous and Select.
+
+Opening, 4 to 8:
+- The status bar, list and pane leave with style 15.
+- `RES_FullScreenImage_Template` is shared (style 14).
+- `RES_StatusBar_Template` enters with style 5, and `RES_About_Top_Template` with style 8.
+
+In the display trace, layer 1 (the copied Settings screen) stays at x = 0 while its visible width shrinks, and layer 0 (the About window) slides from x = 320 to 0 in eight frames (288, 208, 144, 88, 49, 20, 4, 0). The two always add up to 320 px. Closing, layer 2 holds About and slides out to the right while layer 1 brings Settings back from the left. Settings > Brightness has the same tables and opens the same way.
+
+### Extras > Stopwatch
+
+The Stopwatch row's `chosen` runs `navigator.PushController TCSportTimerChosenDispatcher`. `SportTimerChosenDispatcher_Activate` decides from the stopwatch state:
+- Running: it pushes `RES_Stopwatch_Menu_Screen` with `LayoutManager_saved_transition` set to `Transition_Hidden`, so nothing is displayed, then `RES_Stopwatch_Screen` (`TCSportTimer`) with its Running layout.
+- No sessions: the same with the Stopped layout.
+- Otherwise: it pushes only the Stopwatch menu.
+
+All pushes use `Transition_Standard`. With the hidden push, the animation runs straight from `RES_ExtrasMenu_Stopwatch_Layout` (kind 4) to the Stopwatch screen (kind 8).
+
+In `RES_ExtrasMenu_Stopwatch_Layout`, the status bar and list carry style 15 in their `SSin` blocks and `RES_Background_Template` is shared. `RES_Stopwatch_Template` enters with style 24: it is the enter style in its `SSin` block on the Stopped layout, and the table entry for kind 4.
+
+In the display trace:
+- Layer 0, the whole Stopwatch window (status bar included), starts at x = 160, where the pane's picture is, and slides to 0 while layer 1 slides out to the left.
+- On Menu, layer 1 brings Extras in from the left, above layer 0, while layer 0 slides from 0 back to x = 160 under it.
+
+### In the emulator
+
+The emulator's display pipe draws each enabled layer over the previous frame and never clears it. It also does not run the display pipe's blit, which each transition with a shared background programs once. During a transition, the window buffer is transparent wherever the shared background and the status bar belong: about 69% of its pixels during the About push have alpha 0, and under `Transition_ScreenPush` the incoming status bar has alpha 230. Earlier frames show through those pixels, so screenshots of these transitions show several copies of the content, or a faint old battery icon and title in the status bar. The layer positions above come from the display trace (`DISPTRACE=1`) and are reliable; the pixels around them are not. What the hardware shows behind a transparent pixel has not been determined.
 
 ## Timers
 
