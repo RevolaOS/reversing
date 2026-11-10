@@ -1459,6 +1459,16 @@ extern void *const MenuListModel_vtable[];
 #define UITask_stack_bytes 0x20000
 #define Transition_Instant 0x6
 #define Transition_Hidden 0x1
+#define LayoutKind_NowPlaying 0x1
+#define LayoutKind_CoverFlow 0x2
+#define LayoutKind_Menu 0x3
+#define LayoutKind_SplitList 0x4
+#define LayoutKind_List 0x5
+#define LayoutKind_MenuPane 0x6
+#define LayoutKind_Clock 0x7
+#define LayoutKind_FullScreen 0x8
+#define LayoutKind_Page 0x9
+#define LayoutKind_System 0xa
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb

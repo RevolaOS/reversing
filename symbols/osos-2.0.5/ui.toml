@@ -270,6 +270,16 @@ ViewType_Capacity = 0x63706374
 UITask_stack_bytes = 0x20000
 Transition_Instant = 0x6
 Transition_Hidden = 0x1
+LayoutKind_NowPlaying = 1
+LayoutKind_CoverFlow = 2
+LayoutKind_Menu = 3
+LayoutKind_SplitList = 4
+LayoutKind_List = 5
+LayoutKind_MenuPane = 6
+LayoutKind_Clock = 7
+LayoutKind_FullScreen = 8
+LayoutKind_Page = 9
+LayoutKind_System = 10
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
