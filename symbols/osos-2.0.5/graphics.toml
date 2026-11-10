@@ -14,7 +14,9 @@ GraphicsContext_CopyRect = { at = 0x08259568, c = "void GraphicsContext_CopyRect
 GraphicsContext_InitWithBitmap = { at = 0x0825aefc, c = "void *GraphicsContext_InitWithBitmap(void *context, void *bitmap)" }
 GraphicsContext_InitFromBitmapResource = { at = 0x0825af2c, c = "void *GraphicsContext_InitFromBitmapResource(void *context, void *bitmap, const void *resource)" }
 GraphicsContext_SetOrigin = { at = 0x0825aef0, c = "void GraphicsContext_SetOrigin(void *context, int x, int y)" }
-Bitmap_Construct = { at = 0x08103e8c }
+Bitmap_Construct = { at = 0x08103e8c, c = "void *Bitmap_Construct(void *bitmap)" }
+Bitmap_Destroy = { at = 0x08103ee0, c = "void *Bitmap_Destroy(void *bitmap)" }
+GraphicsContext_Destroy = { at = 0x0825b038, c = "void GraphicsContext_Destroy(void *context)" }
 Font_Construct = { at = 0x0826c0f4, c = "void Font_Construct(uint32_t *font, const char *family, uint32_t size, uint8_t style)" }
 GraphicsContext_GetFontAscent = { at = 0x08298784, c = "int GraphicsContext_GetFontAscent(void *context)" }
 GraphicsContext_GetFontDescent = { at = 0x082987b8, c = "int GraphicsContext_GetFontDescent(void *context)" }
@@ -61,3 +63,12 @@ family = 0x0
 size = 0x4
 style = 0x8
 bytes = 0xc
+
+[data]
+Bitmap_vtable = { at = 0x08989298, c = "void *const Bitmap_vtable[]" }
+
+[offsets.Bitmap]
+pixels = 0x4
+bounds = 0x98
+owns_pixels = 0xb4
+bytes = 0xb8

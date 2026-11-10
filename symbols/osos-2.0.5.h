@@ -43,6 +43,9 @@ void GraphicsContext_CopyRect(void *context, void *source, const int32_t *source
 void *GraphicsContext_InitWithBitmap(void *context, void *bitmap);
 void *GraphicsContext_InitFromBitmapResource(void *context, void *bitmap, const void *resource);
 void GraphicsContext_SetOrigin(void *context, int x, int y);
+void *Bitmap_Construct(void *bitmap);
+void *Bitmap_Destroy(void *bitmap);
+void GraphicsContext_Destroy(void *context);
 void Font_Construct(uint32_t *font, const char *family, uint32_t size, uint8_t style);
 int GraphicsContext_GetFontAscent(void *context);
 int GraphicsContext_GetFontDescent(void *context);
@@ -176,6 +179,7 @@ int File_OpenLegacyPath(void *path, uint32_t fork, int mode, void **out_handle);
 int File_ReadLegacyHandle(void *handle, void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_read);
 int File_WriteLegacyHandle(void *handle, const void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_written);
 int File_CloseLegacyHandle(void *handle);
+int File_SeekLegacyHandle(void *handle, uint64_t offset);
 int BufferedFile_GetPosition(void *file, uint64_t *position);
 void Preferences_LoadFile(void *preferences);
 void Preferences_FlushIfDirty(void *preferences);
@@ -313,6 +317,7 @@ void SCSI_AcquireMedium(void *out_result, void *context, int set_sense);
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
 extern const uint8_t DisplayLayerOrders[];
+extern void *const Bitmap_vtable[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
 extern uint8_t BrowserRegistry[];
@@ -379,6 +384,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_GraphicsContext_InitFromBitmapResource 0x0825af2c
 #define ADDR_GraphicsContext_SetOrigin 0x0825aef0
 #define ADDR_Bitmap_Construct 0x08103e8c
+#define ADDR_Bitmap_Destroy 0x08103ee0
+#define ADDR_GraphicsContext_Destroy 0x0825b038
 #define ADDR_Font_Construct 0x0826c0f4
 #define ADDR_GraphicsContext_GetFontAscent 0x08298784
 #define ADDR_GraphicsContext_GetFontDescent 0x082987b8
@@ -535,6 +542,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_File_ReadLegacyHandle 0x0804f838
 #define ADDR_File_WriteLegacyHandle 0x0804ff68
 #define ADDR_File_CloseLegacyHandle 0x0804f6e4
+#define ADDR_File_SeekLegacyHandle 0x0804f88c
 #define ADDR_BufferedFile_GetPosition 0x08037f98
 #define ADDR_Preferences_LoadFile 0x0809c69c
 #define ADDR_Preferences_LoadAndMigrate 0x080587f4
@@ -708,6 +716,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_DisplayLayerOrders 0x083f35ec
+#define ADDR_Bitmap_vtable 0x08989298
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
 #define ADDR_BrowserRegistry 0x08a1a6dc
@@ -971,6 +980,10 @@ extern void *const MenuListModel_vtable[];
 #define FontResource_size 0x4
 #define FontResource_style 0x8
 #define FontResource_bytes 0xc
+#define Bitmap_pixels 0x4
+#define Bitmap_bounds 0x98
+#define Bitmap_owns_pixels 0xb4
+#define Bitmap_bytes 0xb8
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
 #define WheelState_skip_packet 0x1
