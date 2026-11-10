@@ -57,6 +57,7 @@ GraphicsDrawMode_Text = 0x21
 BMapFormat_Mask4 = 0x4
 BMapFormat_Mask8 = 0x8
 BMapFormat_Indexed8 = 0x64
+BMapFormat_Indexed16 = 0x65
 BMapFormat_RGB565 = 0x565
 BMapFormat_BGRA8888 = 0x1888
 

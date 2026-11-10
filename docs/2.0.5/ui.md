@@ -89,7 +89,7 @@ Every row of `RES_SettingsMenu_Main_Screen` has its own layout. The row's `delay
 - the pane, `RES_SettingsPreview_Template` for most rows;
 - the list (`RES_SettingsList_Template`).
 
-The pane has a caption (`RES_SettingsPreview_Caption_Text`), a background image, an icon (`RES_Settings_Icon_View`) and a detail line (`RES_Settings_InfoDetail_View`). The pane instance's `Resource_VLyt` (`SsinInstance_substitute`) binds each of them for that row. About's caption is a `Service_String` string, its icon is `Service_Settings` property 0x891d and its detail line is property 0x8905. A clone binds its own caption and bitmap by giving its pane instance a `VLyt` with its own sources.
+The pane has a caption (`RES_SettingsPreview_Caption_Text`), the dark rounded box behind the icon (`RES_SettingsPreview_Background_View`, bound in the template to `RES_SettingsPreview_Background_Image`), an icon (`RES_Settings_Icon_View`) and a detail line (`RES_Settings_InfoDetail_View`). The pane instance's `Resource_VLyt` (`SsinInstance_substitute`) binds each of them for that row. Each row's `VLyt` only shows or hides the box with `ViewOption_Visible`; Legal hides it. About's caption is a `Service_String` string, its icon is `Service_Settings` property 0x891d and its detail line is property 0x8905. A clone binds its own caption and bitmap by giving its pane instance a `VLyt` with its own sources.
 
 A `VLyt`, `VSlt` or `VCvs` block's kind is a view id, and its data is a block list of options:
 - `ViewOption_Visible`: a byte, 1 to show and 0 to hide.
@@ -102,6 +102,7 @@ An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, o
 - `BMapFormat_BGRA8888`: depth 32, stride = width × 4, bytes B, G, R, A per pixel (little-endian `0xAARRGGBB`), not premultiplied.
 - `BMapFormat_Indexed8`: depth 8; the payload is a 32-bit palette count, that many 4-byte entries in the same B, G, R, A order, then one byte per pixel at the stride.
 - `BMapFormat_RGB565`: depth 16.
+- `BMapFormat_Indexed16`: depth 16; the payload is a palette as for `BMapFormat_Indexed8`, then 16-bit indices at the stride (`RES_SettingsPreview_Background_Image`).
 - `BMapFormat_Mask8` and `BMapFormat_Mask4`: depth 8 or 4, no palette; each pixel is a coverage value. `BitmapView_Draw` draws formats 2, 4 and 8 in the view's tint colour with `GraphicsDrawMode_Text`. The Settings pane icons (`RES_Settings_Brightness_Image` and the other `Settings_*_Image` resources) are `BMapFormat_Mask8`, 78 × 121 at a stride of 80.
 
 A format of 0 picks one from the depth. The byte order comes from stock palettes: the selected checkmark's edge pixels blend white into the blue selection bar only when read as B, G, R. 

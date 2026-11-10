@@ -1291,6 +1291,7 @@ extern void *const MenuListModel_vtable[];
 #define BMapFormat_Mask4 0x4
 #define BMapFormat_Mask8 0x8
 #define BMapFormat_Indexed8 0x64
+#define BMapFormat_Indexed16 0x65
 #define BMapFormat_RGB565 0x565
 #define BMapFormat_BGRA8888 0x1888
 #define WheelButton_Center 0x1
@@ -1447,6 +1448,8 @@ extern void *const MenuListModel_vtable[];
 #define RES_Settings_MainMenu_Items 0x00000042
 #define RES_SettingsPreview_Template 0x0dad0c2e
 #define RES_SettingsPreview_Caption_Text 0x0dad0618
+#define RES_SettingsPreview_Background_View 0x0dad0c2f
+#define RES_SettingsPreview_Background_Image 0x0dad0bf5
 #define RES_Settings_Brightness_Screen 0x0dad0c98
 #define RES_Settings_Brightness_Screen_Default 0x0dad0c99
 #define RES_Settings_Brightness_Template 0x0dad0c5a
