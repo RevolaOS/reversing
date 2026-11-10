@@ -102,8 +102,9 @@ An image view (`BitmapView_LoadBitmap`) asks its source for `Property_Bitmap`, o
 - `BMapFormat_BGRA8888`: depth 32, stride = width × 4, bytes B, G, R, A per pixel (little-endian `0xAARRGGBB`), not premultiplied.
 - `BMapFormat_Indexed8`: depth 8; the payload is a 32-bit palette count, that many 4-byte entries in the same B, G, R, A order, then one byte per pixel at the stride.
 - `BMapFormat_RGB565`: depth 16.
+- `BMapFormat_Mask8` and `BMapFormat_Mask4`: depth 8 or 4, no palette; each pixel is a coverage value. `BitmapView_Draw` draws formats 2, 4 and 8 in the view's tint colour with `GraphicsDrawMode_Text`. The Settings pane icons (`RES_Settings_Brightness_Image` and the other `Settings_*_Image` resources) are `BMapFormat_Mask8`, 78 × 121 at a stride of 80.
 
-A format of 0 picks one from the depth. The byte order comes from stock palettes: the selected checkmark's edge pixels blend white into the blue selection bar only when read as B, G, R. The Settings pane icons are 78 pixels wide and 121 high, which includes the reflection.
+A format of 0 picks one from the depth. The byte order comes from stock palettes: the selected checkmark's edge pixels blend white into the blue selection bar only when read as B, G, R. 
 
 Dropping a stock row while a list loads and binding its id in another screen's `CEVT` is safe for the bindings themselves: events are named by row id, and preview layouts are chosen by name, not by position. The handler strings (`ToggleSetting_*`, `ShowSetting_*`) are understood only by the Settings list controller's action slot, so another screen needs that controller class or its own handler. `MenuItem_SetVisible` still writes the stock row data, which the other list shares.
 
