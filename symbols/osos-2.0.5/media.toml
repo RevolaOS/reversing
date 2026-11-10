@@ -9,6 +9,7 @@ MediaPlayer_GetItemAtIndex = { at = 0x0816ec38, c = "int MediaPlayer_GetItemAtIn
 MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
 MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
 MediaItem_Destroy = { at = 0x08266da0, c = "void MediaItem_Destroy(struct MediaItem *item)" }
+MediaItem_Assign = { at = 0x08266da4, c = "void MediaItem_Assign(struct MediaItem *destination, const struct MediaItem *source)" }
 MediaItem_HasRecordFlag8F01 = { at = 0x0829af84, c = "uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item)" }
 MediaItem_HasKind8 = { at = 0x0829a9d4, c = "uint32_t MediaItem_HasKind8(struct MediaItem *item)" }
 MediaItem_HasKind8062 = { at = 0x0829aad8, c = "uint32_t MediaItem_HasKind8062(struct MediaItem *item)" }
@@ -152,6 +153,8 @@ entries = 0x10
 [offsets.MediaItem]
 entry = 0x4
 record = 0x8
+browser = 0xc
+generation = 0x10
 flags = 0x14
 bytes = 0x18
 

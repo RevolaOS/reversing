@@ -65,6 +65,7 @@ int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *i
 int MediaItem_IsValid(struct MediaItem *item);
 struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags);
 void MediaItem_Destroy(struct MediaItem *item);
+void MediaItem_Assign(struct MediaItem *destination, const struct MediaItem *source);
 uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item);
 uint32_t MediaItem_HasKind8(struct MediaItem *item);
 uint32_t MediaItem_HasKind8062(struct MediaItem *item);
@@ -244,6 +245,7 @@ void SettingsModel_AdjustBrightness(void *model, int delta);
 void *CppString_Init(void *string, const char *text);
 void *CppString_InitBytes(void *string, const void *data, uint32_t bytes, void *allocator);
 void CppString_Destroy(void *string);
+int String_CompareCString(const char *left, const char *right);
 void StringInputStream_Init(void *stream, void *string, uint32_t mode);
 void StringInputStream_Destroy(void *stream, uint32_t flags, void *storage);
 struct NativeString *NativeString_InitEmpty(struct NativeString *string);
@@ -260,6 +262,8 @@ void MenuItems_RegisterResourceType(uint32_t type);
 void UI_ShowContextMenuItems(void *controller, void *items);
 void *ContextMenuModel_Get(void);
 void UI_LoadLayoutInstances(void *layout);
+int ContextMenuController_DispatchAction(void *controller, const char *action, uint32_t argument);
+void ScreenController_SwitchLayoutDefault(void *controller);
 void *UI_GetLayoutManager(void);
 int MenuList_QueryProperty(void *menu_list, uint32_t type, uint32_t property, uint32_t *out);
 void *ControllerRegistry_InvokeScreenFactory(void *registry, const char *class_name, const char *controller_name, uint32_t screen_id, uint32_t layout_id, uint32_t transition);
@@ -451,6 +455,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaItem_IsValid 0x0829a7dc
 #define ADDR_MediaItem_InitFromRecord 0x08266d20
 #define ADDR_MediaItem_Destroy 0x08266da0
+#define ADDR_MediaItem_Assign 0x08266da4
 #define ADDR_MediaItem_HasRecordFlag8F01 0x0829af84
 #define ADDR_MediaItem_HasKind8 0x0829a9d4
 #define ADDR_MediaItem_HasKind8062 0x0829aad8
@@ -660,6 +665,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_CppString_Init 0x083cf82c
 #define ADDR_CppString_InitBytes 0x083cf87c
 #define ADDR_CppString_Destroy 0x083cf7d4
+#define ADDR_String_CompareCString 0x0838886c
 #define ADDR_StringInputStream_Init 0x0829e7b8
 #define ADDR_StringInputStream_Destroy 0x0829e81c
 #define ADDR_NativeString_InitEmpty 0x0826de38
@@ -677,6 +683,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ContextMenuModel_Get 0x081debd0
 #define ADDR_UI_LoadLayoutInstances 0x081d64cc
 #define ADDR_ContextMenuController_DispatchAction 0x081de6f8
+#define ADDR_ScreenController_SwitchLayoutDefault 0x08129994
 #define ADDR_UI_GetLayoutManager 0x081747ec
 #define ADDR_MenuList_QueryProperty 0x08194c2c
 #define ADDR_ControllerRegistry_InvokeScreenFactory 0x081d5a40
@@ -1004,6 +1011,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_View_BackgroundFill_call 0x082636b4
 #define SITE_MarqueeTextView_DrawColor_call 0x081a8f0c
 #define SITE_UI_DisplayPreparedLayout_call 0x08175208
+#define SITE_ContextMenu_ScreenActionCompare_call 0x081de7b0
 #define SITE_CoverFlow_ClearColor_call 0x08138304
 #define SITE_AlbumArt_ClearColor_call 0x08164230
 #define SITE_SongList_CancelAppend_call 0x082195ec
@@ -1133,6 +1141,8 @@ extern void *const MenuListModel_vtable[];
 #define MediaOrder_entries 0x10
 #define MediaItem_entry 0x4
 #define MediaItem_record 0x8
+#define MediaItem_browser 0xc
+#define MediaItem_generation 0x10
 #define MediaItem_flags 0x14
 #define MediaItem_bytes 0x18
 #define MediaPlayer_current_item_method 0x15c
@@ -1350,8 +1360,20 @@ extern void *const MenuListModel_vtable[];
 #define MediaListController_map_visible_row_method 0x130
 #define MediaListController_model 0xb4
 #define SongListController_context_row 0xd4
+#define SongListController_layout_cache 0xd8
+#define SongListController_layout 0x108
 #define GeniusController_context_row 0xd4
+#define GeniusController_layout_cache 0xd8
+#define GeniusController_layout 0x108
 #define NestedPlaylistsController_context_row 0xe8
+#define NestedPlaylistsController_layout_cache 0xf0
+#define NestedPlaylistsController_layout 0x120
+#define ArtistsController_layout_cache 0xd4
+#define ArtistsController_layout 0x104
+#define AlbumsController_layout_cache 0xd8
+#define AlbumsController_layout 0x108
+#define NowPlayingController_layout_cache 0xec
+#define NowPlayingController_layout 0x11c
 #define Navigator_top_controller 0x4
 #define TextView_context 0xa4
 #define TextView_text 0xf8

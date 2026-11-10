@@ -202,6 +202,27 @@ A `MediaItem` is `MediaItem_bytes` long. Initialise one with `MediaItem_InitFrom
 
 `MediaPlayer_current_item_method` is `MediaPlayer_GetCurrentItem`, which calls `MediaPlayer_item_at_index_method` (`MediaPlayer_GetItemAtIndex`) with `MediaPlayer_current_index`. It returns 0 and leaves the item unchanged when there is no playback list. Neither takes `MediaPlayer_mutex`, and the stock Now Playing menu reads the current item without it. `MediaPlayer_mutex` is set up with `Mutex_Init` and guards the player's own state changes.
 
+### Leaving a context menu for a screen
+
+`ContextMenuController_DispatchAction` takes the chosen action from the context-menu model. If it is `HandleViewAlbum`, `HandleViewArtist`, `HandleViewCompilation` or `HandleStartGenius`, it sets `LayoutManager_saved_transition` to `Transition_Hidden`. The four tests are `String_CompareCString` calls; the last, `HandleStartGenius`, is site `ContextMenu_ScreenActionCompare_call`, and a 0 from it also selects the hidden transition. The menu then pops itself (`ScreenController_pop_self_method` with 0x10) and forwards the action to the controller underneath. With the hidden transition the pop displays nothing, so the list does not appear between the menu and the screen the action pushes. An action that pushes nothing has to show the list's layout again itself.
+
+A list or Now Playing controller keeps the id of its current layout and a layout cache in front of it:
+
+| Controller | Layout id | Cache |
+|---|---|---|
+| Songs | `SongListController_layout` | `SongListController_layout_cache` |
+| Genius | `GeniusController_layout` | `GeniusController_layout_cache` |
+| Nested and video playlists | `NestedPlaylistsController_layout` | `NestedPlaylistsController_layout_cache` |
+| Artists | `ArtistsController_layout` | `ArtistsController_layout_cache` |
+| Albums | `AlbumsController_layout` | `AlbumsController_layout_cache` |
+| Now Playing | `NowPlayingController_layout` | `NowPlayingController_layout_cache` |
+
+Their `ScreenController_switch_layout_method` looks the id up with `ControllerLayoutCache_GetOrInsert(cache, id)` and stores the id after the transition. `ControllerLayoutCache_GetOrInsert(cache, layout)` followed by `UI_DisplayPreparedLayout(UI_GetLayoutManager(), layout)` shows the current layout again. `ScreenController_SwitchLayoutDefault` (a bare return) is the slot of controllers without layouts. The live vtables of Songs, Artists and Now Playing were read in the emulator, and their layout fields held `0x0dad....` resource ids.
+
+### Keeping a MediaItem
+
+A `MediaItem` holds plain pointers: `MediaItem_entry`, `MediaItem_record`, the browser in `MediaItem_browser`, and the browser's track-data generation at the time of the copy in `MediaItem_generation`. Nothing is reference counted, and `MediaItem_Assign` copies the fields after the vtable word. `MediaItem_IsValid` accepts an item that has an entry without further checks. Otherwise it reads the record's header and compares `MediaItem_generation` with the browser's current one. A record freed by a library reload is still read before the generation test. The library is reloaded only after disk mode, and `App_ExitDiskMode` then pops to the main menu (see usb.md), so a pushed screen does not survive a reload.
+
 ### Reusing ids
 
 State keyed by id that outlives an override:
