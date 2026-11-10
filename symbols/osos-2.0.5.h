@@ -1466,6 +1466,7 @@ extern void *const MenuListModel_vtable[];
 #define RES_Font_BoldSmall 0x0dad0001
 #define RES_Font_RegularSmall 0x0dad0020
 #define RES_Menu_CheckedSelected_Bitmap 0x0dad0c09
+#define RES_Menu_Chevron_Bitmap 0x0dad0125
 #define RES_SettingsList_Template 0x0dad01b2
 #define RES_SettingsList_View 0x0dad01b3
 #define RES_Menu_Reset_Bitmap 0x0dad0125
