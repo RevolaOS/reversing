@@ -863,6 +863,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_AlbumSubtitle_slot 0x0898cbf4
 #define SITE_Albums_CancelAppend_call 0x0821c004
 #define SITE_MediaListController_DispatchAction_entry 0x0820f5a4
+#define SITE_MediaListController_HandleShowContextualMenu_entry 0x082102b0
 #define SITE_MediaList_OnTheGoAdd_call 0x0820f9cc
 #define SITE_ITunesDB_ImportTrackDataset_call 0x08058f1c
 #define SITE_ITunesDB_AlbumArtist_word 0x0808adcc

@@ -80,6 +80,7 @@ BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
 AlbumSubtitle_slot = { at = 0x0898cbf4, kind = "slot" }
 Albums_CancelAppend_call = { at = 0x0821c004, kind = "call" }
 MediaListController_DispatchAction_entry = { at = 0x0820f5a4, kind = "entry" }
+MediaListController_HandleShowContextualMenu_entry = { at = 0x082102b0, kind = "entry" }
 MediaList_OnTheGoAdd_call = { at = 0x0820f9cc, kind = "call" }
 ITunesDB_ImportTrackDataset_call = { at = 0x08058f1c, kind = "call", in = "ITunesDB_ImportLibrary+0x420" }
 ITunesDB_AlbumArtist_word = { at = 0x0808adcc, kind = "word", in = "ITunesDB_ImportTrackDataset+0x944" }
