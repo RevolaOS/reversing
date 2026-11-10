@@ -248,6 +248,7 @@ SourceDestination_RowBitmap = 0xc
 ViewType_Progress = 0x70676f67
 ViewType_Text = 0x74657874
 UITask_stack_bytes = 0x20000
+Transition_Instant = 0x6
 
 [resources]
 Menu_Checked_Bitmap = 0x0dad0c08
@@ -372,6 +373,7 @@ instances = 0x10
 instances_end = 0x14
 events = 0x38
 screen = 0x58
+kind = 0xc
 
 [offsets.LayoutInstance]
 id = 0x8
@@ -474,3 +476,8 @@ top_controller = 0x4
 [offsets.TextView]
 context = 0xa4
 text = 0xf8
+
+[offsets.ScreenLayoutEntry]
+layout = 0x0
+kind = 0x4
+refresh = 0x8

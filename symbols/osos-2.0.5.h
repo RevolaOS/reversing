@@ -1197,6 +1197,7 @@ extern void *const MenuListModel_vtable[];
 #define Layout_instances_end 0x14
 #define Layout_events 0x38
 #define Layout_screen 0x58
+#define Layout_kind 0xc
 #define LayoutInstance_id 0x8
 #define LayoutScreen_id 0x4
 #define ResourceScreenController_screen_definition 0xb0
@@ -1251,6 +1252,9 @@ extern void *const MenuListModel_vtable[];
 #define Navigator_top_controller 0x4
 #define TextView_context 0xa4
 #define TextView_text 0xf8
+#define ScreenLayoutEntry_layout 0x0
+#define ScreenLayoutEntry_kind 0x4
+#define ScreenLayoutEntry_refresh 0x8
 #define USBDevice_controller 0x34
 #define USBDevice_interfaces 0x38
 #define USBDevice_configuration_set 0x5c
@@ -1392,6 +1396,7 @@ extern void *const MenuListModel_vtable[];
 #define ViewType_Progress 0x70676f67
 #define ViewType_Text 0x74657874
 #define UITask_stack_bytes 0x20000
+#define Transition_Instant 0x6
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
