@@ -16,12 +16,16 @@ Audio_InitEffectsChain = { at = 0x0818ced8 }
 Audio_ProcessEffectsAndOutput = { at = 0x0818cbe0 }
 Audio_SetPostEffectsGainQ15 = { at = 0x0818cec0 }
 Audio_SetEQPreset = { at = 0x0818ca70 }
+Audio_FillOutputBuffer = { at = 0x22007840 }
+AudioOutputQueue_Read = { at = 0x22006b84 }
 
 [data]
+AudioOutputQueue = { at = 0x22010398, c = "uint8_t AudioOutputQueue[]" }
 EQ_Presets = { at = 0x089d4b58, c = "const uint8_t EQ_Presets[]" }
 EQ_PresetIds = { at = 0x083e4110, c = "const uint32_t EQ_PresetIds[]" }
 
 [sites]
+AudioOutputQueue_SilenceFill_call = { at = 0x22006e80, kind = "call", in = "AudioOutputQueue_Read+0x2fc" }
 EQ_Process_slot = { at = 0x089ae0e0, kind = "slot" }
 EQ_Reset_slot = { at = 0x089ae0d4, kind = "slot" }
 EQ_SetPreset_Load_call = { at = 0x082735dc, kind = "call", in = "EQ_SetDspPreset+0x18" }
@@ -35,3 +39,7 @@ EQ_SettingsIds_literal = { at = 0x080bb4ac, kind = "literal" }
 EQ_PreviewTable_literal = { at = 0x081e0fa8, kind = "literal" }
 EQ_NameTable_literal = { at = 0x081e0ff0, kind = "literal" }
 EQ_ResourceTable_literal = { at = 0x082955dc, kind = "literal" }
+
+[offsets.AudioOutputQueue]
+underruns_since_reset = 0x28
+underruns = 0x2c

@@ -7,7 +7,9 @@ Runtime_OperatorNew = { at = 0x082a17e0, c = "void *Runtime_OperatorNew(uint32_t
 Mutex_Lock = { at = 0x08258b34, c = "int Mutex_Lock(void *mutex)" }
 Mutex_Unlock = { at = 0x08258b38, c = "int Mutex_Unlock(void *mutex)" }
 Mutex_Init = { at = 0x08258b3c, c = "void *Mutex_Init(void *mutex)" }
-HoldSwitch_GetLogicalState = { at = 0x08048964, c = "int HoldSwitch_GetLogicalState(void)" }
+HoldSwitch_GetLogicalState = { at = 0x0807c010, c = "int HoldSwitch_GetLogicalState(void)" }
+HoldSwitch_ReadHardwareBit = { at = 0x082dc010, c = "int HoldSwitch_ReadHardwareBit(uint32_t *out_raw_bit)" }
+Platform_InitMicrosecondCounter = { at = 0x083619c4, c = "int Platform_InitMicrosecondCounter(void)" }
 SystemUI_HandleHoldChange = { at = 0x08108c14, c = "void SystemUI_HandleHoldChange(void *system, int locked)" }
 Platform_HasRegionalVolumeLimit = { at = 0x0804b17c }
 File_OpenLegacyPath = { at = 0x0804f784, c = "int File_OpenLegacyPath(void *path, uint32_t fork, int mode, void **out_handle)" }
@@ -52,6 +54,7 @@ Abort_entry = { at = 0x0802606c, kind = "entry" }
 RegionalVolumeResult_word = { at = 0x0804b188, kind = "word", in = "Platform_HasRegionalVolumeLimit+0xc" }
 Runtime_ReportUncaughtException_entry = { at = 0x0825de34, kind = "entry" }
 IRQ_Dispatch_entry = { at = 0x22008150, kind = "entry" }
+HoldSwitch_GetLogicalState_entry = { at = 0x0807c010, kind = "entry" }
 
 [offsets.Preferences]
 object = 0x378
@@ -83,6 +86,8 @@ bytes = 0x40
 
 [constants]
 ClockRegister_Microseconds = 0x3c7000b4
+ClockRegister_PowerGate0 = 0x3c500048
+PowerGate0_ATA = 0x20
 WarmBootTag_address = 0x2203ff00
 WarmBootMode_None = 0
 WarmBootMode_DiskMode = 1

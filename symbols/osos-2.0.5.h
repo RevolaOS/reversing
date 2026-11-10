@@ -195,6 +195,8 @@ int Mutex_Lock(void *mutex);
 int Mutex_Unlock(void *mutex);
 void *Mutex_Init(void *mutex);
 int HoldSwitch_GetLogicalState(void);
+int HoldSwitch_ReadHardwareBit(uint32_t *out_raw_bit);
+int Platform_InitMicrosecondCounter(void);
 void SystemUI_HandleHoldChange(void *system, int locked);
 int File_OpenLegacyPath(void *path, uint32_t fork, int mode, void **out_handle);
 int File_ReadLegacyHandle(void *handle, void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_read);
@@ -355,6 +357,7 @@ void USB_StartControlTransfer(void *usb, uint32_t endpoint, void *buffer, uint32
 int USB_IsAccessoryMode(void);
 void SCSI_AcquireMedium(void *out_result, void *context, int set_sense);
 
+extern uint8_t AudioOutputQueue[];
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
 extern const uint8_t DisplayLayerOrders[];
@@ -411,6 +414,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Audio_ProcessEffectsAndOutput 0x0818cbe0
 #define ADDR_Audio_SetPostEffectsGainQ15 0x0818cec0
 #define ADDR_Audio_SetEQPreset 0x0818ca70
+#define ADDR_Audio_FillOutputBuffer 0x22007840
+#define ADDR_AudioOutputQueue_Read 0x22006b84
 #define ADDR_GameManifest_InitReader 0x0825e510
 #define ADDR_GameLoader_LoadVerifiedManifest 0x080f9374
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
@@ -601,7 +606,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Mutex_Lock 0x08258b34
 #define ADDR_Mutex_Unlock 0x08258b38
 #define ADDR_Mutex_Init 0x08258b3c
-#define ADDR_HoldSwitch_GetLogicalState 0x08048964
+#define ADDR_HoldSwitch_GetLogicalState 0x0807c010
+#define ADDR_HoldSwitch_ReadHardwareBit 0x082dc010
+#define ADDR_Platform_InitMicrosecondCounter 0x083619c4
 #define ADDR_SystemUI_HandleHoldChange 0x08108c14
 #define ADDR_Platform_HasRegionalVolumeLimit 0x0804b17c
 #define ADDR_File_OpenLegacyPath 0x0804f784
@@ -815,6 +822,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_USBDeviceTask_Run 0x0813e598
 #define ADDR_USB_IsAccessoryMode 0x0813e560
 #define ADDR_SCSI_AcquireMedium 0x080ed98c
+#define ADDR_AudioOutputQueue 0x22010398
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_DisplayLayerOrders 0x083f35ec
@@ -854,6 +862,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_ArtworkDatabase_FindById_PhotoAlbum_call 0x08074d44
 #define SITE_ArtworkDatabase_FindByDbid_0804581c_call 0x0804581c
 #define SITE_ArtworkDatabase_FindByDbid_08046494_call 0x08046494
+#define SITE_AudioOutputQueue_SilenceFill_call 0x22006e80
 #define SITE_EQ_Process_slot 0x089ae0e0
 #define SITE_EQ_Reset_slot 0x089ae0d4
 #define SITE_EQ_SetPreset_Load_call 0x082735dc
@@ -920,6 +929,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_RegionalVolumeResult_word 0x0804b188
 #define SITE_Runtime_ReportUncaughtException_entry 0x0825de34
 #define SITE_IRQ_Dispatch_entry 0x22008150
+#define SITE_HoldSwitch_GetLogicalState_entry 0x0807c010
 #define SITE_Settings_Action_slot 0x089a3bf4
 #define SITE_Settings_SecondaryAction_slot 0x089a7c3c
 #define SITE_SettingsMainMenu_Action_slot 0x089a00f4
@@ -1059,6 +1069,8 @@ extern void *const MenuListModel_vtable[];
 #define ArtworkThumb_size 0x1c
 #define ArtworkThumb_file 0x20
 #define ArtworkThumb_bytes 0x24
+#define AudioOutputQueue_underruns_since_reset 0x28
+#define AudioOutputQueue_underruns 0x2c
 #define DisplayPipe_control 0x8
 #define DisplayPipe_slot0 0x58
 #define DisplayPipe_slot_step 0x18
@@ -1417,6 +1429,7 @@ extern void *const MenuListModel_vtable[];
 #define BOOT_SYSINFO_MAGIC 0x53797349
 #define MMIO_BASE 0x38000000
 #define MMU_TRANSLATION_TABLE 0x2200c000
+#define MMU_UNMAPPED_ADDRESS 0x10000000
 #define IRAM_END 0x22040000
 #define IRQ_STACK_TOP 0x8b3b1b0
 #define GraphicsDrawMode_Text 0x21
@@ -1474,6 +1487,8 @@ extern void *const MenuListModel_vtable[];
 #define ResourceBankKind_Heap 0x1
 #define ResourceBankKind_Rom 0x2
 #define ClockRegister_Microseconds 0x3c7000b4
+#define ClockRegister_PowerGate0 0x3c500048
+#define PowerGate0_ATA 0x20
 #define WarmBootTag_address 0x2203ff00
 #define WarmBootMode_None 0x0
 #define WarmBootMode_DiskMode 0x1

@@ -16,7 +16,7 @@ OSOS builds a 16 KiB first-level table at `MMU_TRANSLATION_TABLE` during startup
 | DRAM `\| DRAM_UNCACHED_ALIAS` | DRAM | uncached |
 | `MMIO_BASE`, 128 MiB | same | uncached |
 
-Every section has access permission 3 (read/write in all modes), so Apple code in cached DRAM can be patched in place. DRAM size and base come from SysInfo (see [startup.md](startup.md)).
+Every other first-level entry is 0, a translation fault, so a load from `MMU_UNMAPPED_ADDRESS` raises a data abort (entry read in the emulator after boot; the abort itself has not been triggered). Every section has access permission 3 (read/write in all modes), so Apple code in cached DRAM can be patched in place. DRAM size and base come from SysInfo (see [startup.md](startup.md)).
 
 ## OSOS image in DRAM
 
