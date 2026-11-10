@@ -224,6 +224,7 @@ Runtime_ReportUncaughtException = 0x0825de34;
 DirectoryIterator_Init = 0x081e57dc;
 DirectoryIterator_Next = 0x081e54e8;
 DirectoryIterator_Destroy = 0x081e5928;
+Directory_CreateWithParents = 0x08090840;
 NativePath_InitEmpty = 0x0826fcc4;
 NativePath_Destroy = 0x0826fcf4;
 Thread_Create = 0x0804b4f4;

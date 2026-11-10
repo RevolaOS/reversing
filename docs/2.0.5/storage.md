@@ -9,8 +9,11 @@
 | `File_WriteLegacyHandle` | write from a buffer, reports bytes written |
 | `File_CloseLegacyHandle` | close |
 | `File_DeleteLegacyPath` | delete a file or an empty directory |
+| `Directory_CreateWithParents` | create a directory and any missing parents; returns 0, also when it already exists |
 
 There is no rename in this API. `File_OpenLegacyPath` accepts `Dir\name`, `\Dir\name` and `/Dir/name` on the data volume. A missing file returns -43.
+
+`Directory_CreateWithParents` takes `Dir/sub` or `/Dir/sub` (`/` only) and volume 0 for the data volume. It locks the volume and creates each path prefix in turn; Apple calls it before writing `iPod_Control/Device/radio`.
 
 ## When files can be read
 

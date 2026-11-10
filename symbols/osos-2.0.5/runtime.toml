@@ -30,6 +30,7 @@ Runtime_ReportUncaughtException = { at = 0x0825de34, c = "void Runtime_ReportUnc
 DirectoryIterator_Init = { at = 0x081e57dc, c = "struct DirectoryIterator *DirectoryIterator_Init(struct DirectoryIterator *iterator, const char *path, uint8_t recursive, uint32_t volume)" }
 DirectoryIterator_Next = { at = 0x081e54e8, c = "int DirectoryIterator_Next(struct DirectoryIterator *iterator, struct NativePath *path, uint8_t *is_directory)" }
 DirectoryIterator_Destroy = { at = 0x081e5928, c = "void DirectoryIterator_Destroy(struct DirectoryIterator *iterator)" }
+Directory_CreateWithParents = { at = 0x08090840, c = "int Directory_CreateWithParents(const char *path, uint32_t volume)" }
 NativePath_InitEmpty = { at = 0x0826fcc4, c = "struct NativePath *NativePath_InitEmpty(struct NativePath *path)" }
 NativePath_Destroy = { at = 0x0826fcf4, c = "struct NativePath *NativePath_Destroy(struct NativePath *path)" }
 Thread_Create = { at = 0x0804b4f4 }

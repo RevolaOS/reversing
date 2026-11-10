@@ -201,6 +201,7 @@ void Runtime_ReportUncaughtException(int kind, const char *what);
 struct DirectoryIterator *DirectoryIterator_Init(struct DirectoryIterator *iterator, const char *path, uint8_t recursive, uint32_t volume);
 int DirectoryIterator_Next(struct DirectoryIterator *iterator, struct NativePath *path, uint8_t *is_directory);
 void DirectoryIterator_Destroy(struct DirectoryIterator *iterator);
+int Directory_CreateWithParents(const char *path, uint32_t volume);
 struct NativePath *NativePath_InitEmpty(struct NativePath *path);
 struct NativePath *NativePath_Destroy(struct NativePath *path);
 void *Thread_GetCurrentRecord(void);
@@ -591,6 +592,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_DirectoryIterator_Init 0x081e57dc
 #define ADDR_DirectoryIterator_Next 0x081e54e8
 #define ADDR_DirectoryIterator_Destroy 0x081e5928
+#define ADDR_Directory_CreateWithParents 0x08090840
 #define ADDR_NativePath_InitEmpty 0x0826fcc4
 #define ADDR_NativePath_Destroy 0x0826fcf4
 #define ADDR_Thread_Create 0x0804b4f4
