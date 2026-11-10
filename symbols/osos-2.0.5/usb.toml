@@ -9,12 +9,14 @@ USB_HandleAppleVendorCommand = { at = 0x0828a054, c = "int USB_HandleAppleVendor
 USB_GetControlWriteBuffer = { at = 0x0828a8f8, c = "void *USB_GetControlWriteBuffer(void *usb, uint32_t length)" }
 USB_StartControlTransfer = { at = 0x0828a3b4, c = "void USB_StartControlTransfer(void *usb, uint32_t endpoint, void *buffer, uint32_t length)" }
 USB_RunDeviceLoop = { at = 0x0828afd8 }
+USB_ContinueControlWrite = { at = 0x0828acd4 }
 USB_SelectConfigurationOrder = { at = 0x0828b668 }
 USBDeviceTask_Run = { at = 0x0813e598 }
 USB_IsAccessoryMode = { at = 0x0813e560, c = "int USB_IsAccessoryMode(void)" }
 SCSI_AcquireMedium = { at = 0x080ed98c, c = "void SCSI_AcquireMedium(void *out_result, void *context, int set_sense)" }
 
 [sites]
+USB_ContinueControlWrite_call = { at = 0x0828b1e0, kind = "call", in = "USB_RunDeviceLoop+0x208" }
 USB_HandleVendorDeviceRead_call = { at = 0x0828a820, kind = "call", in = "USB_DispatchControlRead+0x4c" }
 USB_DispatchNoDataRequest_call = { at = 0x0828a458, kind = "call", in = "USB_HandleSetupPacket+0x54" }
 USB_GetControlWriteBuffer_call = { at = 0x0828a434, kind = "call", in = "USB_HandleSetupPacket+0x30" }

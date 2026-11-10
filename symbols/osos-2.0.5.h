@@ -207,6 +207,8 @@ struct NativePath *NativePath_Destroy(struct NativePath *path);
 void *Thread_GetCurrentRecord(void);
 void *IRQ_Dispatch(uint32_t *frame);
 uint32_t Clock_GetMicroseconds(void);
+char *SetWarmBootModeTag(uint32_t mode);
+void ResetSocAndWait(void);
 void Timer_Stop(void *timer);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
 int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
@@ -427,6 +429,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Wheel_RunTask 0x0805f738
 #define ADDR_Wheel_DispatchButtonChanges 0x0807443c
 #define ADDR_Input_HandleButton 0x08056900
+#define ADDR_HoldSwitch_NotifyRawChange 0x080c75f8
 #define ADDR_Event_Signal 0x0802cfa8
 #define ADDR_IRQ_RestoreState 0x083924d8
 #define ADDR_IRQ_DisableSave 0x083924e0
@@ -548,6 +551,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_App_PollMusicLoading 0x0810a514
 #define ADDR_MusicLoadingTask_Create 0x081aec48
 #define ADDR_MusicLoadingTask_Run 0x081aec04
+#define ADDR_System_CheckVolumeOrRestart 0x081dc1d0
 #define ADDR_ResourceBank_InitOverrides 0x08111f00
 #define ADDR_ResourceBank_SetResource 0x08111e20
 #define ADDR_ResourceBank_GetResource 0x08111d74
@@ -605,6 +609,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_IRQ_Entry 0x22003080
 #define ADDR_IRQ_Dispatch 0x22008150
 #define ADDR_Clock_GetMicroseconds 0x0804b7ac
+#define ADDR_SetWarmBootModeTag 0x082b3a44
+#define ADDR_ResetSocAndWait 0x0835e934
 #define ADDR_Timer_Stop 0x081219d0
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
@@ -775,6 +781,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_USB_GetControlWriteBuffer 0x0828a8f8
 #define ADDR_USB_StartControlTransfer 0x0828a3b4
 #define ADDR_USB_RunDeviceLoop 0x0828afd8
+#define ADDR_USB_ContinueControlWrite 0x0828acd4
 #define ADDR_USB_SelectConfigurationOrder 0x0828b668
 #define ADDR_USBDeviceTask_Run 0x0813e598
 #define ADDR_USB_IsAccessoryMode 0x0813e560
@@ -834,6 +841,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_GameManifest_InitReader_call 0x080f9418
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
+#define SITE_HoldSwitch_NotifyRawChange_call 0x08055b44
 #define SITE_AlbumSubtitle_slot 0x0898cbf4
 #define SITE_Albums_CancelAppend_call 0x0821c004
 #define SITE_MediaListController_DispatchAction_entry 0x0820f5a4
@@ -975,6 +983,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_TextView_DrawColor_call 0x082872a8
 #define SITE_View_BackgroundFill_call 0x082636b4
 #define SITE_MarqueeTextView_DrawColor_call 0x081a8f0c
+#define SITE_UI_DisplayPreparedLayout_call 0x08175208
 #define SITE_CoverFlow_ClearColor_call 0x08138304
 #define SITE_AlbumArt_ClearColor_call 0x08164230
 #define SITE_SongList_CancelAppend_call 0x082195ec
@@ -992,6 +1001,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_TextView_DrawTextWithColor_call 0x08288514
 #define SITE_TextView_DrawTextLayout_call 0x082884a8
 #define SITE_TextView_DrawString_entry 0x082883f8
+#define SITE_USB_ContinueControlWrite_call 0x0828b1e0
 #define SITE_USB_HandleVendorDeviceRead_call 0x0828a820
 #define SITE_USB_DispatchNoDataRequest_call 0x0828a458
 #define SITE_USB_GetControlWriteBuffer_call 0x0828a434
@@ -1372,6 +1382,7 @@ extern void *const MenuListModel_vtable[];
 #define AlbumArtist_order_mode 0x2d
 #define HardwareSource_DiskModeRequest 0x8
 #define HardwareSource_DiskGranted 0x9
+#define HardwareSource_HoldChanged 0x6
 #define AppMessage_DiskModeRequest 0x63800003
 #define AppMessage_DiskGranted 0x63800004
 #define ScsiDiskClientState_Refused 0x0
@@ -1397,6 +1408,13 @@ extern void *const MenuListModel_vtable[];
 #define Resource_VSlt 0x56536c74
 #define ResourceBankKind_Heap 0x1
 #define ResourceBankKind_Rom 0x2
+#define ClockRegister_Microseconds 0x3c7000b4
+#define WarmBootTag_address 0x2203ff00
+#define WarmBootMode_None 0x0
+#define WarmBootMode_DiskMode 0x1
+#define WarmBootMode_DiskScan 0x2
+#define WarmBootMode_SoftwareUpdate 0x3
+#define WarmBootMode_RetailOS 0x4
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
 #define StringInputStream_ResourceMode 0xc
@@ -1577,6 +1595,7 @@ extern void *const MenuListModel_vtable[];
 #define RES_MainMenu_Items 0x0000001a
 #define RES_MusicMenu_Items 0x0000001b
 #define RES_MainMenus_Main_Screen 0x0dad076e
+#define RES_MainMenus_Main_Layout 0x0dad0798
 #define RES_MainMenus_Music_Screen 0x0dad07c8
 #define RES_ExtrasMenu_Screen 0x0dad01cc
 #define RES_ExtrasMenu_Layout 0x0dad01d6

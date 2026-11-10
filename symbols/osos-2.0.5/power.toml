@@ -31,6 +31,7 @@ App_StartMusicLoading = { at = 0x0810b974, c = "void App_StartMusicLoading(void 
 App_PollMusicLoading = { at = 0x0810a514, c = "void App_PollMusicLoading(void *app)" }
 MusicLoadingTask_Create = { at = 0x081aec48, c = "void *MusicLoadingTask_Create(void *memory)" }
 MusicLoadingTask_Run = { at = 0x081aec04, c = "int MusicLoadingTask_Run(void *task)" }
+System_CheckVolumeOrRestart = { at = 0x081dc1d0 }
 
 [sites]
 Sleep_Idle_call = { at = 0x0819b32c, kind = "call", in = "PowerController_HandleIdleSleep+0xa0" }
@@ -68,6 +69,7 @@ state = 0xd
 [constants]
 HardwareSource_DiskModeRequest = 0x8
 HardwareSource_DiskGranted = 0x9
+HardwareSource_HoldChanged = 0x6
 AppMessage_DiskModeRequest = 0x63800003
 AppMessage_DiskGranted = 0x63800004
 ScsiDiskClientState_Refused = 0x0

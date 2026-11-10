@@ -153,6 +153,7 @@ Main_SecondaryAction_slot = { at = 0x089a8fa4, kind = "slot" }
 TextView_DrawColor_call = { at = 0x082872a8, kind = "call", in = "TextView_DrawTextWithColor+0x90" }
 View_BackgroundFill_call = { at = 0x082636b4, kind = "call", in = "View_DrawBackgroundAndBorder+0x184" }
 MarqueeTextView_DrawColor_call = { at = 0x081a8f0c, kind = "call", in = "MarqueeTextView_Draw+0x144" }
+UI_DisplayPreparedLayout_call = { at = 0x08175208, kind = "call", in = "UI_TransitionToLayout+0x7c" }
 CoverFlow_ClearColor_call = { at = 0x08138304, kind = "call", in = "CoverFlowView_UpdateActiveState+0x178" }
 AlbumArt_ClearColor_call = { at = 0x08164230, kind = "call", in = "GLAlbumArtView_UpdateActiveState+0x78" }
 SongList_CancelAppend_call = { at = 0x082195ec, kind = "call", in = "SongList_BuildAndShowContextualMenu+0x174" }
@@ -327,6 +328,7 @@ Stopwatch_Menu_Screen = 0x0dad0d49
 MainMenu_Items = 0x0000001a
 MusicMenu_Items = 0x0000001b
 MainMenus_Main_Screen = 0x0dad076e
+MainMenus_Main_Layout = 0x0dad0798
 MainMenus_Music_Screen = 0x0dad07c8
 ExtrasMenu_Screen = 0x0dad01cc
 ExtrasMenu_Layout = 0x0dad01d6

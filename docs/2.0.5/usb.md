@@ -10,7 +10,7 @@
 - Host-to-device requests with data ask `USB_GetControlWriteBuffer` for a buffer (site `USB_GetControlWriteBuffer_call`). It accepts only class requests 0x21 and 0x22.
 - Requests without data go to `USB_DispatchNoDataRequest` (site `USB_DispatchNoDataRequest_call`). Vendor request 0x40 there is `USB_HandleAppleVendorCommand`, which sets the charging current and re-enumerates.
 
-A request nobody accepts stalls. `USB_StartControlTransfer` starts the data stage on an endpoint. `USB_IsAccessoryMode` reports whether the device runs as an accessory rather than mass storage.
+A request nobody accepts stalls. `USB_StartControlTransfer` starts the data stage on an endpoint. For a write with data, `USB_RunDeviceLoop` passes each completed EP0 OUT packet to `USB_ContinueControlWrite` (site `USB_ContinueControlWrite_call`). That function starts the next packet into the buffer from `USB_GetControlWriteBuffer`, and after the last packet calls the class interface's handler through its vtable. Only class requests 0x21 and 0x22 get a buffer, so a vendor write stalls unless both sites are hooked. Apple's path puts no limit on `USBDevice_length` beyond the buffer the handler returns. `USB_IsAccessoryMode` reports whether the device runs as an accessory rather than mass storage.
 
 ## Disk mode
 

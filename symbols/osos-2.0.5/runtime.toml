@@ -38,6 +38,8 @@ Thread_GetCurrentRecord = { at = 0x0804b744, c = "void *Thread_GetCurrentRecord(
 IRQ_Entry = { at = 0x22003080 }
 IRQ_Dispatch = { at = 0x22008150, c = "void *IRQ_Dispatch(uint32_t *frame)" }
 Clock_GetMicroseconds = { at = 0x0804b7ac, c = "uint32_t Clock_GetMicroseconds(void)" }
+SetWarmBootModeTag = { at = 0x082b3a44, c = "char *SetWarmBootModeTag(uint32_t mode)" }
+ResetSocAndWait = { at = 0x0835e934, c = "void ResetSocAndWait(void)" }
 Timer_Stop = { at = 0x081219d0, c = "void Timer_Stop(void *timer)" }
 
 [sites]
@@ -77,3 +79,12 @@ r0 = 0x4
 lr = 0x38
 pc = 0x3c
 bytes = 0x40
+
+[constants]
+ClockRegister_Microseconds = 0x3c7000b4
+WarmBootTag_address = 0x2203ff00
+WarmBootMode_None = 0
+WarmBootMode_DiskMode = 1
+WarmBootMode_DiskScan = 2
+WarmBootMode_SoftwareUpdate = 3
+WarmBootMode_RetailOS = 4

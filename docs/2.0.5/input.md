@@ -14,6 +14,10 @@
 
 Reading `WheelState_buttons` from any task tells which buttons are held without touching the controller. A button held from power-on is visible there by the time `Preferences_LoadFile_call` runs (seen in the emulator).
 
+## Hold switch
+
+The hold switch is not polled. When its GPIO changes, the GPIO handler reads the raw bit and calls `HoldSwitch_NotifyRawChange` (site `HoldSwitch_NotifyRawChange_call`), which posts `HardwareSource_HoldChanged`. `HardwareEvent_Dispatch` then reads `HoldSwitch_GetLogicalState` and, if it differs from its cached state, emits the change that reaches `SystemUI_HandleHoldChange` on the UI task. That handler updates the lock state and releases held keys. `Input_HandleButton` and `PowerController_HandleIdleSleep` read `HoldSwitch_GetLogicalState` directly for each button press or idle check, so key gating does not depend on the event. In the emulator no reads happened during 20 seconds idle. An injected hold state therefore has to replace `HoldSwitch_GetLogicalState` and then post `HardwareSource_HoldChanged`; this has not been tried.
+
 ## Wheel touch and injection
 
 `WheelState` also holds the touch state: `WheelState_touch` is the finger position (0 to `WheelPositions` - 1) OR `WheelTouch_Down`, and 0 when the finger is lifted. `WheelState_threshold`, `WheelState_motion`, `WheelState_position`, `WheelState_touch_down_position`, `WheelState_touch_count` and `WheelState_previous_touch` are the accumulator's working fields. `InputWheel_AccumulateMotion` counts a move when the threshold ≤ |delta| < 36, and 12 positions move a list by one row.
