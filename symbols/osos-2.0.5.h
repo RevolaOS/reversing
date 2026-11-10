@@ -1475,6 +1475,11 @@ extern void *const MenuListModel_vtable[];
 #define RES_Menu_Chevron_Bitmap 0x0dad0125
 #define RES_About_Capacity_Template 0x0dad0b4e
 #define RES_Capacity_View 0x0dad0b4f
+#define RES_Capacity_Free_Segment 0x0dad0aef
+#define RES_Capacity_Audio_Segment 0x0dad0af2
+#define RES_Capacity_Video_Segment 0x0dad0af5
+#define RES_Capacity_Photos_Segment 0x0dad0af8
+#define RES_Capacity_Other_Segment 0x0dad0afb
 #define RES_SettingsPreview_Capacity_Template 0x0dad07c6
 #define RES_SettingsList_Template 0x0dad01b2
 #define RES_SettingsList_View 0x0dad01b3
