@@ -1291,6 +1291,7 @@ extern void *const MenuListModel_vtable[];
 #define MenuList_item_blocks 0x18
 #define LayoutManager_screen 0x20
 #define LayoutManager_layout 0x28
+#define LayoutManager_kind 0x2c
 #define LayoutManager_saved_transition 0x80
 #define TemplateView_enter_styles 0xfc
 #define TemplateView_leave_styles 0x107

@@ -502,6 +502,7 @@ item_blocks = 0x18
 [offsets.LayoutManager]
 screen = 0x20
 layout = 0x28
+kind = 0x2c
 saved_transition = 0x80
 
 [offsets.TemplateView]
