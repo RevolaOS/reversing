@@ -39,6 +39,7 @@ Preferences_FlushIfDirty_call = { at = 0x0806392c, kind = "call", in = "System_S
 DiskClient_Yield_slot = { at = 0x08996ba0, kind = "slot" }
 App_HandleUsbConnected_call = { at = 0x0810ad54, kind = "call", in = "SystemUI_DispatchSystemEvent+0x84" }
 MusicLoadingTask_Run_slot = { at = 0x0899417c, kind = "slot" }
+DiskModeExit_PopToMainScreen_call = { at = 0x0810b65c, kind = "call", in = "App_ExitDiskMode+0x7c" }
 
 [data]
 StorageArbiter = { at = 0x08a7e8f8, c = "uint8_t StorageArbiter[]" }

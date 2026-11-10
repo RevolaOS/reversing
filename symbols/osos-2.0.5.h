@@ -847,6 +847,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_DiskClient_Yield_slot 0x08996ba0
 #define SITE_App_HandleUsbConnected_call 0x0810ad54
 #define SITE_MusicLoadingTask_Run_slot 0x0899417c
+#define SITE_DiskModeExit_PopToMainScreen_call 0x0810b65c
 #define SITE_ResourceBlockList_AppendBorrowedBlock_call 0x0817a88c
 #define SITE_ResourceBank_InitOverrides_call 0x081c7ea8
 #define SITE_ResourceBank_NextTemplate_call 0x081af75c
