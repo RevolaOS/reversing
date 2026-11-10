@@ -104,6 +104,9 @@ TextView_DrawTextLayout = { at = 0x082872f8 }
 MenuList_RestoreState = { at = 0x0827d77c }
 MenuList_SelectRow = { at = 0x0827d1b4 }
 UI_ResolveTemplateView = { at = 0x0817481c, c = "void *UI_ResolveTemplateView(void *manager, uint32_t template_id, uint8_t *out_from_root)" }
+CapacityView_CreateFromDescriptor = { at = 0x081d587c }
+CapacityView_LoadSegments = { at = 0x081370f4 }
+CapacityView_Draw = { at = 0x08137738 }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
@@ -248,6 +251,7 @@ SourceDestination_InlineValue = 0xa
 SourceDestination_RowBitmap = 0xc
 ViewType_Progress = 0x70676f67
 ViewType_Text = 0x74657874
+ViewType_Capacity = 0x63706374
 UITask_stack_bytes = 0x20000
 Transition_Instant = 0x6
 
@@ -258,6 +262,9 @@ Font_BoldSmall = 0x0dad0001
 Font_RegularSmall = 0x0dad0020
 Menu_CheckedSelected_Bitmap = 0x0dad0c09
 Menu_Chevron_Bitmap = 0x0dad0125
+About_Capacity_Template = 0x0dad0b4e
+Capacity_View = 0x0dad0b4f
+SettingsPreview_Capacity_Template = 0x0dad07c6
 SettingsList_Template = 0x0dad01b2
 SettingsList_View = 0x0dad01b3
 Menu_Reset_Bitmap = 0x0dad0125

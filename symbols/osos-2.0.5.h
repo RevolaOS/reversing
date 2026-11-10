@@ -728,6 +728,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MenuList_RestoreState 0x0827d77c
 #define ADDR_MenuList_SelectRow 0x0827d1b4
 #define ADDR_UI_ResolveTemplateView 0x0817481c
+#define ADDR_CapacityView_CreateFromDescriptor 0x081d587c
+#define ADDR_CapacityView_LoadSegments 0x081370f4
+#define ADDR_CapacityView_Draw 0x08137738
 #define ADDR_USB_HandleSetupPacket 0x0828a404
 #define ADDR_USB_DispatchControlRead 0x0828a7d4
 #define ADDR_USB_HandleVendorDeviceRead 0x0828a27c
@@ -1398,6 +1401,7 @@ extern void *const MenuListModel_vtable[];
 #define SourceDestination_RowBitmap 0xc
 #define ViewType_Progress 0x70676f67
 #define ViewType_Text 0x74657874
+#define ViewType_Capacity 0x63706374
 #define UITask_stack_bytes 0x20000
 #define Transition_Instant 0x6
 
@@ -1469,6 +1473,9 @@ extern void *const MenuListModel_vtable[];
 #define RES_Font_RegularSmall 0x0dad0020
 #define RES_Menu_CheckedSelected_Bitmap 0x0dad0c09
 #define RES_Menu_Chevron_Bitmap 0x0dad0125
+#define RES_About_Capacity_Template 0x0dad0b4e
+#define RES_Capacity_View 0x0dad0b4f
+#define RES_SettingsPreview_Capacity_Template 0x0dad07c6
 #define RES_SettingsList_Template 0x0dad01b2
 #define RES_SettingsList_View 0x0dad01b3
 #define RES_Menu_Reset_Bitmap 0x0dad0125
