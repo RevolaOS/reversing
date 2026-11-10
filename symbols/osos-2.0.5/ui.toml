@@ -112,6 +112,7 @@ UI_DisplayPreparedLayout = { at = 0x08174464, c = "void UI_DisplayPreparedLayout
 UI_ApplyInstanceResources = { at = 0x081781c0 }
 View_ApplyPropertyBindings = { at = 0x08175b7c }
 Navigator_Get = { at = 0x08104d00, c = "void *Navigator_Get(void)" }
+Navigator_Push = { at = 0x0810514c, c = "void Navigator_Push(void *navigator, void *controller, uint32_t flags)" }
 UI_GetRootOwner = { at = 0x0813e204, c = "void *UI_GetRootOwner(void)" }
 TextView_DrawString = { at = 0x082883f8, c = "void TextView_DrawString(void *view, const char *text, void *argument)" }
 TextView_DrawTextLayout = { at = 0x082872f8 }
@@ -177,6 +178,8 @@ notify_method = 0x58
 
 [offsets.ScreenController]
 push_method = 0xd0
+below = 0x14
+selection_model = 0x44
 pop_method = 0xbc
 switch_layout_method = 0x120
 emit_event_method = 0x11c
@@ -543,6 +546,17 @@ bytes = 0xc
 
 [offsets.MediaListController]
 show_context_menu_method = 0x148
+map_visible_row_method = 0x130
+model = 0xb4
+
+[offsets.SongListController]
+context_row = 0xd4
+
+[offsets.GeniusController]
+context_row = 0xd4
+
+[offsets.NestedPlaylistsController]
+context_row = 0xe8
 
 [offsets.Navigator]
 top_controller = 0x4

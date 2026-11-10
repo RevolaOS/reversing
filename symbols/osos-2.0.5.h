@@ -60,8 +60,11 @@ uint32_t IRQ_DisableSave(void);
 void *MediaPlayer_GetInstance(void);
 int MediaPlayer_ClearPreparedTrack(void *player);
 int MediaPlayer_RebuildArtwork(void *player);
+int MediaPlayer_GetCurrentItem(void *player, struct MediaItem *item);
+int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *item);
 int MediaItem_IsValid(struct MediaItem *item);
 struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags);
+void MediaItem_Destroy(struct MediaItem *item);
 uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item);
 uint32_t MediaItem_HasKind8(struct MediaItem *item);
 uint32_t MediaItem_HasKind8062(struct MediaItem *item);
@@ -76,6 +79,9 @@ int MediaList_BuildOrderIndex(struct MediaList *list, uint32_t order);
 void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse);
 int MediaListController_AddSelectionToOnTheGo(void *controller);
 int MediaListController_DispatchAction(void *controller, const char *action, uint32_t argument);
+void MediaListController_HandleShowContextualMenu(void *controller);
+int MediaListController_MapVisibleRow(void *controller, int row);
+int NestedPlaylists_MapVisibleRow(void *controller, int row);
 int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save);
 uint32_t MediaListSelection_SelectArtworkSource(void *selection, uint32_t category);
 void ArtworkSession_Stop(void *session);
@@ -112,6 +118,7 @@ void *LibraryBrowser_InitBorrowed(void *model, uint8_t item_flags, void *browser
 void *LibraryBrowser_Destroy(void *model);
 void LibraryBrowser_CopyAlbumArtistSubtitle(void *model, int index, struct NativeString *out);
 void *LibraryModelRef_Init(void *reference, void *model, int synchronized);
+void *LibraryModelRef_InitCopy(void *reference, const void *source);
 void *LibraryModelRef_Assign(void *destination, void *source);
 void LibraryModelRef_Release(void *reference);
 void *LibraryModelRef_Get(void *reference);
@@ -185,6 +192,7 @@ void Heap_Free(void *allocation);
 void *Runtime_OperatorNew(uint32_t byte_count);
 int Mutex_Lock(void *mutex);
 int Mutex_Unlock(void *mutex);
+void *Mutex_Init(void *mutex);
 int HoldSwitch_GetLogicalState(void);
 void SystemUI_HandleHoldChange(void *system, int locked);
 int File_OpenLegacyPath(void *path, uint32_t fork, int mode, void **out_handle);
@@ -327,6 +335,7 @@ void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
 void UI_DisplayPreparedLayout(void *manager, void *layout);
 void *Navigator_Get(void);
+void Navigator_Push(void *navigator, void *controller, uint32_t flags);
 void *UI_GetRootOwner(void);
 void TextView_DrawString(void *view, const char *text, void *argument);
 void *UI_ResolveTemplateView(void *manager, uint32_t template_id, uint8_t *out_from_root);
@@ -437,8 +446,11 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaPlayer_GetInstance 0x08172824
 #define ADDR_MediaPlayer_ClearPreparedTrack 0x0817190c
 #define ADDR_MediaPlayer_RebuildArtwork 0x08170238
+#define ADDR_MediaPlayer_GetCurrentItem 0x0816f790
+#define ADDR_MediaPlayer_GetItemAtIndex 0x0816ec38
 #define ADDR_MediaItem_IsValid 0x0829a7dc
 #define ADDR_MediaItem_InitFromRecord 0x08266d20
+#define ADDR_MediaItem_Destroy 0x08266da0
 #define ADDR_MediaItem_HasRecordFlag8F01 0x0829af84
 #define ADDR_MediaItem_HasKind8 0x0829a9d4
 #define ADDR_MediaItem_HasKind8062 0x0829aad8
@@ -453,6 +465,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaList_ResolveOrderMode 0x080a9ab0
 #define ADDR_MediaListController_AddSelectionToOnTheGo 0x0820f8d4
 #define ADDR_MediaListController_DispatchAction 0x0820f5a4
+#define ADDR_MediaListController_HandleShowContextualMenu 0x082102b0
+#define ADDR_MediaListController_MapVisibleRow 0x082573a8
+#define ADDR_NestedPlaylists_MapVisibleRow 0x0822fa4c
 #define ADDR_OnTheGo_AddBrowserSelection 0x081095f8
 #define ADDR_MediaListSelection_SelectArtworkSource 0x08169c98
 #define ADDR_MediaListSelection_SetList 0x08169db4
@@ -493,6 +508,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_LibraryBrowser_Destroy 0x08133c30
 #define ADDR_LibraryBrowser_CopyAlbumArtistSubtitle 0x08133168
 #define ADDR_LibraryModelRef_Init 0x0839576c
+#define ADDR_LibraryModelRef_InitCopy 0x083957d4
 #define ADDR_LibraryModelRef_Assign 0x08395818
 #define ADDR_LibraryModelRef_Release 0x083937cc
 #define ADDR_LibraryModelRef_Get 0x083ccd1c
@@ -577,6 +593,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Runtime_OperatorNew 0x082a17e0
 #define ADDR_Mutex_Lock 0x08258b34
 #define ADDR_Mutex_Unlock 0x08258b38
+#define ADDR_Mutex_Init 0x08258b3c
 #define ADDR_HoldSwitch_GetLogicalState 0x08048964
 #define ADDR_SystemUI_HandleHoldChange 0x08108c14
 #define ADDR_Platform_HasRegionalVolumeLimit 0x0804b17c
@@ -764,6 +781,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_UI_ApplyInstanceResources 0x081781c0
 #define ADDR_View_ApplyPropertyBindings 0x08175b7c
 #define ADDR_Navigator_Get 0x08104d00
+#define ADDR_Navigator_Push 0x0810514c
 #define ADDR_UI_GetRootOwner 0x0813e204
 #define ADDR_TextView_DrawString 0x082883f8
 #define ADDR_TextView_DrawTextLayout 0x082872f8
@@ -876,6 +894,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_Preferences_FlushIfDirty_call 0x0806392c
 #define SITE_DiskClient_Yield_slot 0x08996ba0
 #define SITE_App_HandleDiskModeRequest_call 0x0810ad54
+#define SITE_SystemUI_HandleHoldChange_call 0x0810af14
 #define SITE_MusicLoadingTask_Run_slot 0x0899417c
 #define SITE_DiskModeExit_PopToMainScreen_call 0x0810b65c
 #define SITE_ResourceBlockList_AppendBorrowedBlock_call 0x0817a88c
@@ -1111,7 +1130,14 @@ extern void *const MenuListModel_vtable[];
 #define MediaOrder_bytes 0x8
 #define MediaOrder_count 0xc
 #define MediaOrder_entries 0x10
+#define MediaItem_entry 0x4
+#define MediaItem_record 0x8
+#define MediaItem_flags 0x14
+#define MediaItem_bytes 0x18
 #define MediaPlayer_current_item_method 0x15c
+#define MediaPlayer_item_at_index_method 0x170
+#define MediaPlayer_current_index 0x5c
+#define MediaPlayer_mutex 0xa4c
 #define SongModel_get_item_method 0x22c
 #define TrackData_artist_cache 0x118
 #define TrackData_artwork_id 0xf0
@@ -1202,6 +1228,8 @@ extern void *const MenuListModel_vtable[];
 #define StringInputStream_bytes 0x7c
 #define Model_notify_method 0x58
 #define ScreenController_push_method 0xd0
+#define ScreenController_below 0x14
+#define ScreenController_selection_model 0x44
 #define ScreenController_pop_method 0xbc
 #define ScreenController_switch_layout_method 0x120
 #define ScreenController_emit_event_method 0x11c
@@ -1318,6 +1346,11 @@ extern void *const MenuListModel_vtable[];
 #define ContextMenuItem_flags 0x8
 #define ContextMenuItem_bytes 0xc
 #define MediaListController_show_context_menu_method 0x148
+#define MediaListController_map_visible_row_method 0x130
+#define MediaListController_model 0xb4
+#define SongListController_context_row 0xd4
+#define GeniusController_context_row 0xd4
+#define NestedPlaylistsController_context_row 0xe8
 #define Navigator_top_controller 0x4
 #define TextView_context 0xa4
 #define TextView_text 0xf8
@@ -1385,6 +1418,8 @@ extern void *const MenuListModel_vtable[];
 #define HardwareSource_HoldChanged 0x6
 #define AppMessage_DiskModeRequest 0x63800003
 #define AppMessage_DiskGranted 0x63800004
+#define AppMessage_HoldOn 0x63800013
+#define AppMessage_HoldOff 0x63800014
 #define ScsiDiskClientState_Refused 0x0
 #define ScsiDiskClientState_Pending 0x1
 #define ScsiDiskClientState_Granted 0x2

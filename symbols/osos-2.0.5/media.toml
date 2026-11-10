@@ -4,8 +4,11 @@
 MediaPlayer_GetInstance = { at = 0x08172824, c = "void *MediaPlayer_GetInstance(void)" }
 MediaPlayer_ClearPreparedTrack = { at = 0x0817190c, c = "int MediaPlayer_ClearPreparedTrack(void *player)" }
 MediaPlayer_RebuildArtwork = { at = 0x08170238, c = "int MediaPlayer_RebuildArtwork(void *player)" }
+MediaPlayer_GetCurrentItem = { at = 0x0816f790, c = "int MediaPlayer_GetCurrentItem(void *player, struct MediaItem *item)" }
+MediaPlayer_GetItemAtIndex = { at = 0x0816ec38, c = "int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *item)" }
 MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
 MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
+MediaItem_Destroy = { at = 0x08266da0, c = "void MediaItem_Destroy(struct MediaItem *item)" }
 MediaItem_HasRecordFlag8F01 = { at = 0x0829af84, c = "uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item)" }
 MediaItem_HasKind8 = { at = 0x0829a9d4, c = "uint32_t MediaItem_HasKind8(struct MediaItem *item)" }
 MediaItem_HasKind8062 = { at = 0x0829aad8, c = "uint32_t MediaItem_HasKind8062(struct MediaItem *item)" }
@@ -20,6 +23,9 @@ MediaList_BuildOrderIndex = { at = 0x080d438c, c = "int MediaList_BuildOrderInde
 MediaList_ResolveOrderMode = { at = 0x080a9ab0, c = "void MediaList_ResolveOrderMode(struct MediaList *list, uint32_t *order, uint8_t *reverse)" }
 MediaListController_AddSelectionToOnTheGo = { at = 0x0820f8d4, c = "int MediaListController_AddSelectionToOnTheGo(void *controller)" }
 MediaListController_DispatchAction = { at = 0x0820f5a4, c = "int MediaListController_DispatchAction(void *controller, const char *action, uint32_t argument)" }
+MediaListController_HandleShowContextualMenu = { at = 0x082102b0, c = "void MediaListController_HandleShowContextualMenu(void *controller)" }
+MediaListController_MapVisibleRow = { at = 0x082573a8, c = "int MediaListController_MapVisibleRow(void *controller, int row)" }
+NestedPlaylists_MapVisibleRow = { at = 0x0822fa4c, c = "int NestedPlaylists_MapVisibleRow(void *controller, int row)" }
 OnTheGo_AddBrowserSelection = { at = 0x081095f8, c = "int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save)" }
 MediaListSelection_SelectArtworkSource = { at = 0x08169c98, c = "uint32_t MediaListSelection_SelectArtworkSource(void *selection, uint32_t category)" }
 MediaListSelection_SetList = { at = 0x08169db4 }
@@ -60,6 +66,7 @@ LibraryBrowser_InitBorrowed = { at = 0x08133be8, c = "void *LibraryBrowser_InitB
 LibraryBrowser_Destroy = { at = 0x08133c30, c = "void *LibraryBrowser_Destroy(void *model)" }
 LibraryBrowser_CopyAlbumArtistSubtitle = { at = 0x08133168, c = "void LibraryBrowser_CopyAlbumArtistSubtitle(void *model, int index, struct NativeString *out)" }
 LibraryModelRef_Init = { at = 0x0839576c, c = "void *LibraryModelRef_Init(void *reference, void *model, int synchronized)" }
+LibraryModelRef_InitCopy = { at = 0x083957d4, c = "void *LibraryModelRef_InitCopy(void *reference, const void *source)" }
 LibraryModelRef_Assign = { at = 0x08395818, c = "void *LibraryModelRef_Assign(void *destination, void *source)" }
 LibraryModelRef_Release = { at = 0x083937cc, c = "void LibraryModelRef_Release(void *reference)" }
 LibraryModelRef_Get = { at = 0x083ccd1c, c = "void *LibraryModelRef_Get(void *reference)" }
@@ -141,8 +148,17 @@ bytes = 0x8
 count = 0xc
 entries = 0x10
 
+[offsets.MediaItem]
+entry = 0x4
+record = 0x8
+flags = 0x14
+bytes = 0x18
+
 [offsets.MediaPlayer]
 current_item_method = 0x15c
+item_at_index_method = 0x170
+current_index = 0x5c
+mutex = 0xa4c
 
 [offsets.SongModel]
 get_item_method = 0x22c

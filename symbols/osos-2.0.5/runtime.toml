@@ -6,6 +6,7 @@ Heap_Free = { at = 0x080521c0, c = "void Heap_Free(void *allocation)" }
 Runtime_OperatorNew = { at = 0x082a17e0, c = "void *Runtime_OperatorNew(uint32_t byte_count)" }
 Mutex_Lock = { at = 0x08258b34, c = "int Mutex_Lock(void *mutex)" }
 Mutex_Unlock = { at = 0x08258b38, c = "int Mutex_Unlock(void *mutex)" }
+Mutex_Init = { at = 0x08258b3c, c = "void *Mutex_Init(void *mutex)" }
 HoldSwitch_GetLogicalState = { at = 0x08048964, c = "int HoldSwitch_GetLogicalState(void)" }
 SystemUI_HandleHoldChange = { at = 0x08108c14, c = "void SystemUI_HandleHoldChange(void *system, int locked)" }
 Platform_HasRegionalVolumeLimit = { at = 0x0804b17c }

@@ -182,6 +182,26 @@ Replacing or removing an `ITEM` override has the same effect: a list view that h
 
 `ContextMenuItems_Append` stores the action pointer without copying the string. The stock builders keep the item vector on the stack. `UI_ShowContextMenuItems` copies the 12-byte items, pointers included, into `ContextMenuModel_items` of the context-menu model, a singleton that is never destroyed. `ContextMenuController_DispatchAction` reads the action string from there when a row is chosen. The model keeps the pointers until the next `UI_ShowContextMenuItems` replaces the vector.
 
+### Item a context menu was opened on
+
+Every media list controller opens its menu through `MediaListController_HandleShowContextualMenu`, reached from `MediaListController_DispatchAction` and `NestedPlaylists_DispatchAction` for `HandleShowContextualMenu`. It reads the highlighted visible row from `SelectionModel_current_index_method`, maps it to a model row with `MediaListController_map_visible_row_method` and calls `MediaListController_show_context_menu_method(controller, model_row)`. A visible row of -1 opens nothing. The mapping skips leading rows that are not items: `MediaListController_MapVisibleRow` subtracts one when either of two flags of the shared list selection is set, and `NestedPlaylists_MapVisibleRow` maps through the list selection and then subtracts one or two, depending on the playlist kind.
+
+The builders read the row before `UI_ShowContextMenuItems` pushes the menu, and the menu's own actions use what was saved then:
+
+| Controller | Builder | Saved | Item |
+|---|---|---|---|
+| Songs | `SongList_BuildAndShowContextualMenu` | visible row in `SongListController_context_row` | `SongModel_get_item_method(item, model, model_row)` |
+| Nested and video playlists | `NestedPlaylists_BuildAndShowContextualMenu` | visible row in `NestedPlaylistsController_context_row` | same, only when the row is a track |
+| Genius | `Genius_BuildAndShowContextualMenu` | visible row in `GeniusController_context_row` | `Genius_GetItem(genius, Genius_MapVisibleRow(genius, model_row), item)` |
+| Artists, Albums | `ArtistsController_ShowContextMenu`, `AlbumsController_ShowContextMenu` | nothing | the model row of the browser model |
+| Now Playing | `NowPlaying_BuildAndShowContextualMenu` | nothing | `MediaPlayer_current_item_method(player, item)` |
+
+The model is `LibraryModelRef_Get(controller + MediaListController_model)`. The stock code copies the reference with `LibraryModelRef_InitCopy` and releases it after use; a plain `LibraryModelRef_Get` does not change the count. A saved visible row is not a model row. The Genius Browse Artist handler maps it again; the Songs one uses it unmapped. In the emulator a Songs menu on the third row passed model row 2 and saved visible row 2.
+
+A `MediaItem` is `MediaItem_bytes` long. Initialise one with `MediaItem_InitFromRecord(item, NULL, 0)` before a getter fills it. `MediaItem_Destroy` is empty, and the item holds no reference on its record, so a stack item needs no release. `MediaItem_record` is null for an empty item.
+
+`MediaPlayer_current_item_method` is `MediaPlayer_GetCurrentItem`, which calls `MediaPlayer_item_at_index_method` (`MediaPlayer_GetItemAtIndex`) with `MediaPlayer_current_index`. It returns 0 and leaves the item unchanged when there is no playback list. Neither takes `MediaPlayer_mutex`, and the stock Now Playing menu reads the current item without it. `MediaPlayer_mutex` is set up with `Mutex_Init` and guards the player's own state changes.
+
 ### Reusing ids
 
 State keyed by id that outlives an override:
@@ -269,6 +289,8 @@ A screen controller receives events in `ScreenController_event_method` as `handl
 ## Navigation
 
 At boot the main menu is the first layout shown: `UI_TransitionToLayout` displays `MainMenus_Main_Layout` directly through `UI_DisplayPreparedLayout` (site `UI_DisplayPreparedLayout_call`) because there is no previous layout. On a first boot the Language screen is pushed afterwards. That call site also runs for every later transition without animation, so a hook for the first show checks `LayoutManager_layout` and runs once (seen in the emulator).
+
+`Navigator_Get` returns the navigator. Its stack is a list: `Navigator_top_controller` is the top controller and each controller's `ScreenController_below` is the one under it. `Navigator_Push` links a controller on top and activates it. `ScreenController_push_method` on any controller goes through `ScreenController_selection_model`, which every screen controller shares, to the same navigator, so the new controller always lands on top whichever controller pushed it. The pushing controller only lends its result slot. In the emulator a Songs context menu was pushed on top of the Songs controller, with Songs as its `ScreenController_below`.
 
 `Controller_ExecuteNavigatorAction` runs the action of an event binding on the screen controller:
 
