@@ -1,6 +1,9 @@
 # Media player, media lists and orders, library import and browser.
 
 [functions]
+MediaPlayer_InitializePlaybackList = { at = 0x08170b6c, c = "void MediaPlayer_InitializePlaybackList(void *player, uint32_t shuffle, uint32_t repeat)" }
+MediaPlayer_IsStopped = { at = 0x08172568, c = "int MediaPlayer_IsStopped(void *player)" }
+MediaPlayer_TogglePlayback = { at = 0x08170304, c = "void MediaPlayer_TogglePlayback(void *player)" }
 MediaPlayer_GetInstance = { at = 0x08172824, c = "void *MediaPlayer_GetInstance(void)" }
 MediaPlayer_ClearPreparedTrack = { at = 0x0817190c, c = "int MediaPlayer_ClearPreparedTrack(void *player)" }
 MediaPlayer_RebuildArtwork = { at = 0x08170238, c = "int MediaPlayer_RebuildArtwork(void *player)" }
@@ -90,6 +93,7 @@ MediaPlayer_GetReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_Get
 BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
 
 [sites]
+MediaPlayer_ToggleStopped_call = { at = 0x08170360, kind = "call", in = "MediaPlayer_TogglePlayback+0x5c" }
 AlbumSubtitle_slot = { at = 0x0898cbf4, kind = "slot" }
 Albums_CancelAppend_call = { at = 0x0821c004, kind = "call" }
 MediaListController_DispatchAction_entry = { at = 0x0820f5a4, kind = "entry" }

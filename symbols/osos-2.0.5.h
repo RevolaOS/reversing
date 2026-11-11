@@ -59,6 +59,9 @@ void Input_HandleButton(uint32_t button, uint32_t pressed);
 void Event_Signal(uint32_t event);
 void IRQ_RestoreState(uint32_t cpsr);
 uint32_t IRQ_DisableSave(void);
+void MediaPlayer_InitializePlaybackList(void *player, uint32_t shuffle, uint32_t repeat);
+int MediaPlayer_IsStopped(void *player);
+void MediaPlayer_TogglePlayback(void *player);
 void *MediaPlayer_GetInstance(void);
 int MediaPlayer_ClearPreparedTrack(void *player);
 int MediaPlayer_RebuildArtwork(void *player);
@@ -278,11 +281,16 @@ int SongText_CompareUtf16(void *collation, const uint16_t *left, uint32_t left_u
 int StringCache_ReadToken(void *cache, uint32_t token, void *destination, uint32_t *bytes, uint32_t maximum_bytes);
 int StringCache_ReleaseToken(void *cache, uint32_t token);
 int StringCache_GetTokenView(void *cache, uint32_t token, void **data, uint32_t *bytes);
+int PodcastEpisodes_DispatchAction(void *controller, const char *action, uint32_t argument);
+int PodcastEpisodes_BuildAndShowContextualMenu(void *controller);
 void MenuList_RebuildVisibleItems(void *menu_list, void *view, int refresh_subscriptions);
 int MenuList_SetItemTable(void *menu_list, uint32_t table_id, void *view);
 void MenuItems_RegisterResourceType(uint32_t type);
 void UI_ShowContextMenuItems(void *controller, void *items);
 void *ContextMenuModel_Get(void);
+void ContextMenuModel_SetItems(void *model, const void *items);
+uint32_t ContextMenuModel_GetRememberedIndex(void *model);
+void UI_SetScreenState(void *manager, uint32_t screen_id, uint32_t state0, uint32_t state1, uint32_t state2, uint32_t state3);
 int ContextMenuModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
 int ContextMenuModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, int index, uintptr_t *out);
 void UI_LoadLayoutInstances(void *layout);
@@ -290,6 +298,7 @@ int ContextMenuController_DispatchAction(void *controller, const char *action, u
 void ScreenController_SwitchLayoutDefault(void *controller);
 void *UI_GetLayoutManager(void);
 int MenuList_QueryProperty(void *menu_list, uint32_t type, uint32_t property, uint32_t *out);
+void *ControllerRegistry_InvokeControllerFactory(void *registry, const char *class_name, const char *controller_name);
 void *ControllerRegistry_InvokeScreenFactory(void *registry, const char *class_name, const char *controller_name, uint32_t screen_id, uint32_t layout_id, uint32_t transition);
 void *UI_FindServiceById(uint32_t service_id);
 void *UI_GetRootView(void);
@@ -491,6 +500,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_IRQ_RestoreState 0x083924d8
 #define ADDR_IRQ_DisableSave 0x083924e0
 #define ADDR_InputWheel_AccumulateMotion 0x08093718
+#define ADDR_MediaPlayer_InitializePlaybackList 0x08170b6c
+#define ADDR_MediaPlayer_IsStopped 0x08172568
+#define ADDR_MediaPlayer_TogglePlayback 0x08170304
 #define ADDR_MediaPlayer_GetInstance 0x08172824
 #define ADDR_MediaPlayer_ClearPreparedTrack 0x0817190c
 #define ADDR_MediaPlayer_RebuildArtwork 0x08170238
@@ -741,11 +753,16 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_StringCache_ReadToken 0x080a94ec
 #define ADDR_StringCache_ReleaseToken 0x080bb0c8
 #define ADDR_StringCache_GetTokenView 0x08093598
+#define ADDR_PodcastEpisodes_DispatchAction 0x0823077c
+#define ADDR_PodcastEpisodes_BuildAndShowContextualMenu 0x082309d0
 #define ADDR_MenuList_RebuildVisibleItems 0x081946fc
 #define ADDR_MenuList_SetItemTable 0x08194d1c
 #define ADDR_MenuItems_RegisterResourceType 0x08194df0
 #define ADDR_UI_ShowContextMenuItems 0x08129d78
 #define ADDR_ContextMenuModel_Get 0x081debd0
+#define ADDR_ContextMenuModel_SetItems 0x081decd0
+#define ADDR_ContextMenuModel_GetRememberedIndex 0x081dec00
+#define ADDR_UI_SetScreenState 0x08176af8
 #define ADDR_ContextMenuModel_GetProperty 0x081dec28
 #define ADDR_ContextMenuModel_GetIndexedProperty 0x081ded30
 #define ADDR_UI_LoadLayoutInstances 0x081d64cc
@@ -754,6 +771,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ScreenController_SwitchLayoutDefault 0x08129994
 #define ADDR_UI_GetLayoutManager 0x081747ec
 #define ADDR_MenuList_QueryProperty 0x08194c2c
+#define ADDR_ControllerRegistry_InvokeControllerFactory 0x081d58dc
 #define ADDR_ControllerRegistry_InvokeScreenFactory 0x081d5a40
 #define ADDR_UI_FindServiceById 0x081c7d44
 #define ADDR_UI_GetRootView 0x08113600
@@ -950,6 +968,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_IAP_VerifyDeviceSignatureRSA_call 0x081893a8
 #define SITE_IAP_VerifyDeviceSignatureAlternate_call 0x081893fc
 #define SITE_HoldSwitch_NotifyRawChange_call 0x08055b44
+#define SITE_MediaPlayer_ToggleStopped_call 0x08170360
 #define SITE_AlbumSubtitle_slot 0x0898cbf4
 #define SITE_Albums_CancelAppend_call 0x0821c004
 #define SITE_MediaListController_DispatchAction_entry 0x0820f5a4
@@ -1079,6 +1098,8 @@ extern void *const MenuListModel_vtable[];
 #define SITE_TrackCount_0810897c_word 0x0810897c
 #define SITE_TrackCount_0816ebc4_word 0x0816ebc4
 #define SITE_TrackCount_0829c884_word 0x0829c884
+#define SITE_PodcastEpisodes_CancelAppend_call 0x08230a10
+#define SITE_PodcastEpisodes_Action_slot 0x089a67a0
 #define SITE_UI_LoadLayoutEvents_call 0x081d63f8
 #define SITE_UI_TemplateEventsGet_call 0x081d6218
 #define SITE_UI_LayoutEventsGet_call 0x081d62b4
@@ -1515,6 +1536,8 @@ extern void *const MenuListModel_vtable[];
 #define ScreenLayoutEntry_layout 0x0
 #define ScreenLayoutEntry_kind 0x4
 #define ScreenLayoutEntry_refresh 0x8
+#define PodcastEpisodesController_layout_cache 0xdc
+#define PodcastEpisodesController_layout 0x100
 #define USBDevice_controller 0x34
 #define USBDevice_interfaces 0x38
 #define USBDevice_configuration_set 0x5c
@@ -1694,6 +1717,8 @@ extern void *const MenuListModel_vtable[];
 #define Event_ModelChange 0x13
 #define SourceDestination_InlineValue 0xa
 #define SourceDestination_RowBitmap 0xc
+#define SourceDestination_RowStatusBitmap 0x13
+#define SourceDestination_RowStatusSelectedBitmap 0x14
 #define ViewType_Progress 0x70676f67
 #define ViewType_Text 0x74657874
 #define ViewType_Capacity 0x63706374
@@ -1778,6 +1803,8 @@ extern void *const MenuListModel_vtable[];
 #define RES_Font_BoldSmall 0x0dad0001
 #define RES_Font_RegularSmall 0x0dad0020
 #define RES_Menu_CheckedSelected_Bitmap 0x0dad0c09
+#define RES_Menu_Playing_Bitmap 0x0dad072c
+#define RES_Menu_PlayingSelected_Bitmap 0x0dad072d
 #define RES_Menu_Chevron_Bitmap 0x0dad0125
 #define RES_About_Capacity_Template 0x0dad0b4e
 #define RES_Capacity_View 0x0dad0b4f
@@ -1822,6 +1849,10 @@ extern void *const MenuListModel_vtable[];
 #define RES_MainMenus_Music_Screen 0x0dad07c8
 #define RES_ContextMenu_Screen 0x0dad01c9
 #define RES_ContextMenu_Layout 0x0dad01ca
+#define RES_Calendar_Empty_Layout 0x0dad0397
+#define RES_Calendar_Empty_Instances 0x00000026
+#define RES_Calendar_Empty_Template 0x0dad0372
+#define RES_Calendar_Empty_Text 0x0dad0374
 #define RES_ContextMenu_Items 0x00000001
 #define RES_ContextMenu_Item 0x0dad01cb
 #define RES_ContextMenu_StartGenius_String 0x0dad0117
@@ -1888,6 +1919,7 @@ extern void *const MenuListModel_vtable[];
 #define RES_ExtrasMenu_Notes_Item 0x0dad01d2
 #define RES_ExtrasMenu_ScreenLock_Item 0x0dad01d3
 #define RES_ExtrasMenu_Stopwatch_Item 0x0dad01d4
+#define RES_MediaLists_PodcastEpisodes_Screen 0x0dad07f8
 #define RES_MediaLists_Songs_Screen 0x0dad07e9
 #define RES_MediaLists_NestedPlaylists_Screen 0x0dad0808
 #define RES_MediaLists_Genius_Screen 0x0dad0844
