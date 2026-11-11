@@ -446,3 +446,11 @@ The emulator's display pipe draws each enabled layer over the previous frame and
 ## Timers
 
 `UI_InitializeEventTimer` binds a timer (`EventTimer_bytes`) to a recipient and an event queue; NULL selects the calling task's queue. `Timer_SetPeriod` sets milliseconds and `Timer_Start` arms it once. The recipient's vtable slot `EventRecipient_event_method` receives events of kind `Event_Timer`; the timer pointer is `TimerEventPayload_timer` in the payload returned by the event's `Event_payload_method` with `EventPayload_Timer`. Any object with that vtable slot can receive timer events.
+
+## Media-list status icons
+
+`MediaListModel_GetIndexedProperty` handles the individual-item status properties for Podcasts and iTunes U. `MediaListModel_all_row` indicates a leading All row; subtract it before calling the source model's `SongModel_get_item_method`. That method returns a MediaItem through an output pointer before `this`.
+
+The bookmark, start, stop, and duration getters use compatible playback-position units. A zero stop uses duration. `MediaPlayer_GetPosition` acquires the recursive player mutex; matching a live item requires both record address and database generation. Completion predicates can mutate playback history and must not be used during drawing.
+
+`Bitmap_LoadResource` borrows the BMap payload in `Bitmap_pixels`. The model's normal and selected status bitmaps remain alive until replaced or destroyed. Its non-deleting destructor is reached through `MediaListModel_Destroy_slot` or the deleting destructor's `MediaListModel_Destroy_call`; both must be observed when tracking borrowed pixels. Restore native resources on surviving models before freeing replacement storage, and remove destroyed models from tracking before native teardown.

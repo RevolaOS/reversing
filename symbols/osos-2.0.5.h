@@ -30,6 +30,7 @@ void EQ_ProcessThreeBiquadsInPlace(struct ThreeBandEQ *eq, int16_t *input, uint3
 uint32_t EQ_SettingsIdToDspPreset(uint32_t settings_id);
 void Audio_SetPlaybackSource(void *source);
 void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
+void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
 void GraphicsContext_SetColor(void *context, const uint8_t *rgba);
@@ -59,6 +60,9 @@ void Input_HandleButton(uint32_t button, uint32_t pressed);
 void Event_Signal(uint32_t event);
 void IRQ_RestoreState(uint32_t cpsr);
 uint32_t IRQ_DisableSave(void);
+int MediaListModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, int row, uintptr_t *out);
+void *MediaListModel_Destroy(void *model);
+uint32_t MediaPlayer_GetPosition(void *player);
 void MediaPlayer_InitializePlaybackList(void *player, uint32_t shuffle, uint32_t repeat);
 int MediaPlayer_IsStopped(void *player);
 void MediaPlayer_TogglePlayback(void *player);
@@ -470,6 +474,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_DisplayPipe_SetOrder 0x0814482c
 #define ADDR_GameManifest_InitReader 0x0825e510
 #define ADDR_GameLoader_LoadVerifiedManifest 0x080f9374
+#define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
 #define ADDR_GraphicsContext_SetColor 0x08259b28
@@ -506,6 +511,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_IRQ_RestoreState 0x083924d8
 #define ADDR_IRQ_DisableSave 0x083924e0
 #define ADDR_InputWheel_AccumulateMotion 0x08093718
+#define ADDR_MediaListModel_GetIndexedProperty 0x0816a04c
+#define ADDR_MediaListModel_Destroy 0x0816d508
+#define ADDR_MediaPlayer_GetPosition 0x0816f704
 #define ADDR_MediaPlayer_InitializePlaybackList 0x08170b6c
 #define ADDR_MediaPlayer_IsStopped 0x08172568
 #define ADDR_MediaPlayer_TogglePlayback 0x08170304
@@ -980,6 +988,9 @@ extern void *const MenuListModel_vtable[];
 #define SITE_IAP_VerifyDeviceSignatureRSA_call 0x081893a8
 #define SITE_IAP_VerifyDeviceSignatureAlternate_call 0x081893fc
 #define SITE_HoldSwitch_NotifyRawChange_call 0x08055b44
+#define SITE_MediaListModel_IndexedProperty_slot 0x08990cdc
+#define SITE_MediaListModel_Destroy_slot 0x08990c5c
+#define SITE_MediaListModel_Destroy_call 0x0816d4fc
 #define SITE_MediaPlayer_ToggleStopped_call 0x08170360
 #define SITE_AlbumSubtitle_slot 0x0898cbf4
 #define SITE_Albums_CancelAppend_call 0x0821c004
@@ -1281,6 +1292,10 @@ extern void *const MenuListModel_vtable[];
 #define MediaOrder_bytes 0x8
 #define MediaOrder_count 0xc
 #define MediaOrder_entries 0x10
+#define MediaItem_bookmark_method 0x90
+#define MediaItem_start_time_method 0x94
+#define MediaItem_stop_time_method 0x98
+#define MediaItem_remembers_position_method 0xe8
 #define MediaItem_entry 0x4
 #define MediaItem_record 0x8
 #define MediaItem_browser 0xc
@@ -1317,6 +1332,10 @@ extern void *const MenuListModel_vtable[];
 #define TrackData_artist_cache 0x118
 #define TrackData_artwork_id 0xf0
 #define TrackData_dbid 0x110
+#define MediaListModel_source 0x18
+#define MediaListModel_all_row 0x25
+#define MediaListModel_status_icon 0x258
+#define MediaListModel_selected_status_icon 0x310
 #define BlockCache_free_blocks 0x4
 #define BlockCache_free_count 0x14
 #define BlockCache_clients 0x28
@@ -1706,6 +1725,10 @@ extern void *const MenuListModel_vtable[];
 #define SettingsProperty_ClickerImage 0x8925
 #define StringInputStream_ResourceMode 0xc
 #define StringInputStream_DestroyComplete 0x2
+#define Property_PodcastStatus 0x7835
+#define Property_PodcastStatusSelected 0x7836
+#define Property_ITunesUStatus 0x783c
+#define Property_ITunesUStatusSelected 0x783d
 #define AnchorMode_Top 0x1
 #define AnchorMode_Left 0x2
 #define AnchorMode_Bottom 0x3
@@ -1840,6 +1863,10 @@ extern void *const MenuListModel_vtable[];
 #define RES_SettingsInfo_Template_Legal_Layout 0x0dad0c40
 #define RES_Settings_Icon_View 0x0dad0c30
 #define RES_Settings_InfoDetail_View 0x0dad0c31
+#define RES_MediaStatus_VideoSelected_Bitmap 0x0dad0714
+#define RES_MediaStatus_Video_Bitmap 0x0dad0715
+#define RES_MediaStatus_AudioSelected_Bitmap 0x0dad0716
+#define RES_MediaStatus_Audio_Bitmap 0x0dad0717
 #define RES_Menu_Checked_Bitmap 0x0dad0c08
 #define RES_Font_Bold 0x0dad0000
 #define RES_Font_BoldSmall 0x0dad0001

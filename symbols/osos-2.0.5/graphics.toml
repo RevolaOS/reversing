@@ -1,6 +1,7 @@
 # Graphics contexts, text and fonts.
 
 [functions]
+Bitmap_LoadResource = { at = 0x08103984, c = "void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags)" }
 GraphicsContext_ConstructDefault = { at = 0x0825b008, c = "void *GraphicsContext_ConstructDefault(void *context)" }
 GraphicsContext_FillRect = { at = 0x0825ae34, c = "void GraphicsContext_FillRect(void *context, const int32_t *rect)" }
 GraphicsContext_SetColor = { at = 0x08259b28, c = "void GraphicsContext_SetColor(void *context, const uint8_t *rgba)" }

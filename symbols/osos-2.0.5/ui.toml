@@ -233,6 +233,10 @@ child_count = 0xac
 child_items = 0xb0
 
 [constants]
+Property_PodcastStatus = 0x7835
+Property_PodcastStatusSelected = 0x7836
+Property_ITunesUStatus = 0x783c
+Property_ITunesUStatusSelected = 0x783d
 AnchorMode_Top = 1
 AnchorMode_Left = 2
 AnchorMode_Bottom = 3
@@ -306,6 +310,10 @@ LayoutKind_Page = 9
 LayoutKind_System = 10
 
 [resources]
+MediaStatus_VideoSelected_Bitmap = 0x0dad0714
+MediaStatus_Video_Bitmap = 0x0dad0715
+MediaStatus_AudioSelected_Bitmap = 0x0dad0716
+MediaStatus_Audio_Bitmap = 0x0dad0717
 Menu_Checked_Bitmap = 0x0dad0c08
 Font_Bold = 0x0dad0000
 Font_BoldSmall = 0x0dad0001
