@@ -110,6 +110,7 @@ file = 0x40000
 owner = 0x40004
 
 [offsets.MediaBrowser]
+preferences = 0xf00
 library = 0xf64
 track_data = 0xf60
 artists = 0xe64

@@ -27,6 +27,10 @@ Platform_GetHeapRegion = { at = 0x0804b448 }
 Memory_InitPlatformHeapBounds = { at = 0x0806bf34 }
 System_CreateAndStartConfiguredTasks = { at = 0x0805d5f4 }
 Preferences_FlushIfDirty = { at = 0x08063760, c = "void Preferences_FlushIfDirty(void *preferences)" }
+Preferences_MarkDirty = { at = 0x080537bc, c = "void Preferences_MarkDirty(void *preferences)" }
+Preferences_SetClickerRoute = { at = 0x0805bef0, c = "void Preferences_SetClickerRoute(void *browser, uint32_t route)" }
+Preferences_GetClickerRoute = { at = 0x080465fc, c = "uint32_t Preferences_GetClickerRoute(void *browser)" }
+PreferencesService_Get = { at = 0x08167a54, c = "void *PreferencesService_Get(void)" }
 File_DeleteLegacyPath = { at = 0x0804f99c, c = "int File_DeleteLegacyPath(void *path)" }
 Runtime_Abort = { at = 0x0802606c, c = "void Runtime_Abort(void)" }
 Runtime_ReportUncaughtException = { at = 0x0825de34, c = "void Runtime_ReportUncaughtException(int kind, const char *what)" }
@@ -61,6 +65,10 @@ object = 0x378
 get_method = 0xdc
 set_method = 0xd4
 
+[offsets.PreferencesFile]
+clicker_route = 0xb00
+dirty = 0xb94
+
 [offsets.DirectoryIterator]
 bytes = 0x44
 
@@ -75,6 +83,7 @@ stack_base = 0x40
 bytes = 0x44
 
 [data]
+ClickerRoute = { at = 0x089d2bdc, c = "uint32_t ClickerRoute" }
 IRQ_Nesting = { at = 0x22008af4, c = "uint8_t IRQ_Nesting" }
 
 [offsets.IRQFrame]
@@ -86,6 +95,15 @@ bytes = 0x40
 
 [constants]
 ClockRegister_Microseconds = 0x3c7000b4
+Service_Preferences = 0x6000
+Preference_Toggle = 0x60bf
+Preference_Clicker = 0x608c
+Clicker_Both = 0x608d
+Clicker_Off = 0x608e
+Clicker_Headphones = 0x608f
+Clicker_Speaker = 0x6090
+ClickerRoute_Speaker = 0x1
+ClickerRoute_Headphones = 0x2
 ClockRegister_PowerGate0 = 0x3c500048
 PowerGate0_ATA = 0x20
 WarmBootTag_address = 0x2203ff00

@@ -206,6 +206,10 @@ int File_SeekLegacyHandle(void *handle, uint64_t offset);
 int BufferedFile_GetPosition(void *file, uint64_t *position);
 void Preferences_LoadFile(void *preferences);
 void Preferences_FlushIfDirty(void *preferences);
+void Preferences_MarkDirty(void *preferences);
+void Preferences_SetClickerRoute(void *browser, uint32_t route);
+uint32_t Preferences_GetClickerRoute(void *browser);
+void *PreferencesService_Get(void);
 int File_DeleteLegacyPath(void *path);
 void Runtime_Abort(void);
 void Runtime_ReportUncaughtException(int kind, const char *what);
@@ -222,6 +226,9 @@ char *SetWarmBootModeTag(uint32_t mode);
 void ResetSocAndWait(void);
 void Timer_Stop(void *timer);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
+void *SettingsModel_GetInstance(void);
+void SettingsModel_ToggleClicker(void *model);
+void SettingsModel_NotifyClicker(void *model);
 int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out);
 int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out);
 void SettingsModel_ToggleMainMenuItem(void *model, uint32_t index);
@@ -376,6 +383,7 @@ extern void *const ScsiDiskClient_vtable[];
 extern void *const MusicLoadingTask_vtable[];
 extern void *App;
 extern uint8_t ResourceNameMap[];
+extern uint32_t ClickerRoute;
 extern uint8_t IRQ_Nesting;
 extern uint32_t MainMenuSettingsRows[];
 extern uint32_t MusicMenuSettingsRows[];
@@ -634,6 +642,10 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Memory_InitPlatformHeapBounds 0x0806bf34
 #define ADDR_System_CreateAndStartConfiguredTasks 0x0805d5f4
 #define ADDR_Preferences_FlushIfDirty 0x08063760
+#define ADDR_Preferences_MarkDirty 0x080537bc
+#define ADDR_Preferences_SetClickerRoute 0x0805bef0
+#define ADDR_Preferences_GetClickerRoute 0x080465fc
+#define ADDR_PreferencesService_Get 0x08167a54
 #define ADDR_File_DeleteLegacyPath 0x0804f99c
 #define ADDR_Runtime_Abort 0x0802606c
 #define ADDR_Runtime_ReportUncaughtException 0x0825de34
@@ -653,6 +665,10 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Timer_Stop 0x081219d0
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
+#define ADDR_SettingsModel_GetInstance 0x081e0ff4
+#define ADDR_SettingsModel_Construct 0x081e4010
+#define ADDR_SettingsModel_ToggleClicker 0x081e300c
+#define ADDR_SettingsModel_NotifyClicker 0x081e22f8
 #define ADDR_SettingsModel_GetProperty 0x081e11f4
 #define ADDR_SettingsModel_GetIndexedProperty 0x081e30ac
 #define ADDR_SettingsModel_ToggleMainMenuItem 0x081e3460
@@ -849,6 +865,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MusicLoadingTask_vtable 0x08994174
 #define ADDR_App 0x089d2cb4
 #define ADDR_ResourceNameMap 0x08ae02c4
+#define ADDR_ClickerRoute 0x089d2bdc
 #define ADDR_IRQ_Nesting 0x22008af4
 #define ADDR_MainMenuSettingsRows 0x08a815f0
 #define ADDR_MusicMenuSettingsRows 0x08a81898
@@ -1146,6 +1163,7 @@ extern void *const MenuListModel_vtable[];
 #define InputEvent_key 0x10
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
+#define MediaBrowser_preferences 0xf00
 #define MediaBrowser_library 0xf64
 #define MediaBrowser_track_data 0xf60
 #define MediaBrowser_artists 0xe64
@@ -1231,6 +1249,7 @@ extern void *const MenuListModel_vtable[];
 #define MainHeap_free_bytes 0x0
 #define MainHeap_total_bytes 0x4
 #define MainHeap_used_bytes 0x8
+#define App_browser 0x30
 #define App_disk_mode_requested 0x4cc
 #define App_library_load_started 0x4d2
 #define App_in_disk_mode 0x4d3
@@ -1255,6 +1274,8 @@ extern void *const MenuListModel_vtable[];
 #define Preferences_object 0x378
 #define Preferences_get_method 0xdc
 #define Preferences_set_method 0xd4
+#define PreferencesFile_clicker_route 0xb00
+#define PreferencesFile_dirty 0xb94
 #define DirectoryIterator_bytes 0x44
 #define NativePath_bytes 0x8
 #define ThreadRecord_kernel_thread 0x0
@@ -1512,6 +1533,15 @@ extern void *const MenuListModel_vtable[];
 #define ResourceBankKind_Heap 0x1
 #define ResourceBankKind_Rom 0x2
 #define ClockRegister_Microseconds 0x3c7000b4
+#define Service_Preferences 0x6000
+#define Preference_Toggle 0x60bf
+#define Preference_Clicker 0x608c
+#define Clicker_Both 0x608d
+#define Clicker_Off 0x608e
+#define Clicker_Headphones 0x608f
+#define Clicker_Speaker 0x6090
+#define ClickerRoute_Speaker 0x1
+#define ClickerRoute_Headphones 0x2
 #define ClockRegister_PowerGate0 0x3c500048
 #define PowerGate0_ATA 0x20
 #define WarmBootTag_address 0x2203ff00
@@ -1522,6 +1552,9 @@ extern void *const MenuListModel_vtable[];
 #define WarmBootMode_RetailOS 0x4
 #define MainMenuSettings_row_count 0x22
 #define MusicMenuSettings_row_count 0xd
+#define SettingsProperty_ClickerValue 0x8912
+#define SettingsProperty_ClickerDescription 0x8914
+#define SettingsProperty_ClickerImage 0x8925
 #define StringInputStream_ResourceMode 0xc
 #define StringInputStream_DestroyComplete 0x2
 #define AnchorMode_Top 0x1

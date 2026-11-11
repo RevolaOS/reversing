@@ -3,6 +3,10 @@
 [functions]
 Settings_HandleAction = { at = 0x0821daf4, c = "int Settings_HandleAction(void *controller, const char *action, uint32_t argument)" }
 Settings_CollectPropertyResources = { at = 0x08295174 }
+SettingsModel_GetInstance = { at = 0x081e0ff4, c = "void *SettingsModel_GetInstance(void)" }
+SettingsModel_Construct = { at = 0x081e4010 }
+SettingsModel_ToggleClicker = { at = 0x081e300c, c = "void SettingsModel_ToggleClicker(void *model)" }
+SettingsModel_NotifyClicker = { at = 0x081e22f8, c = "void SettingsModel_NotifyClicker(void *model)" }
 SettingsModel_GetProperty = { at = 0x081e11f4, c = "int SettingsModel_GetProperty(void *model, uint32_t type, uint32_t property, uintptr_t *out)" }
 SettingsModel_GetIndexedProperty = { at = 0x081e30ac, c = "int SettingsModel_GetIndexedProperty(void *model, uint32_t type, uint32_t property, uint32_t index, uintptr_t *out)" }
 SettingsModel_ToggleMainMenuItem = { at = 0x081e3460, c = "void SettingsModel_ToggleMainMenuItem(void *model, uint32_t index)" }
@@ -58,6 +62,9 @@ SettingsModel_ResetAllSettings_call = { at = 0x08212844, kind = "call", in = "Se
 [constants]
 MainMenuSettings_row_count = 0x22
 MusicMenuSettings_row_count = 13
+SettingsProperty_ClickerValue = 0x8912
+SettingsProperty_ClickerDescription = 0x8914
+SettingsProperty_ClickerImage = 0x8925
 
 [resources]
 Settings_Off_String = 0x0dad0bda

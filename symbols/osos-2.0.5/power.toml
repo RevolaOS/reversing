@@ -52,6 +52,7 @@ MusicLoadingTask_vtable = { at = 0x08994174, c = "void *const MusicLoadingTask_v
 App = { at = 0x089d2cb4, c = "void *App" }
 
 [offsets.App]
+browser = 0x30
 disk_mode_requested = 0x4cc
 library_load_started = 0x4d2
 in_disk_mode = 0x4d3
