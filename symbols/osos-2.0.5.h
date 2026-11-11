@@ -52,6 +52,8 @@ int GraphicsContext_GetFontDescent(void *context);
 void Surface_FillRect(void *surface, const int32_t *rect, const uint8_t *rgba, uint32_t mode, void *clip);
 void GLES_ClearColorx(int red, int green, int blue, int alpha);
 uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight);
+int IAP_VerifyDeviceSignatureRSA(void *manager, uint32_t channel, uint32_t key_id, void *signature, uint32_t signature_bytes);
+int IAP_VerifyDeviceSignatureAlternate(void *authentication, void *signature, uint32_t signature_bytes);
 int Wheel_DispatchButtonChanges(int force_center);
 void Input_HandleButton(uint32_t button, uint32_t pressed);
 void Event_Signal(uint32_t event);
@@ -905,6 +907,8 @@ extern void *const MenuListModel_vtable[];
 #define SITE_GameManifest_InitReader_call 0x080f9418
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
+#define SITE_IAP_VerifyDeviceSignatureRSA_call 0x081893a8
+#define SITE_IAP_VerifyDeviceSignatureAlternate_call 0x081893fc
 #define SITE_HoldSwitch_NotifyRawChange_call 0x08055b44
 #define SITE_AlbumSubtitle_slot 0x0898cbf4
 #define SITE_Albums_CancelAppend_call 0x0821c004

@@ -1,7 +1,11 @@
 # iAP accessory authentication.
 
 [functions]
-IAP_VerifyDeviceSignatureRSA = { at = 0x0812dca8 }
-IAP_VerifyDeviceSignatureAlternate = { at = 0x081592fc }
+IAP_VerifyDeviceSignatureRSA = { at = 0x0812dca8, c = "int IAP_VerifyDeviceSignatureRSA(void *manager, uint32_t channel, uint32_t key_id, void *signature, uint32_t signature_bytes)" }
+IAP_VerifyDeviceSignatureAlternate = { at = 0x081592fc, c = "int IAP_VerifyDeviceSignatureAlternate(void *authentication, void *signature, uint32_t signature_bytes)" }
 IAP_HandleDeviceAuthenticationSignature = { at = 0x081892b8 }
 IAP_SetAccessoryAuthState = { at = 0x08185e18 }
+
+[sites]
+IAP_VerifyDeviceSignatureRSA_call = { at = 0x081893a8, kind = "call", in = "IAP_HandleDeviceAuthenticationSignature+0xf0" }
+IAP_VerifyDeviceSignatureAlternate_call = { at = 0x081893fc, kind = "call", in = "IAP_HandleDeviceAuthenticationSignature+0x144" }
