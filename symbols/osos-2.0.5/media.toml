@@ -38,6 +38,19 @@ MediaItem_GetDiscNumber = { at = 0x082990f0, c = "uint16_t MediaItem_GetDiscNumb
 MediaItem_GetPlayCount = { at = 0x0829afe8, c = "uint32_t MediaItem_GetPlayCount(struct MediaItem *item)" }
 MediaItem_GetSkipCount = { at = 0x0829b014, c = "uint32_t MediaItem_GetSkipCount(struct MediaItem *item)" }
 MediaItem_GetChapterCount = { at = 0x08299644, c = "uint32_t MediaItem_GetChapterCount(struct MediaItem *item)" }
+# iTunes "Kind" text (iTunesDB mhod 6), such as "AAC audio file".
+MediaItem_GetFileType = { at = 0x0829a0d0, c = "void MediaItem_GetFileType(struct MediaItem *item, struct NativeString *out)" }
+MediaItem_GetComment = { at = 0x0829ab98, c = "void MediaItem_GetComment(struct MediaItem *item, struct NativeString *out)" }
+MediaItem_GetCategory = { at = 0x0829ab14, c = "void MediaItem_GetCategory(struct MediaItem *item, struct NativeString *out)" }
+MediaItem_GetDescription = { at = 0x082993cc, c = "void MediaItem_GetDescription(struct MediaItem *item, struct NativeString *out)" }
+MediaItem_GetShowName = { at = 0x082992c4, c = "void MediaItem_GetShowName(struct MediaItem *item, struct NativeString *out)" }
+# Date getters write a struct DateTime in local time; the record keeps the timestamps.
+MediaItem_GetDateAdded = { at = 0x0829aa60, c = "void MediaItem_GetDateAdded(struct DateTime *out, struct MediaItem *item)" }
+MediaItem_GetDateModified = { at = 0x0829adf8, c = "void MediaItem_GetDateModified(struct DateTime *out, struct MediaItem *item)" }
+MediaItem_GetLastPlayed = { at = 0x082991a4, c = "void MediaItem_GetLastPlayed(struct DateTime *out, struct MediaItem *item)" }
+MediaItem_GetLastSkipped = { at = 0x08299504, c = "void MediaItem_GetLastSkipped(struct DateTime *out, struct MediaItem *item)" }
+# Returns 1 when the record carries a release date (podcasts, TV), else clears out.
+MediaItem_GetReleaseDate = { at = 0x0829957c, c = "int MediaItem_GetReleaseDate(struct MediaItem *item, struct DateTime *out)" }
 MediaListView_IsValid = { at = 0x0829d030, c = "int MediaListView_IsValid(void *list_view)" }
 MediaListView_GetCount = { at = 0x0829c858, c = "uint16_t MediaListView_GetCount(void *list_view)" }
 MediaListView_RemoveEntryAtIndex = { at = 0x0827a8c8, c = "int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse)" }
@@ -219,6 +232,29 @@ disc_number_method = 0xc0
 play_count_method = 0xc4
 skip_count_method = 0xcc
 chapter_count_method = 0x138
+file_type_method = 0x6c
+comment_method = 0x74
+category_method = 0x78
+description_method = 0x7c
+show_name_method = 0x80
+# Date methods take (struct DateTime *out, struct MediaItem *item), except release_date_method,
+# which takes (item, out) and returns 1 when a date exists.
+date_added_method = 0xa4
+date_modified_method = 0xa8
+last_played_method = 0xc8
+last_skipped_method = 0xd0
+release_date_method = 0xdc
+
+# Broken-down local time written by the MediaItem date methods.
+[offsets.DateTime]
+second = 0x0
+minute = 0x1
+hour = 0x2
+day = 0x3
+month = 0x4
+year = 0x6
+weekday = 0x8
+bytes = 0xa
 
 [offsets.MediaListView]
 list = 0x4
@@ -227,12 +263,19 @@ generation = 0xc
 
 [offsets.MediaRecord]
 entries = 0x24
+# Timestamps are iTunesDB values: seconds since 1904, UTC.
+date_added = 0x58
+date_modified = 0x6c
 # IEEE single, Hz (iTunesDB mhit +0x88).
 sample_rate = 0x74
+# iTunes volume adjustment, -255..255 for -100%..+100%.
+volume = 0x7c
 track_number = 0x84
 track_total = 0x86
 disc_number = 0x88
 disc_total = 0x8a
+last_played = 0x98
+last_skipped = 0xa8
 media_kind = 0xbc
 
 [offsets.MediaPlayer]

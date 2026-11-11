@@ -10,6 +10,7 @@
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
+struct DateTime;
 struct DirectoryIterator;
 struct MediaEntry;
 struct MediaItem;
@@ -95,6 +96,16 @@ uint16_t MediaItem_GetDiscNumber(struct MediaItem *item);
 uint32_t MediaItem_GetPlayCount(struct MediaItem *item);
 uint32_t MediaItem_GetSkipCount(struct MediaItem *item);
 uint32_t MediaItem_GetChapterCount(struct MediaItem *item);
+void MediaItem_GetFileType(struct MediaItem *item, struct NativeString *out);
+void MediaItem_GetComment(struct MediaItem *item, struct NativeString *out);
+void MediaItem_GetCategory(struct MediaItem *item, struct NativeString *out);
+void MediaItem_GetDescription(struct MediaItem *item, struct NativeString *out);
+void MediaItem_GetShowName(struct MediaItem *item, struct NativeString *out);
+void MediaItem_GetDateAdded(struct DateTime *out, struct MediaItem *item);
+void MediaItem_GetDateModified(struct DateTime *out, struct MediaItem *item);
+void MediaItem_GetLastPlayed(struct DateTime *out, struct MediaItem *item);
+void MediaItem_GetLastSkipped(struct DateTime *out, struct MediaItem *item);
+int MediaItem_GetReleaseDate(struct MediaItem *item, struct DateTime *out);
 int MediaListView_IsValid(void *list_view);
 uint16_t MediaListView_GetCount(void *list_view);
 int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse);
@@ -569,6 +580,16 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaItem_GetPlayCount 0x0829afe8
 #define ADDR_MediaItem_GetSkipCount 0x0829b014
 #define ADDR_MediaItem_GetChapterCount 0x08299644
+#define ADDR_MediaItem_GetFileType 0x0829a0d0
+#define ADDR_MediaItem_GetComment 0x0829ab98
+#define ADDR_MediaItem_GetCategory 0x0829ab14
+#define ADDR_MediaItem_GetDescription 0x082993cc
+#define ADDR_MediaItem_GetShowName 0x082992c4
+#define ADDR_MediaItem_GetDateAdded 0x0829aa60
+#define ADDR_MediaItem_GetDateModified 0x0829adf8
+#define ADDR_MediaItem_GetLastPlayed 0x082991a4
+#define ADDR_MediaItem_GetLastSkipped 0x08299504
+#define ADDR_MediaItem_GetReleaseDate 0x0829957c
 #define ADDR_MediaListView_IsValid 0x0829d030
 #define ADDR_MediaListView_GetCount 0x0829c858
 #define ADDR_MediaListView_RemoveEntryAtIndex 0x0827a8c8
@@ -1375,15 +1396,38 @@ extern void *const MenuListModel_vtable[];
 #define MediaItem_play_count_method 0xc4
 #define MediaItem_skip_count_method 0xcc
 #define MediaItem_chapter_count_method 0x138
+#define MediaItem_file_type_method 0x6c
+#define MediaItem_comment_method 0x74
+#define MediaItem_category_method 0x78
+#define MediaItem_description_method 0x7c
+#define MediaItem_show_name_method 0x80
+#define MediaItem_date_added_method 0xa4
+#define MediaItem_date_modified_method 0xa8
+#define MediaItem_last_played_method 0xc8
+#define MediaItem_last_skipped_method 0xd0
+#define MediaItem_release_date_method 0xdc
+#define DateTime_second 0x0
+#define DateTime_minute 0x1
+#define DateTime_hour 0x2
+#define DateTime_day 0x3
+#define DateTime_month 0x4
+#define DateTime_year 0x6
+#define DateTime_weekday 0x8
+#define DateTime_bytes 0xa
 #define MediaListView_list 0x4
 #define MediaListView_browser 0x8
 #define MediaListView_generation 0xc
 #define MediaRecord_entries 0x24
+#define MediaRecord_date_added 0x58
+#define MediaRecord_date_modified 0x6c
 #define MediaRecord_sample_rate 0x74
+#define MediaRecord_volume 0x7c
 #define MediaRecord_track_number 0x84
 #define MediaRecord_track_total 0x86
 #define MediaRecord_disc_number 0x88
 #define MediaRecord_disc_total 0x8a
+#define MediaRecord_last_played 0x98
+#define MediaRecord_last_skipped 0xa8
 #define MediaRecord_media_kind 0xbc
 #define MediaPlayer_current_track 0x54
 #define MediaPlayer_prepared_track 0x58
