@@ -27,6 +27,17 @@ MediaItem_HasKind8 = { at = 0x0829a9d4, c = "uint32_t MediaItem_HasKind8(struct 
 # Apple's playback code uses kind mask 0x8062 to tell video from audio.
 MediaItem_HasKind8062 = { at = 0x0829aad8, c = "uint32_t MediaItem_HasKind8062(struct MediaItem *item)" }
 MediaItem_HasKind200000 = { at = 0x0829afb4, c = "uint32_t MediaItem_HasKind200000(struct MediaItem *item)" }
+MediaItem_GetPath = { at = 0x0829a1d8, c = "void MediaItem_GetPath(struct NativeString *out, struct MediaItem *item)" }
+MediaItem_GetFileSizeBytes = { at = 0x0829a27c, c = "uint32_t MediaItem_GetFileSizeBytes(struct MediaItem *item)" }
+MediaItem_GetBitrateKbps = { at = 0x0829aa34, c = "uint16_t MediaItem_GetBitrateKbps(struct MediaItem *item)" }
+MediaItem_GetYear = { at = 0x0829a2a8, c = "uint16_t MediaItem_GetYear(struct MediaItem *item)" }
+# Rating is stored on the 0..100 scale, 20 per star.
+MediaItem_GetRating = { at = 0x0829aa08, c = "int32_t MediaItem_GetRating(struct MediaItem *item)" }
+MediaItem_GetTrackNumber = { at = 0x082995ec, c = "uint16_t MediaItem_GetTrackNumber(struct MediaItem *item)" }
+MediaItem_GetDiscNumber = { at = 0x082990f0, c = "uint16_t MediaItem_GetDiscNumber(struct MediaItem *item)" }
+MediaItem_GetPlayCount = { at = 0x0829afe8, c = "uint32_t MediaItem_GetPlayCount(struct MediaItem *item)" }
+MediaItem_GetSkipCount = { at = 0x0829b014, c = "uint32_t MediaItem_GetSkipCount(struct MediaItem *item)" }
+MediaItem_GetChapterCount = { at = 0x08299644, c = "uint32_t MediaItem_GetChapterCount(struct MediaItem *item)" }
 MediaListView_IsValid = { at = 0x0829d030, c = "int MediaListView_IsValid(void *list_view)" }
 MediaListView_GetCount = { at = 0x0829c858, c = "uint16_t MediaListView_GetCount(void *list_view)" }
 MediaListView_RemoveEntryAtIndex = { at = 0x0827a8c8, c = "int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse)" }
@@ -179,6 +190,8 @@ count = 0xc
 entries = 0x10
 
 [offsets.MediaItem]
+# path_method returns the path by value: (struct NativeString *out, struct MediaItem *item).
+path_method = 0x10
 bookmark_method = 0x90
 start_time_method = 0x94
 stop_time_method = 0x98
@@ -197,6 +210,15 @@ genre_method = 0x60
 composer_method = 0x64
 grouping_method = 0x68
 duration_method = 0xa0
+file_size_method = 0xac
+bitrate_method = 0xb0
+year_method = 0xb4
+rating_method = 0xb8
+track_number_method = 0xbc
+disc_number_method = 0xc0
+play_count_method = 0xc4
+skip_count_method = 0xcc
+chapter_count_method = 0x138
 
 [offsets.MediaListView]
 list = 0x4
@@ -205,6 +227,12 @@ generation = 0xc
 
 [offsets.MediaRecord]
 entries = 0x24
+# IEEE single, Hz (iTunesDB mhit +0x88).
+sample_rate = 0x74
+track_number = 0x84
+track_total = 0x86
+disc_number = 0x88
+disc_total = 0x8a
 media_kind = 0xbc
 
 [offsets.MediaPlayer]
@@ -241,6 +269,15 @@ MediaListOrderFlags_Reversed = 0x4
 MediaEntryFlags_Group = 0x100
 MediaRepeat_All = 1
 MediaRepeat_One = 2
+# Bits of MediaRecord_media_kind, as counted by ITunesDB_ImportTrackDataset.
+MediaKind_Music = 0x1
+MediaKind_Movie = 0x2
+MediaKind_Podcast = 0x4
+MediaKind_Audiobook = 0x8
+MediaKind_MusicVideo = 0x20
+MediaKind_TVShow = 0x40
+MediaKind_Rental = 0x8000
+MediaKind_ITunesU = 0x200000
 
 # The renderer owns embedded Bitmap objects; each surface borrows its BMap payload.
 [offsets.MediaListModel]

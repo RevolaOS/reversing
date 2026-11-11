@@ -85,6 +85,16 @@ uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item);
 uint32_t MediaItem_HasKind8(struct MediaItem *item);
 uint32_t MediaItem_HasKind8062(struct MediaItem *item);
 uint32_t MediaItem_HasKind200000(struct MediaItem *item);
+void MediaItem_GetPath(struct NativeString *out, struct MediaItem *item);
+uint32_t MediaItem_GetFileSizeBytes(struct MediaItem *item);
+uint16_t MediaItem_GetBitrateKbps(struct MediaItem *item);
+uint16_t MediaItem_GetYear(struct MediaItem *item);
+int32_t MediaItem_GetRating(struct MediaItem *item);
+uint16_t MediaItem_GetTrackNumber(struct MediaItem *item);
+uint16_t MediaItem_GetDiscNumber(struct MediaItem *item);
+uint32_t MediaItem_GetPlayCount(struct MediaItem *item);
+uint32_t MediaItem_GetSkipCount(struct MediaItem *item);
+uint32_t MediaItem_GetChapterCount(struct MediaItem *item);
 int MediaListView_IsValid(void *list_view);
 uint16_t MediaListView_GetCount(void *list_view);
 int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse);
@@ -290,6 +300,13 @@ int StringCache_ReleaseToken(void *cache, uint32_t token);
 int StringCache_GetTokenView(void *cache, uint32_t token, void **data, uint32_t *bytes);
 int PodcastEpisodes_DispatchAction(void *controller, const char *action, uint32_t argument);
 int PodcastEpisodes_BuildAndShowContextualMenu(void *controller);
+int ITunesUEpisodes_DispatchAction(void *controller, const char *action, uint32_t argument);
+int ITunesUEpisodes_BuildAndShowContextualMenu(void *controller);
+int Audiobooks_BuildAndShowContextualMenu(void *controller);
+int Movies_DispatchAction(void *controller, const char *action, uint32_t argument);
+int TVEpisodes_DispatchAction(void *controller, const char *action, uint32_t argument);
+int NestedVideoPlaylists_DispatchAction(void *controller, const char *action, uint32_t argument);
+int MediaListController_ShowContextMenuDefault(void *controller, int row);
 void MenuList_RebuildVisibleItems(void *menu_list, void *view, int refresh_subscriptions);
 int MenuList_SetItemTable(void *menu_list, uint32_t table_id, void *view);
 void MenuItems_RegisterResourceType(uint32_t type);
@@ -429,6 +446,12 @@ extern void *const SettingsMenuListController_vtable[];
 extern void *const ExtrasMenuController_vtable[];
 extern void *const ArtistsController_vtable[];
 extern void *const AlbumsController_vtable[];
+extern void *const NestedPlaylistsController_vtable[];
+extern void *const NestedVideoPlaylistsController_vtable[];
+extern void *const ITunesUEpisodesController_vtable[];
+extern void *const AudiobooksController_vtable[];
+extern void *const MoviesController_vtable[];
+extern void *const TVEpisodesController_vtable[];
 extern uint8_t Navigator[];
 extern void *const TextView_vtable[];
 extern void *const SelectedRowTextView_vtable[];
@@ -536,6 +559,16 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaItem_HasKind8 0x0829a9d4
 #define ADDR_MediaItem_HasKind8062 0x0829aad8
 #define ADDR_MediaItem_HasKind200000 0x0829afb4
+#define ADDR_MediaItem_GetPath 0x0829a1d8
+#define ADDR_MediaItem_GetFileSizeBytes 0x0829a27c
+#define ADDR_MediaItem_GetBitrateKbps 0x0829aa34
+#define ADDR_MediaItem_GetYear 0x0829a2a8
+#define ADDR_MediaItem_GetRating 0x0829aa08
+#define ADDR_MediaItem_GetTrackNumber 0x082995ec
+#define ADDR_MediaItem_GetDiscNumber 0x082990f0
+#define ADDR_MediaItem_GetPlayCount 0x0829afe8
+#define ADDR_MediaItem_GetSkipCount 0x0829b014
+#define ADDR_MediaItem_GetChapterCount 0x08299644
 #define ADDR_MediaListView_IsValid 0x0829d030
 #define ADDR_MediaListView_GetCount 0x0829c858
 #define ADDR_MediaListView_RemoveEntryAtIndex 0x0827a8c8
@@ -772,6 +805,13 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_StringCache_GetTokenView 0x08093598
 #define ADDR_PodcastEpisodes_DispatchAction 0x0823077c
 #define ADDR_PodcastEpisodes_BuildAndShowContextualMenu 0x082309d0
+#define ADDR_ITunesUEpisodes_DispatchAction 0x08230ad8
+#define ADDR_ITunesUEpisodes_BuildAndShowContextualMenu 0x08230d2c
+#define ADDR_Audiobooks_BuildAndShowContextualMenu 0x0822ac40
+#define ADDR_Movies_DispatchAction 0x0821d860
+#define ADDR_TVEpisodes_DispatchAction 0x0822ad5c
+#define ADDR_NestedVideoPlaylists_DispatchAction 0x08254c00
+#define ADDR_MediaListController_ShowContextMenuDefault 0x08210674
 #define ADDR_MenuList_RebuildVisibleItems 0x081946fc
 #define ADDR_MenuList_SetItemTable 0x08194d1c
 #define ADDR_MenuItems_RegisterResourceType 0x08194df0
@@ -950,6 +990,12 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ExtrasMenuController_vtable 0x0899cb30
 #define ADDR_ArtistsController_vtable 0x089a40e4
 #define ADDR_AlbumsController_vtable 0x089a3514
+#define ADDR_NestedPlaylistsController_vtable 0x089a6380
+#define ADDR_NestedVideoPlaylistsController_vtable 0x089a6bfc
+#define ADDR_ITunesUEpisodesController_vtable 0x089a67ec
+#define ADDR_AudiobooksController_vtable 0x089a59d4
+#define ADDR_MoviesController_vtable 0x089a3980
+#define ADDR_TVEpisodesController_vtable 0x089a5b4c
 #define ADDR_Navigator 0x08a822cc
 #define ADDR_TextView_vtable 0x089af07c
 #define ADDR_SelectedRowTextView_vtable 0x08993504
@@ -1123,6 +1169,15 @@ extern void *const MenuListModel_vtable[];
 #define SITE_TrackCount_0829c884_word 0x0829c884
 #define SITE_PodcastEpisodes_CancelAppend_call 0x08230a10
 #define SITE_PodcastEpisodes_Action_slot 0x089a67a0
+#define SITE_ITunesUEpisodes_CancelAppend_call 0x08230d6c
+#define SITE_ITunesUEpisodes_Action_slot 0x089a6900
+#define SITE_Audiobooks_CancelAppend_call 0x0822ac80
+#define SITE_Audiobooks_Action_slot 0x089a5ae8
+#define SITE_Movies_ShowContextMenu_slot 0x089a3ac8
+#define SITE_Movies_Action_slot 0x089a3a94
+#define SITE_TVEpisodes_ShowContextMenu_slot 0x089a5c94
+#define SITE_TVEpisodes_Action_slot 0x089a5c60
+#define SITE_NestedVideoPlaylists_Action_slot 0x089a6d10
 #define SITE_UI_LoadLayoutEvents_call 0x081d63f8
 #define SITE_UI_TemplateEventsGet_call 0x081d6218
 #define SITE_UI_LayoutEventsGet_call 0x081d62b4
@@ -1292,6 +1347,7 @@ extern void *const MenuListModel_vtable[];
 #define MediaOrder_bytes 0x8
 #define MediaOrder_count 0xc
 #define MediaOrder_entries 0x10
+#define MediaItem_path_method 0x10
 #define MediaItem_bookmark_method 0x90
 #define MediaItem_start_time_method 0x94
 #define MediaItem_stop_time_method 0x98
@@ -1310,10 +1366,24 @@ extern void *const MenuListModel_vtable[];
 #define MediaItem_composer_method 0x64
 #define MediaItem_grouping_method 0x68
 #define MediaItem_duration_method 0xa0
+#define MediaItem_file_size_method 0xac
+#define MediaItem_bitrate_method 0xb0
+#define MediaItem_year_method 0xb4
+#define MediaItem_rating_method 0xb8
+#define MediaItem_track_number_method 0xbc
+#define MediaItem_disc_number_method 0xc0
+#define MediaItem_play_count_method 0xc4
+#define MediaItem_skip_count_method 0xcc
+#define MediaItem_chapter_count_method 0x138
 #define MediaListView_list 0x4
 #define MediaListView_browser 0x8
 #define MediaListView_generation 0xc
 #define MediaRecord_entries 0x24
+#define MediaRecord_sample_rate 0x74
+#define MediaRecord_track_number 0x84
+#define MediaRecord_track_total 0x86
+#define MediaRecord_disc_number 0x88
+#define MediaRecord_disc_total 0x8a
 #define MediaRecord_media_kind 0xbc
 #define MediaPlayer_current_track 0x54
 #define MediaPlayer_prepared_track 0x58
@@ -1575,8 +1645,19 @@ extern void *const MenuListModel_vtable[];
 #define ScreenLayoutEntry_layout 0x0
 #define ScreenLayoutEntry_kind 0x4
 #define ScreenLayoutEntry_refresh 0x8
-#define PodcastEpisodesController_layout_cache 0xdc
+#define PodcastEpisodesController_layout_cache 0xd0
 #define PodcastEpisodesController_layout 0x100
+#define ITunesUEpisodesController_layout_cache 0xd0
+#define ITunesUEpisodesController_layout 0x100
+#define AudiobooksController_layout_cache 0xd8
+#define AudiobooksController_layout 0x108
+#define MoviesController_layout_cache 0xd4
+#define MoviesController_layout 0x104
+#define TVEpisodesController_layout_cache 0xd0
+#define TVEpisodesController_layout 0x100
+#define NestedVideoPlaylistsController_context_row 0xe8
+#define NestedVideoPlaylistsController_layout_cache 0xf4
+#define NestedVideoPlaylistsController_layout 0x124
 #define USBDevice_controller 0x34
 #define USBDevice_interfaces 0x38
 #define USBDevice_configuration_set 0x5c
@@ -1655,6 +1736,14 @@ extern void *const MenuListModel_vtable[];
 #define MediaEntryFlags_Group 0x100
 #define MediaRepeat_All 0x1
 #define MediaRepeat_One 0x2
+#define MediaKind_Music 0x1
+#define MediaKind_Movie 0x2
+#define MediaKind_Podcast 0x4
+#define MediaKind_Audiobook 0x8
+#define MediaKind_MusicVideo 0x20
+#define MediaKind_TVShow 0x40
+#define MediaKind_Rental 0x8000
+#define MediaKind_ITunesU 0x200000
 #define PMU_I2CWriteAddress 0xe6
 #define PMU_BacklightEnableRegister 0x29
 #define PMU_BacklightEnabled 0x1
@@ -1989,6 +2078,13 @@ extern void *const MenuListModel_vtable[];
 #define RES_ExtrasMenu_ScreenLock_Item 0x0dad01d3
 #define RES_ExtrasMenu_Stopwatch_Item 0x0dad01d4
 #define RES_MediaLists_PodcastEpisodes_Screen 0x0dad07f8
+#define RES_MediaLists_iTunesUEpisodes_Screen 0x0dad07fc
+#define RES_MediaLists_Audiobooks_Screen 0x0dad07e1
+#define RES_MediaLists_Movies_Screen 0x0dad0804
+#define RES_MediaLists_Movies_WithTime_Layout 0x0dad0805
+#define RES_MediaLists_TVEpisodes_Screen 0x0dad0802
+#define RES_MediaLists_TVEpisodes_Plain_Layout 0x0dad0803
+#define RES_MediaLists_MixedVideoTracks_Screen 0x0dad0812
 #define RES_MediaLists_Songs_Screen 0x0dad07e9
 #define RES_MediaLists_NestedPlaylists_Screen 0x0dad0808
 #define RES_MediaLists_Genius_Screen 0x0dad0844
