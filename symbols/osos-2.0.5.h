@@ -65,8 +65,10 @@ int MediaPlayer_RebuildArtwork(void *player);
 int MediaPlayer_GetCurrentItem(void *player, struct MediaItem *item);
 int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *item);
 void MediaPlayer_SetCurrentIndex(void *player, int index, int restart);
-int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_ms, uint32_t);
+int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_ms, uint32_t param_5);
 void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index);
+int MediaPlayer_IsRepeatAll(void *player);
+int MediaPlayer_IsRepeatOne(void *player);
 int MediaItem_IsValid(struct MediaItem *item);
 struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags);
 void MediaItem_Destroy(struct MediaItem *item);
@@ -79,6 +81,7 @@ int MediaListView_IsValid(void *list_view);
 uint16_t MediaListView_GetCount(void *list_view);
 int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse);
 int MediaEntry_Remove(struct MediaEntry *entry);
+void MediaList_NotifyChanged(struct MediaList *list);
 struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index);
 void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode);
 void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags);
@@ -301,6 +304,8 @@ uint32_t ResourceScreen_Activate(void *controller, uint32_t entering);
 uint32_t ResourceScreen_Deactivate(void *controller, uint32_t leaving);
 int MenuItem_SetVisible(uint32_t item_id, uint32_t visible);
 void ContextMenuItems_Append(void *items, uint32_t item_id, const char *action, uint32_t flags);
+void *ContextMenuItems_Init(void *items, uint8_t flag);
+void *ContextMenuItems_Destroy(void *items);
 void WheelEvent_DecodeMotion(void *event);
 uint32_t ButtonEvent_GetUIKeyCode(void *event);
 void *WheelAccumulator_Init(void *state, int threshold, uint8_t accelerate, uint32_t interval);
@@ -492,6 +497,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaPlayer_SetCurrentIndex 0x0816f058
 #define ADDR_MediaPlayer_PlayIndex 0x08171e7c
 #define ADDR_MediaPlayer_RemoveEntryAtIndex 0x081700bc
+#define ADDR_MediaPlayer_IsRepeatAll 0x08172ec8
+#define ADDR_MediaPlayer_IsRepeatOne 0x08172efc
 #define ADDR_MediaItem_IsValid 0x0829a7dc
 #define ADDR_MediaItem_InitFromRecord 0x08266d20
 #define ADDR_MediaItem_Destroy 0x08266da0
@@ -504,6 +511,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaListView_GetCount 0x0829c858
 #define ADDR_MediaListView_RemoveEntryAtIndex 0x0827a8c8
 #define ADDR_MediaEntry_Remove 0x0803db30
+#define ADDR_MediaList_NotifyChanged 0x080564b8
 #define ADDR_PlaybackList_GetEntryByIndex 0x0829cab8
 #define ADDR_MediaList_InvalidateOrderCache 0x080d1928
 #define ADDR_MediaList_CopyEntryAtPosition 0x0803bbf0
@@ -738,6 +746,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ContextMenuModel_GetIndexedProperty 0x081ded30
 #define ADDR_UI_LoadLayoutInstances 0x081d64cc
 #define ADDR_ContextMenuController_DispatchAction 0x081de6f8
+#define ADDR_ContextMenuController_ForwardAction 0x081dea30
 #define ADDR_ScreenController_SwitchLayoutDefault 0x08129994
 #define ADDR_UI_GetLayoutManager 0x081747ec
 #define ADDR_MenuList_QueryProperty 0x08194c2c
@@ -758,6 +767,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ResourceScreen_Deactivate 0x08398b6c
 #define ADDR_MenuItem_SetVisible 0x08194ff0
 #define ADDR_ContextMenuItems_Append 0x08162390
+#define ADDR_ContextMenuItems_Init 0x081624e8
+#define ADDR_ContextMenuItems_Destroy 0x0816250c
 #define ADDR_WheelEvent_DecodeMotion 0x08289490
 #define ADDR_ButtonEvent_GetUIKeyCode 0x0829b978
 #define ADDR_WheelAccumulator_Init 0x081b0efc
@@ -1210,6 +1221,7 @@ extern void *const MenuListModel_vtable[];
 #define MediaEntry_flags 0x1c
 #define MediaEntry_song_record 0x20
 #define MediaEntry_song_shuffle_rank 0x24
+#define MediaEntry_song_next_record_entry 0x28
 #define MediaEntry_group_first 0x20
 #define MediaEntry_group_last 0x24
 #define MediaEntry_groups 0x2c
@@ -1217,6 +1229,8 @@ extern void *const MenuListModel_vtable[];
 #define MediaEntry_size 0x30
 #define MediaList_track_data 0xc
 #define MediaList_root 0x40
+#define MediaList_order_mode 0xc8
+#define MediaList_repeat_mode 0x184
 #define MediaList_flags 0x18c
 #define MediaList_order_flags 0x18d
 #define MediaList_shuffle_index 0x3b4
@@ -1233,6 +1247,14 @@ extern void *const MenuListModel_vtable[];
 #define MediaItem_generation 0x10
 #define MediaItem_flags 0x14
 #define MediaItem_bytes 0x18
+#define MediaItem_title_method 0x50
+#define MediaItem_album_method 0x54
+#define MediaItem_artist_method 0x58
+#define MediaItem_display_artist_method 0x5c
+#define MediaItem_genre_method 0x60
+#define MediaItem_composer_method 0x64
+#define MediaItem_grouping_method 0x68
+#define MediaItem_duration_method 0xa0
 #define MediaListView_list 0x4
 #define MediaListView_browser 0x8
 #define MediaListView_generation 0xc
@@ -1340,6 +1362,8 @@ extern void *const MenuListModel_vtable[];
 #define MenuSettingsRow_visible 0x10
 #define MenuSettingsRow_bytes 0x14
 #define CppString_bytes 0x4
+#define NativeString_data 0x4
+#define NativeString_bytes 0x8
 #define StringInputStream_bytes 0x7c
 #define Model_notify_method 0x58
 #define ScreenController_push_method 0xd0
@@ -1457,6 +1481,7 @@ extern void *const MenuListModel_vtable[];
 #define TemplateStyle_bytes 0xc
 #define ContextMenuModel_items 0x18
 #define ContextMenuModel_remembered_item 0x30
+#define ContextMenuItems_bytes 0x18
 #define ContextMenuItem_item 0x0
 #define ContextMenuItem_action 0x4
 #define ContextMenuItem_flags 0x8
@@ -1547,6 +1572,14 @@ extern void *const MenuListModel_vtable[];
 #define WheelTouch_Down 0x40000000
 #define WheelEvent_Signal 0x5
 #define AlbumArtist_order_mode 0x2d
+#define MediaOrderMode_Database 0x1
+#define MediaOrderMode_Shuffle 0x2
+#define MediaOrderMode_Playback 0x33
+#define MediaListFlags_Shuffled 0x1
+#define MediaListOrderFlags_Reversed 0x4
+#define MediaEntryFlags_Group 0x100
+#define MediaRepeat_All 0x1
+#define MediaRepeat_One 0x2
 #define HardwareSource_DiskModeRequest 0x8
 #define HardwareSource_DiskGranted 0x9
 #define HardwareSource_HoldChanged 0x6

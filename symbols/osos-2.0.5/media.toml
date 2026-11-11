@@ -7,20 +7,24 @@ MediaPlayer_RebuildArtwork = { at = 0x08170238, c = "int MediaPlayer_RebuildArtw
 MediaPlayer_GetCurrentItem = { at = 0x0816f790, c = "int MediaPlayer_GetCurrentItem(void *player, struct MediaItem *item)" }
 MediaPlayer_GetItemAtIndex = { at = 0x0816ec38, c = "int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *item)" }
 MediaPlayer_SetCurrentIndex = { at = 0x0816f058, c = "void MediaPlayer_SetCurrentIndex(void *player, int index, int restart)" }
-MediaPlayer_PlayIndex = { at = 0x08171e7c, c = "int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_ms, uint32_t)" }
+MediaPlayer_PlayIndex = { at = 0x08171e7c, c = "int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_ms, uint32_t param_5)" }
 MediaPlayer_RemoveEntryAtIndex = { at = 0x081700bc, c = "void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index)" }
+MediaPlayer_IsRepeatAll = { at = 0x08172ec8, c = "int MediaPlayer_IsRepeatAll(void *player)" }
+MediaPlayer_IsRepeatOne = { at = 0x08172efc, c = "int MediaPlayer_IsRepeatOne(void *player)" }
 MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
 MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
 MediaItem_Destroy = { at = 0x08266da0, c = "void MediaItem_Destroy(struct MediaItem *item)" }
 MediaItem_Assign = { at = 0x08266da4, c = "void MediaItem_Assign(struct MediaItem *destination, const struct MediaItem *source)" }
 MediaItem_HasRecordFlag8F01 = { at = 0x0829af84, c = "uint32_t MediaItem_HasRecordFlag8F01(struct MediaItem *item)" }
 MediaItem_HasKind8 = { at = 0x0829a9d4, c = "uint32_t MediaItem_HasKind8(struct MediaItem *item)" }
+# Apple's playback code uses kind mask 0x8062 to tell video from audio.
 MediaItem_HasKind8062 = { at = 0x0829aad8, c = "uint32_t MediaItem_HasKind8062(struct MediaItem *item)" }
 MediaItem_HasKind200000 = { at = 0x0829afb4, c = "uint32_t MediaItem_HasKind200000(struct MediaItem *item)" }
 MediaListView_IsValid = { at = 0x0829d030, c = "int MediaListView_IsValid(void *list_view)" }
 MediaListView_GetCount = { at = 0x0829c858, c = "uint16_t MediaListView_GetCount(void *list_view)" }
 MediaListView_RemoveEntryAtIndex = { at = 0x0827a8c8, c = "int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse)" }
 MediaEntry_Remove = { at = 0x0803db30, c = "int MediaEntry_Remove(struct MediaEntry *entry)" }
+MediaList_NotifyChanged = { at = 0x080564b8, c = "void MediaList_NotifyChanged(struct MediaList *list)" }
 PlaybackList_GetEntryByIndex = { at = 0x0829cab8, c = "struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index)" }
 MediaList_InvalidateOrderCache = { at = 0x080d1928, c = "void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode)" }
 MediaList_CopyEntryAtPosition = { at = 0x0803bbf0, c = "void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags)" }
@@ -135,6 +139,7 @@ id = 0x10
 flags = 0x1c
 song_record = 0x20
 song_shuffle_rank = 0x24
+song_next_record_entry = 0x28
 group_first = 0x20
 group_last = 0x24
 groups = 0x2c
@@ -144,6 +149,8 @@ size = 0x30
 [offsets.MediaList]
 track_data = 0xc
 root = 0x40
+order_mode = 0xc8
+repeat_mode = 0x184
 flags = 0x18c
 order_flags = 0x18d
 shuffle_index = 0x3b4
@@ -166,6 +173,14 @@ browser = 0xc
 generation = 0x10
 flags = 0x14
 bytes = 0x18
+title_method = 0x50
+album_method = 0x54
+artist_method = 0x58
+display_artist_method = 0x5c
+genre_method = 0x60
+composer_method = 0x64
+grouping_method = 0x68
+duration_method = 0xa0
 
 [offsets.MediaListView]
 list = 0x4
@@ -200,3 +215,11 @@ dbid = 0x110
 
 [constants]
 AlbumArtist_order_mode = 0x2d
+MediaOrderMode_Database = 1
+MediaOrderMode_Shuffle = 2
+MediaOrderMode_Playback = 0x33
+MediaListFlags_Shuffled = 0x1
+MediaListOrderFlags_Reversed = 0x4
+MediaEntryFlags_Group = 0x100
+MediaRepeat_All = 1
+MediaRepeat_One = 2

@@ -23,5 +23,9 @@ StringInputStream_DestroyComplete = 0x2
 [offsets.CppString]
 bytes = 0x4
 
+[offsets.NativeString]
+data = 0x4
+bytes = 0x8
+
 [offsets.StringInputStream]
 bytes = 0x7c
