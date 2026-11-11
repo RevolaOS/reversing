@@ -471,6 +471,8 @@ MediaLists_TVEpisodes_Plain_Layout = 0x0dad0803
 # Contents of a video playlist (TSilverMediaListCntlr_NestedVideoPlaylists).
 MediaLists_MixedVideoTracks_Screen = 0x0dad0812
 MediaLists_Songs_Screen = 0x0dad07e9
+# Songs list with artwork, pushed for one-album artists and music videos; no press-and-hold binding.
+MediaLists_Songs_WithArtistAndArtwork_Layout = 0x0dad07ec
 MediaLists_NestedPlaylists_Screen = 0x0dad0808
 MediaLists_Genius_Screen = 0x0dad0844
 MediaLists_GeniusPlaylist_Screen = 0x0dad0848

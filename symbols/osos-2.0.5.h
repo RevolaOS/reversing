@@ -2130,6 +2130,7 @@ extern void *const MenuListModel_vtable[];
 #define RES_MediaLists_TVEpisodes_Plain_Layout 0x0dad0803
 #define RES_MediaLists_MixedVideoTracks_Screen 0x0dad0812
 #define RES_MediaLists_Songs_Screen 0x0dad07e9
+#define RES_MediaLists_Songs_WithArtistAndArtwork_Layout 0x0dad07ec
 #define RES_MediaLists_NestedPlaylists_Screen 0x0dad0808
 #define RES_MediaLists_Genius_Screen 0x0dad0844
 #define RES_MediaLists_GeniusPlaylist_Screen 0x0dad0848
