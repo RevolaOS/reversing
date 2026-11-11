@@ -35,5 +35,28 @@ UI timers are described in [ui.md](ui.md).
 
 `Clock_GetMicroseconds` returns the 32-bit timer register `ClockRegister_Microseconds`. It counts microseconds and wraps after 2^32 µs, about 71.6 minutes. `Platform_InitMicrosecondCounter` configures the timer and clears and starts it. The OSOS entry code calls it early, so the count starts at OSOS start, not at SoC reset. A second caller runs it from a registered handler; it did not run when the emulator woke from idle sleep. No other tick counter since boot has been found.
 
-`SetWarmBootModeTag` copies an 8-byte tag to `WarmBootTag_address` in IRAM. The modes are `WarmBootMode_None` through `WarmBootMode_RetailOS`, with the tags "--------", "diskmode", "diskscan", "softupdt" and "retailOS". `ResetSocAndWait` stops the watchdog, requests a software reset of the SoC and spins until it happens. `System_CheckVolumeOrRestart`, the first call in `App_ExitDiskMode`, sets `WarmBootMode_RetailOS` and resets when its volume check fails. What the boot code does with each tag, and whether IRAM survives the reset, has not been checked. No cold reset path (watchdog or PMU) has been found.
+`SetWarmBootModeTag` copies an 8-byte tag to `WarmBootTag_address` in IRAM. The modes are `WarmBootMode_None` through `WarmBootMode_RetailOS`, with the tags "--------", "diskmode", "diskscan", "softupdt" and "retailOS". `ResetSocAndWait` stops the watchdog, requests a software reset of the SoC and spins until it happens. `System_CheckVolumeOrRestart`, the first call in `App_ExitDiskMode`, sets `WarmBootMode_RetailOS` and resets when its volume check fails. IRAM retention depends on the reset path. The reserved tail below `IRAM0_END` retains the crash record across controlled software restart. BootROM owns the context word at the top of IRAM.
 
+TODO: establish crash-record retention for cold reset and power loss.
+
+## PMU memory
+
+`PMU_ReadMemory(offset, count, buffer)` and `PMU_WriteMemory(offset, count, buffer)` access PMU general-purpose bytes and return zero on success. The physical bank contains eight bytes. Callers must stay within that bank even though the wrappers accept a wider range.
+
+| Bytes | Ownership |
+|---|---|
+| 0–3 | Apple's `rtcV` clock-metadata validity marker |
+| 4–5 | Clock metadata, including the signed quarter-hour time-zone offset |
+| 6–7 | Ownership unknown |
+
+Clock initialization and clock changes read or rewrite bytes 0–5. These bytes belong to the clock protocol.
+
+TODO: identify ownership and power-loss retention of PMU bytes 6–7.
+
+The memory wrappers acquire PMU/I2C locks. Apple's lower-level polling path uses shared transfer state and unbounded waits. An interrupted operation can retain a lock or own the bus, so these routines are unsuitable for panic handlers.
+
+## Panic backlight
+
+`PMU_BacklightEnableRegister` controls LEDENA. Writing `PMU_BacklightEnabled` enables the backlight without changing its brightness, current limits, voltage protection or power rails. The panic path uses bounded polling through `I2C0Controller`, enables only the `PowerGate1_I2C0` gate, and refuses an already-active bus transaction.
+
+Clear stale transfer-completion flags before START. Byte progress uses `I2C_ByteDone`; a completion flag left by an earlier transfer does not prove the new byte was sent. Check `I2C_StatusNack` separately after each transfer stage. Controller-ready, byte-completion, settling and STOP waits must all be bounded so a backlight failure cannot prevent the crash screen or controlled restart.

@@ -29,3 +29,6 @@ To inject input, do what `Wheel_HandleInterrupt` does, then wake the wheel task:
 
 Then clear `WheelState_skip_packet` and call `Event_Signal(WheelEvent_Signal)`, which is safe from any task and from interrupts. The wheel task handles one step per wake, so steps have to be paced: one per request or per timer tick. A loop on the UI task does not give the wheel task time to run. This was checked in the emulator.
 
+A host injecting wheel motion must wait for `WheelState_position` to advance, `WheelState_reported_position` to match it, and `WheelState_notify_pending` to clear before lifting. A fixed delay alone can discard motion before the UI consumes it. The carried remainder means one injected movement is not necessarily one list row.
+
+Consumption does not bind input to a screen. The UI can change between a host screen capture and delivery of wheel input; on Now Playing, the same motion changes volume. Screen-driven navigation must account for that context change rather than treating a preceding capture as an atomic guard.

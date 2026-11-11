@@ -94,6 +94,9 @@ pc = 0x3c
 bytes = 0x40
 
 [constants]
+# Legacy statuses from File_OpenLegacyPath and File_ReadLegacyHandle, as uint32_t.
+FileError_NotFound = 0xffffffd5
+FileError_EndOfFile = 0xffffffd9
 ClockRegister_Microseconds = 0x3c7000b4
 Service_Preferences = 0x6000
 Preference_Toggle = 0x60bf

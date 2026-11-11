@@ -15,6 +15,7 @@ InputWheel_AccumulateMotion = { at = 0x08093718 }
 HoldSwitch_NotifyRawChange_call = { at = 0x08055b44, kind = "call" }
 
 [data]
+WheelController = { at = 0x3c200000, c = "volatile uint32_t WheelController[]" }
 WheelState = { at = 0x089d2b8c, c = "uint8_t WheelState[]" }
 ButtonKeyCodes = { at = 0x089d2ec5, c = "const uint8_t ButtonKeyCodes[5]" }
 
@@ -32,6 +33,12 @@ previous_touch = 0x1c
 touch = 0x24
 
 [constants]
+WheelController_Ready = 1
+WheelController_Acknowledge = 7
+WheelPacket_Mask = 0xbc0000ff
+WheelPacket_Value = 0x8000001a
+WheelPacket_ButtonsMask = 0x8000ffff
+WheelPacket_ButtonsValue = 0x8000023a
 WheelButton_Center = 0x1
 WheelButton_Next = 0x2
 WheelButton_Previous = 0x4
@@ -54,3 +61,8 @@ kind = 0x4
 wheel_delta = 0xc
 wheel_speed = 0x14
 key = 0x10
+
+[offsets.WheelController]
+status = 0xc
+acknowledge = 0x14
+packet = 0x18

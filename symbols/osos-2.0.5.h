@@ -162,6 +162,9 @@ int BlockCacheClient_CancelPending(void *client);
 int EAppBlockManager_HandleMessage(void *manager, void *message);
 void EAppBlocks_Acquire(void *manager);
 void EAppBlocks_Release(void *manager);
+void PMU_SetBacklightEnabled(int enabled);
+int PMU_ReadMemory(uint32_t offset, uint32_t count, void *buffer);
+int PMU_WriteMemory(uint32_t offset, uint32_t count, const void *buffer);
 uint32_t Power_EnterLightSleep(int mode);
 int Disk_GetPowerState(uint32_t *out_powered);
 void *StorageArbiter_Get(void);
@@ -394,12 +397,15 @@ extern const uint32_t EQ_PresetIds[];
 extern const uint8_t DisplayLayerOrders[];
 extern const uint32_t DisplayBlendRegisters[];
 extern void *const Bitmap_vtable[];
+extern volatile uint32_t WheelController[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
 extern uint8_t BrowserRegistry[];
 extern void *BlockCache;
 extern void *MainHeap;
 extern uint16_t ATA_Identify[256];
+extern volatile uint32_t I2C0Controller[];
+extern volatile uint32_t ClockRegister_PowerGate1;
 extern uint8_t StorageArbiter[];
 extern uint8_t DiskClient[];
 extern void *const DiskClient_vtable[];
@@ -609,6 +615,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_EAppBlockManager_HandleMessage 0x0819d67c
 #define ADDR_EAppBlocks_Acquire 0x0819d870
 #define ADDR_EAppBlocks_Release 0x0819d40c
+#define ADDR_PMU_SetBacklightEnabled 0x08363c70
+#define ADDR_PMU_ReadMemory 0x082dc2e8
+#define ADDR_PMU_WriteMemory 0x082dc5e4
 #define ADDR_Power_EnterLightSleep 0x0805d0c0
 #define ADDR_PowerController_HandleIdleSleep 0x0819b28c
 #define ADDR_PowerController_HandleRequestedSleep 0x0819bb18
@@ -905,12 +914,15 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_DisplayLayerOrders 0x083f35ec
 #define ADDR_DisplayBlendRegisters 0x083f35e0
 #define ADDR_Bitmap_vtable 0x08989298
+#define ADDR_WheelController 0x3c200000
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
 #define ADDR_BrowserRegistry 0x08a1a6dc
 #define ADDR_BlockCache 0x089d380c
 #define ADDR_MainHeap 0x089d2c78
 #define ADDR_ATA_Identify 0x08ae087c
+#define ADDR_I2C0Controller 0x3c600000
+#define ADDR_ClockRegister_PowerGate1 0x3c50004c
 #define ADDR_StorageArbiter 0x08a7e8f8
 #define ADDR_DiskClient 0x08a7e920
 #define ADDR_DiskClient_vtable 0x08996b78
@@ -1227,6 +1239,9 @@ extern void *const MenuListModel_vtable[];
 #define InputEvent_wheel_delta 0xc
 #define InputEvent_wheel_speed 0x14
 #define InputEvent_key 0x10
+#define WheelController_status 0xc
+#define WheelController_acknowledge 0x14
+#define WheelController_packet 0x18
 #define ITunesReader_file 0x40000
 #define ITunesReader_owner 0x40004
 #define MediaBrowser_preferences 0xf00
@@ -1353,6 +1368,11 @@ extern void *const MenuListModel_vtable[];
 #define ScsiDiskClient_context 0x8
 #define ScsiDiskClient_wanted 0xc
 #define ScsiDiskClient_state 0xd
+#define I2C0Controller_control 0x0
+#define I2C0Controller_status 0x4
+#define I2C0Controller_data 0xc
+#define I2C0Controller_busy 0x10
+#define I2C0Controller_transfer_status 0x20
 #define ResourceBlock_length 0x0
 #define ResourceBlock_kind 0x4
 #define ResourceBlock_data 0x8
@@ -1569,6 +1589,7 @@ extern void *const MenuListModel_vtable[];
 #define DRAM_END 0xc000000
 #define DRAM_UNCACHED_ALIAS 0x80000000
 #define IRAM_BASE 0x22000000
+#define IRAM0_END 0x22020000
 #define BOOT_DESCRIPTOR 0x2203ff00
 #define BOOT_SYSINFO_MAGIC 0x53797349
 #define MMIO_BASE 0x38000000
@@ -1583,6 +1604,12 @@ extern void *const MenuListModel_vtable[];
 #define BMapFormat_Indexed16 0x65
 #define BMapFormat_RGB565 0x565
 #define BMapFormat_BGRA8888 0x1888
+#define WheelController_Ready 0x1
+#define WheelController_Acknowledge 0x7
+#define WheelPacket_Mask 0xbc0000ff
+#define WheelPacket_Value 0x8000001a
+#define WheelPacket_ButtonsMask 0x8000ffff
+#define WheelPacket_ButtonsValue 0x8000023a
 #define WheelButton_Center 0x1
 #define WheelButton_Next 0x2
 #define WheelButton_Previous 0x4
@@ -1609,6 +1636,19 @@ extern void *const MenuListModel_vtable[];
 #define MediaEntryFlags_Group 0x100
 #define MediaRepeat_All 0x1
 #define MediaRepeat_One 0x2
+#define PMU_I2CWriteAddress 0xe6
+#define PMU_BacklightEnableRegister 0x29
+#define PMU_BacklightEnabled 0x1
+#define PowerGate1_I2C0 0x10
+#define I2C_ControlAck 0x80
+#define I2C_ControlInterrupts 0x3f00
+#define I2C_ControlContinue 0x10
+#define I2C_StatusMasterTransmit 0xc0
+#define I2C_StatusStart 0x30
+#define I2C_StatusBusy 0x20
+#define I2C_StatusNack 0x1
+#define I2C_ByteDone 0x100
+#define I2C_TransferDone 0x2100
 #define HardwareSource_DiskModeRequest 0x8
 #define HardwareSource_DiskGranted 0x9
 #define HardwareSource_HoldChanged 0x6
@@ -1639,6 +1679,8 @@ extern void *const MenuListModel_vtable[];
 #define Resource_VSlt 0x56536c74
 #define ResourceBankKind_Heap 0x1
 #define ResourceBankKind_Rom 0x2
+#define FileError_NotFound 0xffffffd5
+#define FileError_EndOfFile 0xffffffd9
 #define ClockRegister_Microseconds 0x3c7000b4
 #define Service_Preferences 0x6000
 #define Preference_Toggle 0x60bf

@@ -1,6 +1,9 @@
 # Sleep, state saving and disk power.
 
 [functions]
+PMU_SetBacklightEnabled = { at = 0x08363c70, c = "void PMU_SetBacklightEnabled(int enabled)" }
+PMU_ReadMemory = { at = 0x082dc2e8, c = "int PMU_ReadMemory(uint32_t offset, uint32_t count, void *buffer)" }
+PMU_WriteMemory = { at = 0x082dc5e4, c = "int PMU_WriteMemory(uint32_t offset, uint32_t count, const void *buffer)" }
 Power_EnterLightSleep = { at = 0x0805d0c0, c = "uint32_t Power_EnterLightSleep(int mode)" }
 PowerController_HandleIdleSleep = { at = 0x0819b28c }
 PowerController_HandleRequestedSleep = { at = 0x0819bb18 }
@@ -44,6 +47,8 @@ MusicLoadingTask_Run_slot = { at = 0x0899417c, kind = "slot" }
 DiskModeExit_PopToMainScreen_call = { at = 0x0810b65c, kind = "call", in = "App_ExitDiskMode+0x7c" }
 
 [data]
+I2C0Controller = { at = 0x3c600000, c = "volatile uint32_t I2C0Controller[]" }
+ClockRegister_PowerGate1 = { at = 0x3c50004c, c = "volatile uint32_t ClockRegister_PowerGate1" }
 StorageArbiter = { at = 0x08a7e8f8, c = "uint8_t StorageArbiter[]" }
 DiskClient = { at = 0x08a7e920, c = "uint8_t DiskClient[]" }
 DiskClient_vtable = { at = 0x08996b78, c = "void *const DiskClient_vtable[]" }
@@ -69,6 +74,21 @@ wanted = 0xc
 state = 0xd
 
 [constants]
+# PMU_SetBacklightEnabled and I2C0 write/IRQ paths; controller bit meanings
+# agree with Rockbox firmware/export/s5l87xx.h and i2c-s5l8702.c.
+PMU_I2CWriteAddress = 0xe6
+PMU_BacklightEnableRegister = 0x29
+PMU_BacklightEnabled = 1
+PowerGate1_I2C0 = 0x10
+I2C_ControlAck = 0x80
+I2C_ControlInterrupts = 0x3f00
+I2C_ControlContinue = 0x10
+I2C_StatusMasterTransmit = 0xc0
+I2C_StatusStart = 0x30
+I2C_StatusBusy = 0x20
+I2C_StatusNack = 1
+I2C_ByteDone = 0x100
+I2C_TransferDone = 0x2100
 HardwareSource_DiskModeRequest = 0x8
 HardwareSource_DiskGranted = 0x9
 HardwareSource_HoldChanged = 0x6
@@ -79,3 +99,10 @@ AppMessage_HoldOff = 0x63800014
 ScsiDiskClientState_Refused = 0x0
 ScsiDiskClientState_Pending = 0x1
 ScsiDiskClientState_Granted = 0x2
+
+[offsets.I2C0Controller]
+control = 0
+status = 4
+data = 0xc
+busy = 0x10
+transfer_status = 0x20
