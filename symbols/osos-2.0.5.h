@@ -64,6 +64,9 @@ int MediaPlayer_ClearPreparedTrack(void *player);
 int MediaPlayer_RebuildArtwork(void *player);
 int MediaPlayer_GetCurrentItem(void *player, struct MediaItem *item);
 int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *item);
+void MediaPlayer_SetCurrentIndex(void *player, int index, int restart);
+int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_ms, uint32_t);
+void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index);
 int MediaItem_IsValid(struct MediaItem *item);
 struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags);
 void MediaItem_Destroy(struct MediaItem *item);
@@ -73,6 +76,9 @@ uint32_t MediaItem_HasKind8(struct MediaItem *item);
 uint32_t MediaItem_HasKind8062(struct MediaItem *item);
 uint32_t MediaItem_HasKind200000(struct MediaItem *item);
 int MediaListView_IsValid(void *list_view);
+uint16_t MediaListView_GetCount(void *list_view);
+int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse);
+int MediaEntry_Remove(struct MediaEntry *entry);
 struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index);
 void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode);
 void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags);
@@ -483,6 +489,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaPlayer_RebuildArtwork 0x08170238
 #define ADDR_MediaPlayer_GetCurrentItem 0x0816f790
 #define ADDR_MediaPlayer_GetItemAtIndex 0x0816ec38
+#define ADDR_MediaPlayer_SetCurrentIndex 0x0816f058
+#define ADDR_MediaPlayer_PlayIndex 0x08171e7c
+#define ADDR_MediaPlayer_RemoveEntryAtIndex 0x081700bc
 #define ADDR_MediaItem_IsValid 0x0829a7dc
 #define ADDR_MediaItem_InitFromRecord 0x08266d20
 #define ADDR_MediaItem_Destroy 0x08266da0
@@ -492,6 +501,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaItem_HasKind8062 0x0829aad8
 #define ADDR_MediaItem_HasKind200000 0x0829afb4
 #define ADDR_MediaListView_IsValid 0x0829d030
+#define ADDR_MediaListView_GetCount 0x0829c858
+#define ADDR_MediaListView_RemoveEntryAtIndex 0x0827a8c8
+#define ADDR_MediaEntry_Remove 0x0803db30
 #define ADDR_PlaybackList_GetEntryByIndex 0x0829cab8
 #define ADDR_MediaList_InvalidateOrderCache 0x080d1928
 #define ADDR_MediaList_CopyEntryAtPosition 0x0803bbf0
@@ -1164,13 +1176,14 @@ extern void *const MenuListModel_vtable[];
 #define Bitmap_bounds 0x98
 #define Bitmap_owns_pixels 0xb4
 #define Bitmap_bytes 0xb8
+#define WheelState_notify_pending 0x0
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
 #define WheelState_skip_packet 0x1
 #define WheelState_threshold 0x4
 #define WheelState_motion 0x8
 #define WheelState_position 0xc
-#define WheelState_touch_down_position 0x10
+#define WheelState_reported_position 0x10
 #define WheelState_touch_count 0x14
 #define WheelState_previous_touch 0x1c
 #define WheelState_touch 0x24
@@ -1202,6 +1215,8 @@ extern void *const MenuListModel_vtable[];
 #define MediaEntry_groups 0x2c
 #define MediaEntry_tracks 0x2e
 #define MediaEntry_size 0x30
+#define MediaList_track_data 0xc
+#define MediaList_root 0x40
 #define MediaList_flags 0x18c
 #define MediaList_order_flags 0x18d
 #define MediaList_shuffle_index 0x3b4
@@ -1218,6 +1233,19 @@ extern void *const MenuListModel_vtable[];
 #define MediaItem_generation 0x10
 #define MediaItem_flags 0x14
 #define MediaItem_bytes 0x18
+#define MediaListView_list 0x4
+#define MediaListView_browser 0x8
+#define MediaListView_generation 0xc
+#define MediaRecord_entries 0x24
+#define MediaRecord_media_kind 0xbc
+#define MediaPlayer_current_track 0x54
+#define MediaPlayer_prepared_track 0x58
+#define MediaPlayer_playback_view 0x60
+#define MediaPlayer_artwork_session 0x88
+#define MediaPlayer_playback_source 0x948
+#define MediaPlayer_play_index_method 0xe0
+#define MediaPlayer_remove_entry_method 0x130
+#define MediaPlayer_current_index_method 0x158
 #define MediaPlayer_current_item_method 0x15c
 #define MediaPlayer_item_at_index_method 0x170
 #define MediaPlayer_current_index 0x5c

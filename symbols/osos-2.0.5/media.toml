@@ -6,6 +6,9 @@ MediaPlayer_ClearPreparedTrack = { at = 0x0817190c, c = "int MediaPlayer_ClearPr
 MediaPlayer_RebuildArtwork = { at = 0x08170238, c = "int MediaPlayer_RebuildArtwork(void *player)" }
 MediaPlayer_GetCurrentItem = { at = 0x0816f790, c = "int MediaPlayer_GetCurrentItem(void *player, struct MediaItem *item)" }
 MediaPlayer_GetItemAtIndex = { at = 0x0816ec38, c = "int MediaPlayer_GetItemAtIndex(void *player, uint32_t index, struct MediaItem *item)" }
+MediaPlayer_SetCurrentIndex = { at = 0x0816f058, c = "void MediaPlayer_SetCurrentIndex(void *player, int index, int restart)" }
+MediaPlayer_PlayIndex = { at = 0x08171e7c, c = "int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_ms, uint32_t)" }
+MediaPlayer_RemoveEntryAtIndex = { at = 0x081700bc, c = "void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index)" }
 MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
 MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
 MediaItem_Destroy = { at = 0x08266da0, c = "void MediaItem_Destroy(struct MediaItem *item)" }
@@ -15,6 +18,9 @@ MediaItem_HasKind8 = { at = 0x0829a9d4, c = "uint32_t MediaItem_HasKind8(struct 
 MediaItem_HasKind8062 = { at = 0x0829aad8, c = "uint32_t MediaItem_HasKind8062(struct MediaItem *item)" }
 MediaItem_HasKind200000 = { at = 0x0829afb4, c = "uint32_t MediaItem_HasKind200000(struct MediaItem *item)" }
 MediaListView_IsValid = { at = 0x0829d030, c = "int MediaListView_IsValid(void *list_view)" }
+MediaListView_GetCount = { at = 0x0829c858, c = "uint16_t MediaListView_GetCount(void *list_view)" }
+MediaListView_RemoveEntryAtIndex = { at = 0x0827a8c8, c = "int MediaListView_RemoveEntryAtIndex(void *list_view, uint32_t index, int order_mode, uint32_t reverse)" }
+MediaEntry_Remove = { at = 0x0803db30, c = "int MediaEntry_Remove(struct MediaEntry *entry)" }
 PlaybackList_GetEntryByIndex = { at = 0x0829cab8, c = "struct MediaEntry *PlaybackList_GetEntryByIndex(void *list, uint32_t index)" }
 MediaList_InvalidateOrderCache = { at = 0x080d1928, c = "void MediaList_InvalidateOrderCache(struct MediaList *list, uint32_t order_mode)" }
 MediaList_CopyEntryAtPosition = { at = 0x0803bbf0, c = "void *MediaList_CopyEntryAtPosition(void *source, void *destination, void *cursor, uint32_t flags)" }
@@ -136,6 +142,8 @@ tracks = 0x2e
 size = 0x30
 
 [offsets.MediaList]
+track_data = 0xc
+root = 0x40
 flags = 0x18c
 order_flags = 0x18d
 shuffle_index = 0x3b4
@@ -159,7 +167,24 @@ generation = 0x10
 flags = 0x14
 bytes = 0x18
 
+[offsets.MediaListView]
+list = 0x4
+browser = 0x8
+generation = 0xc
+
+[offsets.MediaRecord]
+entries = 0x24
+media_kind = 0xbc
+
 [offsets.MediaPlayer]
+current_track = 0x54
+prepared_track = 0x58
+playback_view = 0x60
+artwork_session = 0x88
+playback_source = 0x948
+play_index_method = 0xe0
+remove_entry_method = 0x130
+current_index_method = 0x158
 current_item_method = 0x15c
 item_at_index_method = 0x170
 current_index = 0x5c

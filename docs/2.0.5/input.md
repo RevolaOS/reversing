@@ -20,7 +20,7 @@ The hold switch is not polled. When its GPIO changes, the GPIO handler reads the
 
 ## Wheel touch and injection
 
-`WheelState` also holds the touch state: `WheelState_touch` is the finger position (0 to `WheelPositions` - 1) OR `WheelTouch_Down`, and 0 when the finger is lifted. `WheelState_threshold`, `WheelState_motion`, `WheelState_position`, `WheelState_touch_down_position`, `WheelState_touch_count` and `WheelState_previous_touch` are the accumulator's working fields. `InputWheel_AccumulateMotion` counts a move when the threshold ≤ |delta| < 36, and 12 positions move a list by one row.
+`WheelState` also holds the touch state: `WheelState_touch` is the finger position (0 to `WheelPositions` - 1) OR `WheelTouch_Down`, and 0 when the finger is lifted. `WheelState_threshold`, `WheelState_motion`, `WheelState_position`, `WheelState_reported_position`, `WheelState_touch_count` and `WheelState_previous_touch` are the accumulator's working fields. `InputWheel_AccumulateMotion` counts a move when the threshold ≤ |delta| < 36, and menu lists consume motion with threshold 5 and a carried remainder. `WheelState_notify_pending` marks a queued wheel notification. The UI updates `WheelState_reported_position` when it consumes motion; lifting also updates it, discarding any motion the UI has not consumed.
 
 To inject input, do what `Wheel_HandleInterrupt` does, then wake the wheel task:
 - buttons: write the mask to `WheelState_buttons`;

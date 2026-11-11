@@ -19,13 +19,14 @@ WheelState = { at = 0x089d2b8c, c = "uint8_t WheelState[]" }
 ButtonKeyCodes = { at = 0x089d2ec5, c = "const uint8_t ButtonKeyCodes[5]" }
 
 [offsets.WheelState]
+notify_pending = 0x0
 reported_buttons = 0x18
 buttons = 0x20
 skip_packet = 0x1
 threshold = 0x4
 motion = 0x8
 position = 0xc
-touch_down_position = 0x10
+reported_position = 0x10
 touch_count = 0x14
 previous_touch = 0x1c
 touch = 0x24
