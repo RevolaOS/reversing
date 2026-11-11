@@ -69,6 +69,7 @@ int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_
 void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index);
 int MediaPlayer_IsRepeatAll(void *player);
 int MediaPlayer_IsRepeatOne(void *player);
+int MediaPlayer_CreatePlaybackList(void *player, void *browse_context, void **out_list);
 int MediaItem_IsValid(struct MediaItem *item);
 struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags);
 void MediaItem_Destroy(struct MediaItem *item);
@@ -112,6 +113,7 @@ struct MediaList *MediaBrowser_GetCurrentList(void *browser);
 int MediaBrowser_CreateRoot(void *system, void **out_browser);
 int MediaBrowser_CreateChild(void *owner, void **out);
 int MediaBrowser_EvaluateEntryFilters(void *browser, struct MediaEntry *entry, struct MediaList *list_override);
+void MediaBrowser_CopyMatchingEntries(void *browser, struct MediaList *source, uint32_t order_mode, uint32_t reverse, struct MediaList *destination, int apply_skip_flags, uint32_t selected_index, struct MediaEntry **selected_out);
 int MediaBrowser_InvalidateEntryMatches(void *browser);
 void MediaBrowser_ClearArtists(void *browser);
 void MediaBrowser_ClearAlbums(void *browser);
@@ -499,6 +501,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaPlayer_RemoveEntryAtIndex 0x081700bc
 #define ADDR_MediaPlayer_IsRepeatAll 0x08172ec8
 #define ADDR_MediaPlayer_IsRepeatOne 0x08172efc
+#define ADDR_MediaPlayer_CreatePlaybackList 0x081719d4
 #define ADDR_MediaItem_IsValid 0x0829a7dc
 #define ADDR_MediaItem_InitFromRecord 0x08266d20
 #define ADDR_MediaItem_Destroy 0x08266da0
@@ -546,6 +549,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaBrowser_CreateRoot 0x0804d6e4
 #define ADDR_MediaBrowser_CreateChild 0x0804d80c
 #define ADDR_MediaBrowser_EvaluateEntryFilters 0x080d7a98
+#define ADDR_MediaBrowser_CopyMatchingEntries 0x0803bf78
 #define ADDR_MediaBrowser_InvalidateEntryMatches 0x0804ec24
 #define ADDR_MediaBrowser_ClearArtists 0x0804e850
 #define ADDR_MediaBrowser_ClearAlbums 0x0804e794
@@ -1263,6 +1267,7 @@ extern void *const MenuListModel_vtable[];
 #define MediaPlayer_current_track 0x54
 #define MediaPlayer_prepared_track 0x58
 #define MediaPlayer_playback_view 0x60
+#define MediaPlayer_source_view 0x74
 #define MediaPlayer_artwork_session 0x88
 #define MediaPlayer_playback_source 0x948
 #define MediaPlayer_play_index_method 0xe0
@@ -1576,6 +1581,7 @@ extern void *const MenuListModel_vtable[];
 #define MediaOrderMode_Shuffle 0x2
 #define MediaOrderMode_Playback 0x33
 #define MediaListFlags_Shuffled 0x1
+#define MediaListFlags_PlaybackList 0x80
 #define MediaListOrderFlags_Reversed 0x4
 #define MediaEntryFlags_Group 0x100
 #define MediaRepeat_All 0x1
@@ -1818,6 +1824,14 @@ extern void *const MenuListModel_vtable[];
 #define RES_ContextMenu_Layout 0x0dad01ca
 #define RES_ContextMenu_Items 0x00000001
 #define RES_ContextMenu_Item 0x0dad01cb
+#define RES_ContextMenu_StartGenius_String 0x0dad0117
+#define RES_ContextMenu_BrowseArtist_String 0x0dad0118
+#define RES_ContextMenu_BrowseAlbum_String 0x0dad0119
+#define RES_ContextMenu_BrowseCompilation_String 0x0dad011a
+#define RES_ContextMenu_AddToOnTheGo_String 0x0dad011b
+#define RES_ContextMenu_RemoveFromOnTheGo_String 0x0dad011c
+#define RES_ContextMenu_Cancel_String 0x0dad011d
+#define RES_ContextMenu_Title_String 0x0dad011e
 #define RES_ExtrasMenu_Screen 0x0dad01cc
 #define RES_ExtrasMenu_Layout 0x0dad01d6
 #define RES_ExtrasMenu_Stopwatch_Layout 0x0dad01ed

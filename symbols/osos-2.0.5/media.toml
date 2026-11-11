@@ -11,6 +11,7 @@ MediaPlayer_PlayIndex = { at = 0x08171e7c, c = "int MediaPlayer_PlayIndex(void *
 MediaPlayer_RemoveEntryAtIndex = { at = 0x081700bc, c = "void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index)" }
 MediaPlayer_IsRepeatAll = { at = 0x08172ec8, c = "int MediaPlayer_IsRepeatAll(void *player)" }
 MediaPlayer_IsRepeatOne = { at = 0x08172efc, c = "int MediaPlayer_IsRepeatOne(void *player)" }
+MediaPlayer_CreatePlaybackList = { at = 0x081719d4, c = "int MediaPlayer_CreatePlaybackList(void *player, void *browse_context, void **out_list)" }
 MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
 MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
 MediaItem_Destroy = { at = 0x08266da0, c = "void MediaItem_Destroy(struct MediaItem *item)" }
@@ -59,6 +60,7 @@ MediaBrowser_GetCurrentList = { at = 0x08046e00, c = "struct MediaList *MediaBro
 MediaBrowser_CreateRoot = { at = 0x0804d6e4, c = "int MediaBrowser_CreateRoot(void *system, void **out_browser)" }
 MediaBrowser_CreateChild = { at = 0x0804d80c, c = "int MediaBrowser_CreateChild(void *owner, void **out)" }
 MediaBrowser_EvaluateEntryFilters = { at = 0x080d7a98, c = "int MediaBrowser_EvaluateEntryFilters(void *browser, struct MediaEntry *entry, struct MediaList *list_override)" }
+MediaBrowser_CopyMatchingEntries = { at = 0x0803bf78, c = "void MediaBrowser_CopyMatchingEntries(void *browser, struct MediaList *source, uint32_t order_mode, uint32_t reverse, struct MediaList *destination, int apply_skip_flags, uint32_t selected_index, struct MediaEntry **selected_out)" }
 MediaBrowser_InvalidateEntryMatches = { at = 0x0804ec24, c = "int MediaBrowser_InvalidateEntryMatches(void *browser)" }
 MediaBrowser_ClearArtists = { at = 0x0804e850, c = "void MediaBrowser_ClearArtists(void *browser)" }
 MediaBrowser_ClearAlbums = { at = 0x0804e794, c = "void MediaBrowser_ClearAlbums(void *browser)" }
@@ -195,6 +197,7 @@ media_kind = 0xbc
 current_track = 0x54
 prepared_track = 0x58
 playback_view = 0x60
+source_view = 0x74
 artwork_session = 0x88
 playback_source = 0x948
 play_index_method = 0xe0
@@ -219,6 +222,7 @@ MediaOrderMode_Database = 1
 MediaOrderMode_Shuffle = 2
 MediaOrderMode_Playback = 0x33
 MediaListFlags_Shuffled = 0x1
+MediaListFlags_PlaybackList = 0x80
 MediaListOrderFlags_Reversed = 0x4
 MediaEntryFlags_Group = 0x100
 MediaRepeat_All = 1
