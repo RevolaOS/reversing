@@ -19,6 +19,13 @@ Audio_SetEQPreset = { at = 0x0818ca70 }
 Audio_FillOutputBuffer = { at = 0x22007840 }
 AudioOutputQueue_Read = { at = 0x22006b84 }
 
+Platform_UsesVolumeWarningPolicy = { at = 0x08047450 }
+Volume_GetRegionalCeiling = { at = 0x081558c0 }
+Volume_GetDefaultLimit = { at = 0x08155ad0 }
+VolumePolicy_IsWarningAcknowledged = { at = 0x08155a88 }
+MediaPlayer_FinishCurrentTrack = { at = 0x081731d8 }
+MediaPlayer_PostVolumeExposureLimitEvent = { at = 0x080cfe74 }
+
 [data]
 AudioOutputQueue = { at = 0x22010398, c = "uint8_t AudioOutputQueue[]" }
 EQ_Presets = { at = 0x089d4b58, c = "const uint8_t EQ_Presets[]" }
@@ -39,6 +46,14 @@ EQ_SettingsIds_literal = { at = 0x080bb4ac, kind = "literal" }
 EQ_PreviewTable_literal = { at = 0x081e0fa8, kind = "literal" }
 EQ_NameTable_literal = { at = 0x081e0ff0, kind = "literal" }
 EQ_ResourceTable_literal = { at = 0x082955dc, kind = "literal" }
+
+VolumePolicy_RegionTest_word = { at = 0x0804745c, kind = "word", in = "Platform_UsesVolumeWarningPolicy+0xc" }
+Volume_EUOffCeiling_word = { at = 0x081558f4, kind = "word", in = "Volume_GetRegionalCeiling+0x34" }
+Volume_EUDefaultLimit_word = { at = 0x08155af0, kind = "word", in = "Volume_GetDefaultLimit+0x20" }
+VolumePolicy_WarningPolicyTest_word = { at = 0x08155a90, kind = "word", in = "VolumePolicy_IsWarningAcknowledged+0x8" }
+Volume_StartupClampTest_word = { at = 0x08058a30, kind = "word", in = "Preferences_LoadAndMigrate+0x23c" }
+VolumeExposure_TrackFinishTest_word = { at = 0x081732dc, kind = "word", in = "MediaPlayer_FinishCurrentTrack+0x104" }
+MediaPlayer_PostVolumeExposureLimitEvent_word = { at = 0x080cfe74, kind = "word", in = "MediaPlayer_PostVolumeExposureLimitEvent+0x0" }
 
 [offsets.AudioOutputQueue]
 underruns_since_reset = 0x28

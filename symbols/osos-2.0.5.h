@@ -427,6 +427,12 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Audio_SetEQPreset 0x0818ca70
 #define ADDR_Audio_FillOutputBuffer 0x22007840
 #define ADDR_AudioOutputQueue_Read 0x22006b84
+#define ADDR_Platform_UsesVolumeWarningPolicy 0x08047450
+#define ADDR_Volume_GetRegionalCeiling 0x081558c0
+#define ADDR_Volume_GetDefaultLimit 0x08155ad0
+#define ADDR_VolumePolicy_IsWarningAcknowledged 0x08155a88
+#define ADDR_MediaPlayer_FinishCurrentTrack 0x081731d8
+#define ADDR_MediaPlayer_PostVolumeExposureLimitEvent 0x080cfe74
 #define ADDR_DisplayLayer_Commit 0x08114be4
 #define ADDR_DisplayPipe_ConfigureWindow 0x08143c30
 #define ADDR_DisplayPipe_SetWindowSource 0x081445cc
@@ -904,6 +910,13 @@ extern void *const MenuListModel_vtable[];
 #define SITE_EQ_PreviewTable_literal 0x081e0fa8
 #define SITE_EQ_NameTable_literal 0x081e0ff0
 #define SITE_EQ_ResourceTable_literal 0x082955dc
+#define SITE_VolumePolicy_RegionTest_word 0x0804745c
+#define SITE_Volume_EUOffCeiling_word 0x081558f4
+#define SITE_Volume_EUDefaultLimit_word 0x08155af0
+#define SITE_VolumePolicy_WarningPolicyTest_word 0x08155a90
+#define SITE_Volume_StartupClampTest_word 0x08058a30
+#define SITE_VolumeExposure_TrackFinishTest_word 0x081732dc
+#define SITE_MediaPlayer_PostVolumeExposureLimitEvent_word 0x080cfe74
 #define SITE_GameManifest_InitReader_call 0x080f9418
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
