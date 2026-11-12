@@ -43,6 +43,8 @@ void Audio_SetEQPreset(struct AudioEffectsContext *audio, uint32_t preset);
 void *AudioMixer_Get(void);
 void *AudioOutputQueue_Get(void);
 int AudioOutputQueue_Write(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags);
+void *AudioOutputQueue_Get_thunk(void);
+int AudioOutputQueue_Write_thunk(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags);
 void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
@@ -532,6 +534,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_AudioOutputQueue_Read 0x22006b84
 #define ADDR_AudioOutputQueue_Get 0x22006ea8
 #define ADDR_AudioOutputQueue_Write 0x22006f60
+#define ADDR_AudioOutputQueue_Get_thunk 0x0802d100
+#define ADDR_AudioOutputQueue_Write_thunk 0x0802d220
 #define ADDR_Platform_UsesVolumeWarningPolicy 0x08047450
 #define ADDR_Volume_GetRegionalCeiling 0x081558c0
 #define ADDR_Volume_GetDefaultLimit 0x08155ad0

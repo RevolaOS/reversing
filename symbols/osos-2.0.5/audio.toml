@@ -34,6 +34,9 @@ AudioOutputQueue_Get = { at = 0x22006ea8, c = "void *AudioOutputQueue_Get(void)"
 # IRAM. Copies frames of S16 stereo into the ring, stores tag and ors flags into the touched 4 KiB
 # pages; returns 0, or -1 without copying when less than frames * 4 bytes are free.
 AudioOutputQueue_Write = { at = 0x22006f60, c = "int AudioOutputQueue_Write(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags)" }
+# DRAM thunks (ldr pc into the IRAM body); the BLs in Audio_ProcessEffectsAndOutput target these.
+AudioOutputQueue_Get_thunk = { at = 0x0802d100, c = "void *AudioOutputQueue_Get_thunk(void)" }
+AudioOutputQueue_Write_thunk = { at = 0x0802d220, c = "int AudioOutputQueue_Write_thunk(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags)" }
 
 Platform_UsesVolumeWarningPolicy = { at = 0x08047450 }
 Volume_GetRegionalCeiling = { at = 0x081558c0 }
