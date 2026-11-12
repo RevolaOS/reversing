@@ -67,12 +67,17 @@ audio_track = 0x1b8
 audio_fourcc = 0x1c0
 
 # Times are 64-bit in the track's timescale. Sample, chunk and sample_in_chunk count from 1.
+# The *_atom fields are 64-bit file offsets of the stco, stsz and stsc atoms, -1 when absent;
+# MP4Parser_SeekAudioTrack returns at once when chunk_offset_atom is -1.
 [offsets.MP4Track]
 sample_sizes = 0xc
 chunk_offsets = 0x10
 sample_to_chunk = 0x14
 time_to_sample = 0x18
 edits = 0x1c
+chunk_offset_atom = 0x48
+sample_size_atom = 0x58
+sample_to_chunk_atom = 0x60
 sample = 0x68
 sample_to_chunk_index = 0x6c
 chunk = 0x70
@@ -88,6 +93,7 @@ edit_index = 0xa4
 edit_media_start = 0xa8
 edit_media_end = 0xb0
 edit_duration = 0xb8
+bytes = 0xd8
 
 # stsz: constant_size is nonzero when every sample has it and the window is unused.
 [offsets.MP4SampleSizeTable]
@@ -96,11 +102,24 @@ count = 0x4
 window_first = 0x8
 window = 0xc
 
-# stco, stsc and stts share this head; stsc entries are 12 bytes, stts entries 8 (count, delta).
+# stco, stsc and stts share this head. The stts window is filled once when the track is opened
+# with the first MP4_TimeToSampleWindow entries and never refilled; its readers index it without
+# a window check.
 [offsets.MP4SampleTable]
 count = 0x0
 window_first = 0x4
 window = 0x8
+
+[offsets.MP4SampleToChunkEntry]
+first_chunk = 0x0
+samples_per_chunk = 0x4
+description = 0x8
+bytes = 0xc
+
+[offsets.MP4TimeToSampleEntry]
+count = 0x0
+delta = 0x4
+bytes = 0x8
 
 # elst: 24-byte entries, media time at +8.
 [offsets.MP4EditList]
@@ -112,3 +131,4 @@ MediaStream_SeekEndMarginMs = 5000
 MP4_SampleSizeWindow = 0x8000
 MP4_SampleToChunkWindow = 0x8000
 MP4_ChunkOffsetWindow = 0x4000
+MP4_TimeToSampleWindow = 0x8000

@@ -1647,6 +1647,9 @@ extern void *const MenuListModel_vtable[];
 #define MP4Track_sample_to_chunk 0x14
 #define MP4Track_time_to_sample 0x18
 #define MP4Track_edits 0x1c
+#define MP4Track_chunk_offset_atom 0x48
+#define MP4Track_sample_size_atom 0x58
+#define MP4Track_sample_to_chunk_atom 0x60
 #define MP4Track_sample 0x68
 #define MP4Track_sample_to_chunk_index 0x6c
 #define MP4Track_chunk 0x70
@@ -1662,6 +1665,7 @@ extern void *const MenuListModel_vtable[];
 #define MP4Track_edit_media_start 0xa8
 #define MP4Track_edit_media_end 0xb0
 #define MP4Track_edit_duration 0xb8
+#define MP4Track_bytes 0xd8
 #define MP4SampleSizeTable_constant_size 0x0
 #define MP4SampleSizeTable_count 0x4
 #define MP4SampleSizeTable_window_first 0x8
@@ -1669,6 +1673,13 @@ extern void *const MenuListModel_vtable[];
 #define MP4SampleTable_count 0x0
 #define MP4SampleTable_window_first 0x4
 #define MP4SampleTable_window 0x8
+#define MP4SampleToChunkEntry_first_chunk 0x0
+#define MP4SampleToChunkEntry_samples_per_chunk 0x4
+#define MP4SampleToChunkEntry_description 0x8
+#define MP4SampleToChunkEntry_bytes 0xc
+#define MP4TimeToSampleEntry_count 0x0
+#define MP4TimeToSampleEntry_delta 0x4
+#define MP4TimeToSampleEntry_bytes 0x8
 #define MP4EditList_count 0x0
 #define MP4EditList_entries 0x4
 #define App_browser 0x30
@@ -1981,6 +1992,7 @@ extern void *const MenuListModel_vtable[];
 #define MP4_SampleSizeWindow 0x8000
 #define MP4_SampleToChunkWindow 0x8000
 #define MP4_ChunkOffsetWindow 0x4000
+#define MP4_TimeToSampleWindow 0x8000
 #define PMU_I2CWriteAddress 0xe6
 #define PMU_BacklightEnableRegister 0x29
 #define PMU_BacklightEnabled 0x1
