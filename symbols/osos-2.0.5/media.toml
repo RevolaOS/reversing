@@ -19,6 +19,9 @@ MediaPlayer_IsRepeatAll = { at = 0x08172ec8, c = "int MediaPlayer_IsRepeatAll(vo
 MediaPlayer_IsRepeatOne = { at = 0x08172efc, c = "int MediaPlayer_IsRepeatOne(void *player)" }
 # Takes MediaPlayer_mutex itself.
 MediaPlayer_Seek = { at = 0x08172148, c = "int MediaPlayer_Seek(void *player, uint32_t position_ms)" }
+MediaPlayer_ApplyEQSettingsId = { at = 0x081723e0, c = "void MediaPlayer_ApplyEQSettingsId(void *player, uint8_t settings_id)" }
+MediaPlayer_GetEQSettingsId = { at = 0x081722f4, c = "uint8_t MediaPlayer_GetEQSettingsId(void *player)" }
+MediaPlayer_GetEQMenuIndex = { at = 0x0816e9b4, c = "uint32_t MediaPlayer_GetEQMenuIndex(void *player)" }
 MediaPlayer_Stop = { at = 0x081721a0, c = "void MediaPlayer_Stop(void *player)" }
 # Plays a model row from a media list. mode 0 starts the list (3), else enqueues (1); shuffle
 # 0xffffffff keeps the controller's own setting. Emits GotoNowPlaying.
@@ -49,6 +52,8 @@ MediaItem_GetChapterCount = { at = 0x08299644, c = "uint32_t MediaItem_GetChapte
 MediaItem_GetChapterStartMs = { at = 0x08299b50, c = "uint32_t MediaItem_GetChapterStartMs(struct MediaItem *item, uint32_t index)" }
 # Title of the chapter containing position_ms (0 reads as 1 ms); returns 1 with a title, else clears out.
 MediaItem_GetChapterTitleAt = { at = 0x08299820, c = "int MediaItem_GetChapterTitleAt(struct MediaItem *item, int position_ms, struct NativeString *out)" }
+# The track's own iTunes EQ preset as a settings id, 0 for none.
+MediaItem_GetEQSettingsId = { at = 0x0829911c, c = "uint16_t MediaItem_GetEQSettingsId(struct MediaItem *item)" }
 MediaItem_GetChapterIndexAt = { at = 0x08299c88, c = "int MediaItem_GetChapterIndexAt(struct MediaItem *item, uint32_t position_ms)" }
 # iTunes "Kind" text (iTunesDB mhod 6), such as "AAC audio file".
 MediaItem_GetFileType = { at = 0x0829a0d0, c = "void MediaItem_GetFileType(struct MediaItem *item, struct NativeString *out)" }
@@ -247,6 +252,7 @@ chapter_count_method = 0x138
 chapter_start_method = 0x13c
 chapter_title_method = 0x140
 chapter_index_method = 0x144
+eq_settings_id_method = 0xd4
 file_type_method = 0x6c
 comment_method = 0x74
 category_method = 0x78
@@ -278,6 +284,7 @@ generation = 0xc
 
 [offsets.MediaRecord]
 entries = 0x24
+eq_settings_id = 0x54
 # Timestamps are iTunesDB values: seconds since 1904, UTC.
 date_added = 0x58
 date_modified = 0x6c
@@ -306,6 +313,10 @@ current_index_method = 0x158
 current_item_method = 0x15c
 item_at_index_method = 0x170
 stop_method = 0xec
+apply_eq_settings_id_method = 0xa0
+eq_settings_id_method = 0xa4
+eq_menu_index_method = 0xb4
+eq_settings_id = 0x94d
 seek_method = 0x100
 current_index = 0x5c
 mutex = 0xa4c

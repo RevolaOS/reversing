@@ -10,11 +10,13 @@
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 
+struct AudioEffectsContext;
 struct DateTime;
 struct DirectoryIterator;
 struct MediaEntry;
 struct MediaItem;
 struct MediaList;
+struct MediaTrack;
 struct NativePath;
 struct NativeString;
 struct ThreeBandEQ;
@@ -28,8 +30,17 @@ void EQ_ResetAllBiquadStates(struct ThreeBandEQ *eq);
 void EQ_ResetBiquadState(struct ThreeBandEQ *eq, uint32_t stage);
 void EQ_ProcessBiquadStereoS16(struct ThreeBandEQ *eq, const int16_t *input, int16_t *output, uint32_t frames, uint32_t stage);
 void EQ_ProcessThreeBiquadsInPlace(struct ThreeBandEQ *eq, int16_t *input, uint32_t frames, int16_t **output, uint32_t *output_frames);
+void EQ_SetDspPreset(struct ThreeBandEQ *eq, uint32_t preset);
+void EQ_SetSampleRate(struct ThreeBandEQ *eq, uint32_t rate_hz);
+struct ThreeBandEQ *EQ_InitThreeBiquadState(struct ThreeBandEQ *eq);
 uint32_t EQ_SettingsIdToDspPreset(uint32_t settings_id);
+int EQ_SettingsIdToMenuIndex(uint32_t settings_id, uint32_t *menu_index);
+int EQ_MenuIndexToSettingsId(uint32_t menu_index, uint32_t *settings_id);
+void MediaTrack_ApplyEQ(struct MediaTrack *track);
+int MediaTrack_IsReady(struct MediaTrack *track);
 void Audio_SetPlaybackSource(void *source);
+void Audio_SetEQPreset(struct AudioEffectsContext *audio, uint32_t preset);
+void *AudioMixer_Get(void);
 void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
@@ -78,6 +89,9 @@ void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index);
 int MediaPlayer_IsRepeatAll(void *player);
 int MediaPlayer_IsRepeatOne(void *player);
 int MediaPlayer_Seek(void *player, uint32_t position_ms);
+void MediaPlayer_ApplyEQSettingsId(void *player, uint8_t settings_id);
+uint8_t MediaPlayer_GetEQSettingsId(void *player);
+uint32_t MediaPlayer_GetEQMenuIndex(void *player);
 void MediaPlayer_Stop(void *player);
 void MediaListController_PlayRow(void *controller, int row, int mode, uint32_t shuffle);
 int AudiobookChapters_SelectRow(void *controller, int row);
@@ -102,6 +116,7 @@ uint32_t MediaItem_GetSkipCount(struct MediaItem *item);
 uint32_t MediaItem_GetChapterCount(struct MediaItem *item);
 uint32_t MediaItem_GetChapterStartMs(struct MediaItem *item, uint32_t index);
 int MediaItem_GetChapterTitleAt(struct MediaItem *item, int position_ms, struct NativeString *out);
+uint16_t MediaItem_GetEQSettingsId(struct MediaItem *item);
 int MediaItem_GetChapterIndexAt(struct MediaItem *item, uint32_t position_ms);
 void MediaItem_GetFileType(struct MediaItem *item, struct NativeString *out);
 void MediaItem_GetComment(struct MediaItem *item, struct NativeString *out);
@@ -291,6 +306,7 @@ void *SettingsModel_ResetMusicMenu(void *model);
 void *SettingsModel_GetEQPresetPreview(void *model, uint32_t menu_index);
 void *SettingsModel_GetEQPresetName(void *model, uint32_t menu_index);
 void SettingsModel_ResetAllSettings(void *model);
+int Settings_SetEQPreset(void *browser, uint32_t menu_index);
 void SettingsModel_SelectEQMenuIndex(void *model, uint32_t menu_index);
 void SettingsModel_SetPreviewIndex(void *model, uint32_t index);
 int SettingsEQ_HandleAction(void *controller, const char *action, uint32_t argument);
@@ -435,6 +451,7 @@ void USB_StartControlTransfer(void *usb, uint32_t endpoint, void *buffer, uint32
 int USB_IsAccessoryMode(void);
 void SCSI_AcquireMedium(void *out_result, void *context, int set_sense);
 
+extern void *const ThreeBandEQ_vtable[];
 extern uint8_t AudioOutputQueue[];
 extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
@@ -496,14 +513,18 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_EQ_ProcessThreeBiquadsInPlace 0x082737fc
 #define ADDR_EQ_SetDspPreset 0x082735c4
 #define ADDR_EQ_SetSampleRate 0x082735f4
+#define ADDR_EQ_InitThreeBiquadState 0x08273858
 #define ADDR_EQ_SettingsIdToDspPreset 0x080b28a0
 #define ADDR_EQ_SettingsIdToMenuIndex 0x080bb460
+#define ADDR_EQ_MenuIndexToSettingsId 0x0807bf94
 #define ADDR_MediaTrack_ApplyEQ 0x08173b48
+#define ADDR_MediaTrack_IsReady 0x0829394c
 #define ADDR_Audio_SetPlaybackSource 0x081a64c4
 #define ADDR_Audio_InitEffectsChain 0x0818ced8
 #define ADDR_Audio_ProcessEffectsAndOutput 0x0818cbe0
 #define ADDR_Audio_SetPostEffectsGainQ15 0x0818cec0
 #define ADDR_Audio_SetEQPreset 0x0818ca70
+#define ADDR_AudioMixer_Get 0x22007490
 #define ADDR_Audio_FillOutputBuffer 0x22007840
 #define ADDR_AudioOutputQueue_Read 0x22006b84
 #define ADDR_Platform_UsesVolumeWarningPolicy 0x08047450
@@ -575,6 +596,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaPlayer_IsRepeatAll 0x08172ec8
 #define ADDR_MediaPlayer_IsRepeatOne 0x08172efc
 #define ADDR_MediaPlayer_Seek 0x08172148
+#define ADDR_MediaPlayer_ApplyEQSettingsId 0x081723e0
+#define ADDR_MediaPlayer_GetEQSettingsId 0x081722f4
+#define ADDR_MediaPlayer_GetEQMenuIndex 0x0816e9b4
 #define ADDR_MediaPlayer_Stop 0x081721a0
 #define ADDR_MediaListController_PlayRow 0x0820f358
 #define ADDR_AudiobookChapters_SelectRow 0x08231bb0
@@ -599,6 +623,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaItem_GetChapterCount 0x08299644
 #define ADDR_MediaItem_GetChapterStartMs 0x08299b50
 #define ADDR_MediaItem_GetChapterTitleAt 0x08299820
+#define ADDR_MediaItem_GetEQSettingsId 0x0829911c
 #define ADDR_MediaItem_GetChapterIndexAt 0x08299c88
 #define ADDR_MediaItem_GetFileType 0x0829a0d0
 #define ADDR_MediaItem_GetComment 0x0829ab98
@@ -819,6 +844,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MusicMenuSettings_HandleSelection 0x081dd6c8
 #define ADDR_SettingsModel_ResetAllSettings 0x081e1e6c
 #define ADDR_SettingsController_ConfirmResetAll 0x08212820
+#define ADDR_Settings_SetEQPreset 0x0805c0b8
 #define ADDR_SettingsModel_SelectEQMenuIndex 0x081e4008
 #define ADDR_SettingsModel_SetPreviewIndex 0x081e11d4
 #define ADDR_SettingsEQ_HandleAction 0x081345e4
@@ -1002,6 +1028,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_USBDeviceTask_Run 0x0813e598
 #define ADDR_USB_IsAccessoryMode 0x0813e560
 #define ADDR_SCSI_AcquireMedium 0x080ed98c
+#define ADDR_ThreeBandEQ_vtable 0x089ae0c4
 #define ADDR_AudioOutputQueue 0x22010398
 #define ADDR_EQ_Presets 0x089d4b58
 #define ADDR_EQ_PresetIds 0x083e4110
@@ -1061,6 +1088,8 @@ extern void *const MenuListModel_vtable[];
 #define SITE_EQ_SetRate_Load_call 0x08273610
 #define SITE_EQ_DspCount_word 0x082735c8
 #define SITE_EQ_TrackGuard_word 0x08173b74
+#define SITE_EQ_TrackPreset_call 0x08173b80
+#define SITE_EQ_SettingsIdToDspPreset_entry 0x080b28a0
 #define SITE_EQ_SettingsCount_word 0x080bb498
 #define SITE_EQ_ProviderCount_word 0x081e1ae8
 #define SITE_EQ_MenuIds_literal 0x0807bfb0
@@ -1287,6 +1316,32 @@ extern void *const MenuListModel_vtable[];
 #define ArtworkThumb_bytes 0x24
 #define AudioOutputQueue_underruns_since_reset 0x28
 #define AudioOutputQueue_underruns 0x2c
+#define ThreeBandEQ_enable_method 0x8
+#define ThreeBandEQ_reset_method 0x10
+#define ThreeBandEQ_set_sample_rate_method 0x14
+#define ThreeBandEQ_process_method 0x1c
+#define ThreeBandEQ_sample_rate 0x4
+#define ThreeBandEQ_enabled 0x8
+#define ThreeBandEQ_stages 0xc
+#define ThreeBandEQ_preset 0xb4
+#define ThreeBandEQ_bytes 0xb8
+#define EQStage_a1 0x0
+#define EQStage_a2 0x4
+#define EQStage_b0 0x8
+#define EQStage_b1 0xc
+#define EQStage_b2 0x10
+#define EQStage_history 0x14
+#define EQStage_bypass 0x34
+#define EQStage_bytes 0x38
+#define EQPreset_name 0x0
+#define EQPreset_preview 0x4
+#define EQPreset_bytes 0x8
+#define AudioEffectsContext_eq 0x18034
+#define AudioMixer_effects 0x20
+#define MediaTrack_state 0x0
+#define MediaTrack_item 0x4
+#define MediaTrack_record 0xc
+#define MediaTrack_playback_settings 0x20
 #define DisplayPipe_control 0x8
 #define DisplayPipe_video_mode 0x28
 #define DisplayPipe_video_strides 0x2c
@@ -1425,6 +1480,7 @@ extern void *const MenuListModel_vtable[];
 #define MediaItem_chapter_start_method 0x13c
 #define MediaItem_chapter_title_method 0x140
 #define MediaItem_chapter_index_method 0x144
+#define MediaItem_eq_settings_id_method 0xd4
 #define MediaItem_file_type_method 0x6c
 #define MediaItem_comment_method 0x74
 #define MediaItem_category_method 0x78
@@ -1447,6 +1503,7 @@ extern void *const MenuListModel_vtable[];
 #define MediaListView_browser 0x8
 #define MediaListView_generation 0xc
 #define MediaRecord_entries 0x24
+#define MediaRecord_eq_settings_id 0x54
 #define MediaRecord_date_added 0x58
 #define MediaRecord_date_modified 0x6c
 #define MediaRecord_sample_rate 0x74
@@ -1470,6 +1527,10 @@ extern void *const MenuListModel_vtable[];
 #define MediaPlayer_current_item_method 0x15c
 #define MediaPlayer_item_at_index_method 0x170
 #define MediaPlayer_stop_method 0xec
+#define MediaPlayer_apply_eq_settings_id_method 0xa0
+#define MediaPlayer_eq_settings_id_method 0xa4
+#define MediaPlayer_eq_menu_index_method 0xb4
+#define MediaPlayer_eq_settings_id 0x94d
 #define MediaPlayer_seek_method 0x100
 #define MediaPlayer_current_index 0x5c
 #define MediaPlayer_mutex 0xa4c
@@ -1551,7 +1612,10 @@ extern void *const MenuListModel_vtable[];
 #define Preferences_object 0x378
 #define Preferences_get_method 0xdc
 #define Preferences_set_method 0xd4
+#define Preferences_get_typed_method 0xe0
+#define Preferences_set_typed_method 0xd8
 #define PreferencesFile_clicker_route 0xb00
+#define PreferencesFile_eq_settings_id 0xb64
 #define PreferencesFile_dirty 0xb94
 #define DirectoryIterator_bytes 0x44
 #define NativePath_bytes 0x8
@@ -1749,6 +1813,11 @@ extern void *const MenuListModel_vtable[];
 #define USBDevice_configuration 0xc4
 #define USBDevice_bytes 0xd0
 
+#define EQ_PresetCount 0x17
+#define EQ_SettingsId_Off 0x0
+#define EQ_SettingsId_First 0x64
+#define EQ_SettingsId_Flat 0x6b
+#define EQ_SettingsId_Last 0x79
 #define DISPLAY_PIPE_BASE 0x38900000
 #define DisplayLayerEnable_Layer0 0x40
 #define DisplayLayerEnable_Layer1 0x20
@@ -1868,6 +1937,8 @@ extern void *const MenuListModel_vtable[];
 #define Service_Preferences 0x6000
 #define Preference_Toggle 0x60bf
 #define Preference_Clicker 0x608c
+#define Preference_EQMenuIndex 0x6063
+#define PreferenceType_Uint32 0x55693332
 #define Clicker_Both 0x608d
 #define Clicker_Off 0x608e
 #define Clicker_Headphones 0x608f

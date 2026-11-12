@@ -64,9 +64,15 @@ HoldSwitch_GetLogicalState_entry = { at = 0x0807c010, kind = "entry" }
 object = 0x378
 get_method = 0xdc
 set_method = 0xd4
+# Typed variants: get(service, property, Service_Preferences, type) returns the value;
+# set(service, property, Service_Preferences, const void *value, type, service).
+get_typed_method = 0xe0
+set_typed_method = 0xd8
 
 [offsets.PreferencesFile]
 clicker_route = 0xb00
+# uint16, an EQ settings id.
+eq_settings_id = 0xb64
 dirty = 0xb94
 
 [offsets.DirectoryIterator]
@@ -101,6 +107,9 @@ ClockRegister_Microseconds = 0x3c7000b4
 Service_Preferences = 0x6000
 Preference_Toggle = 0x60bf
 Preference_Clicker = 0x608c
+# Read and written as a menu index into EQ_PresetIds through the typed methods.
+Preference_EQMenuIndex = 0x6063
+PreferenceType_Uint32 = 0x55693332
 Clicker_Both = 0x608d
 Clicker_Off = 0x608e
 Clicker_Headphones = 0x608f

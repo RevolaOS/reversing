@@ -6,16 +6,27 @@ EQ_ResetAllBiquadStates = { at = 0x08273630, c = "void EQ_ResetAllBiquadStates(s
 EQ_ResetBiquadState = { at = 0x08273594, c = "void EQ_ResetBiquadState(struct ThreeBandEQ *eq, uint32_t stage)" }
 EQ_ProcessBiquadStereoS16 = { at = 0x08273658, c = "void EQ_ProcessBiquadStereoS16(struct ThreeBandEQ *eq, const int16_t *input, int16_t *output, uint32_t frames, uint32_t stage)" }
 EQ_ProcessThreeBiquadsInPlace = { at = 0x082737fc, c = "void EQ_ProcessThreeBiquadsInPlace(struct ThreeBandEQ *eq, int16_t *input, uint32_t frames, int16_t **output, uint32_t *output_frames)" }
-EQ_SetDspPreset = { at = 0x082735c4 }
-EQ_SetSampleRate = { at = 0x082735f4 }
+# Clamps presets above 22 to 0, reloads coefficients and resets the histories through reset_method.
+EQ_SetDspPreset = { at = 0x082735c4, c = "void EQ_SetDspPreset(struct ThreeBandEQ *eq, uint32_t preset)" }
+EQ_SetSampleRate = { at = 0x082735f4, c = "void EQ_SetSampleRate(struct ThreeBandEQ *eq, uint32_t rate_hz)" }
+EQ_InitThreeBiquadState = { at = 0x08273858, c = "struct ThreeBandEQ *EQ_InitThreeBiquadState(struct ThreeBandEQ *eq)" }
 EQ_SettingsIdToDspPreset = { at = 0x080b28a0, c = "uint32_t EQ_SettingsIdToDspPreset(uint32_t settings_id)" }
-EQ_SettingsIdToMenuIndex = { at = 0x080bb460 }
-MediaTrack_ApplyEQ = { at = 0x08173b48 }
+# Returns 0 and the index of settings_id in EQ_PresetIds, else -50 and index 0xffffffff.
+EQ_SettingsIdToMenuIndex = { at = 0x080bb460, c = "int EQ_SettingsIdToMenuIndex(uint32_t settings_id, uint32_t *menu_index)" }
+# EQ_PresetIds[menu_index] without a bounds check; -50 only when settings_id is NULL.
+EQ_MenuIndexToSettingsId = { at = 0x0807bf94, c = "int EQ_MenuIndexToSettingsId(uint32_t menu_index, uint32_t *settings_id)" }
+# Sends the DSP preset for the player's settings id to the audio task; a track's own id wins unless the
+# player's is Flat. Only for tracks MediaTrack_IsReady accepts.
+MediaTrack_ApplyEQ = { at = 0x08173b48, c = "void MediaTrack_ApplyEQ(struct MediaTrack *track)" }
+# Load state 3 or 4.
+MediaTrack_IsReady = { at = 0x0829394c, c = "int MediaTrack_IsReady(struct MediaTrack *track)" }
 Audio_SetPlaybackSource = { at = 0x081a64c4, c = "void Audio_SetPlaybackSource(void *source)" }
 Audio_InitEffectsChain = { at = 0x0818ced8 }
 Audio_ProcessEffectsAndOutput = { at = 0x0818cbe0 }
 Audio_SetPostEffectsGainQ15 = { at = 0x0818cec0 }
-Audio_SetEQPreset = { at = 0x0818ca70 }
+Audio_SetEQPreset = { at = 0x0818ca70, c = "void Audio_SetEQPreset(struct AudioEffectsContext *audio, uint32_t preset)" }
+# IRAM. Returns the mixer that owns the effects contexts, creating it on the first call.
+AudioMixer_Get = { at = 0x22007490, c = "void *AudioMixer_Get(void)" }
 Audio_FillOutputBuffer = { at = 0x22007840 }
 AudioOutputQueue_Read = { at = 0x22006b84 }
 
@@ -27,6 +38,7 @@ MediaPlayer_FinishCurrentTrack = { at = 0x081731d8 }
 MediaPlayer_PostVolumeExposureLimitEvent = { at = 0x080cfe74 }
 
 [data]
+ThreeBandEQ_vtable = { at = 0x089ae0c4, c = "void *const ThreeBandEQ_vtable[]" }
 AudioOutputQueue = { at = 0x22010398, c = "uint8_t AudioOutputQueue[]" }
 EQ_Presets = { at = 0x089d4b58, c = "const uint8_t EQ_Presets[]" }
 EQ_PresetIds = { at = 0x083e4110, c = "const uint32_t EQ_PresetIds[]" }
@@ -39,6 +51,9 @@ EQ_SetPreset_Load_call = { at = 0x082735dc, kind = "call", in = "EQ_SetDspPreset
 EQ_SetRate_Load_call = { at = 0x08273610, kind = "call", in = "EQ_SetSampleRate+0x1c" }
 EQ_DspCount_word = { at = 0x082735c8, kind = "word", in = "EQ_SetDspPreset+0x4" }
 EQ_TrackGuard_word = { at = 0x08173b74, kind = "word", in = "MediaTrack_ApplyEQ+0x2c" }
+# First MediaItem_GetEQSettingsId call; a 0 result skips the track's own preset.
+EQ_TrackPreset_call = { at = 0x08173b80, kind = "call", in = "MediaTrack_ApplyEQ+0x38" }
+EQ_SettingsIdToDspPreset_entry = { at = 0x080b28a0, kind = "entry" }
 EQ_SettingsCount_word = { at = 0x080bb498, kind = "word", in = "EQ_SettingsIdToMenuIndex+0x38" }
 EQ_ProviderCount_word = { at = 0x081e1ae8, kind = "word" }
 EQ_MenuIds_literal = { at = 0x0807bfb0, kind = "literal" }
@@ -58,3 +73,51 @@ MediaPlayer_PostVolumeExposureLimitEvent_word = { at = 0x080cfe74, kind = "word"
 [offsets.AudioOutputQueue]
 underruns_since_reset = 0x28
 underruns = 0x2c
+
+[offsets.ThreeBandEQ]
+enable_method = 0x8
+reset_method = 0x10
+set_sample_rate_method = 0x14
+process_method = 0x1c
+sample_rate = 0x4
+enabled = 0x8
+stages = 0xc
+preset = 0xb4
+bytes = 0xb8
+
+# Coefficients are signed Q8.24; history is x1, x2, y1, y2 for the left then the right channel.
+[offsets.EQStage]
+a1 = 0x0
+a2 = 0x4
+b0 = 0x8
+b1 = 0xc
+b2 = 0x10
+history = 0x14
+bypass = 0x34
+bytes = 0x38
+
+# EQ_Presets rows: string and preview image resource ids.
+[offsets.EQPreset]
+name = 0x0
+preview = 0x4
+bytes = 0x8
+
+[offsets.AudioEffectsContext]
+eq = 0x18034
+
+[offsets.AudioMixer]
+effects = 0x20
+
+[offsets.MediaTrack]
+state = 0x0
+item = 0x4
+record = 0xc
+# The player's settings block; MediaPlayer_eq_settings_id is 5 bytes past it.
+playback_settings = 0x20
+
+[constants]
+EQ_PresetCount = 23
+EQ_SettingsId_Off = 0
+EQ_SettingsId_First = 100
+EQ_SettingsId_Flat = 107
+EQ_SettingsId_Last = 121

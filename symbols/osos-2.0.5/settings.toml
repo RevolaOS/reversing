@@ -22,6 +22,9 @@ MainMenuSettings_HandleSelection = { at = 0x081d2200 }
 MusicMenuSettings_HandleSelection = { at = 0x081dd6c8 }
 SettingsModel_ResetAllSettings = { at = 0x081e1e6c, c = "void SettingsModel_ResetAllSettings(void *model)" }
 SettingsController_ConfirmResetAll = { at = 0x08212820 }
+# Stores EQ_PresetIds[menu_index] in PreferencesFile_eq_settings_id of MediaBrowser_preferences and applies it through
+# MediaPlayer_apply_eq_settings_id_method.
+Settings_SetEQPreset = { at = 0x0805c0b8, c = "int Settings_SetEQPreset(void *browser, uint32_t menu_index)" }
 SettingsModel_SelectEQMenuIndex = { at = 0x081e4008, c = "void SettingsModel_SelectEQMenuIndex(void *model, uint32_t menu_index)" }
 SettingsModel_SetPreviewIndex = { at = 0x081e11d4, c = "void SettingsModel_SetPreviewIndex(void *model, uint32_t index)" }
 SettingsEQ_HandleAction = { at = 0x081345e4, c = "int SettingsEQ_HandleAction(void *controller, const char *action, uint32_t argument)" }
