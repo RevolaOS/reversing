@@ -213,6 +213,17 @@ int BlockCacheClient_CancelPending(void *client);
 int EAppBlockManager_HandleMessage(void *manager, void *message);
 void EAppBlocks_Acquire(void *manager);
 void EAppBlocks_Release(void *manager);
+int MediaStream_Seek(void *stream, uint32_t position_ms);
+int MP4Parser_SeekToTime(void *parser, uint32_t position_ms);
+int MP4Parser_SeekAudioTrack(void *parser, uint32_t position_ms);
+int MP4Parser_SeekPrimaryTrack(void *parser, uint32_t *position_ms, uint32_t flags);
+int MP4Parser_LoadSampleSizeWindow(void *parser, uint32_t first_index);
+int MP4Parser_LoadSampleToChunkWindow(void *parser, uint32_t first_index);
+int MP4Parser_LoadChunkOffsetWindow(void *parser, uint32_t first_index);
+int MP4Parser_ReadBigEndianWords(void *parser, uint32_t *buffer, uint32_t offset_low, uint32_t offset_high, uint32_t count);
+void MP4Parser_LoadTrackEdit(void *parser, void *track);
+void MP4Parser_LoadPrimaryTrackEdit(void *parser);
+uint64_t Runtime_UDiv64(uint64_t numerator, uint64_t divisor);
 void PMU_SetBacklightEnabled(int enabled);
 int PMU_ReadMemory(uint32_t offset, uint32_t count, void *buffer);
 int PMU_WriteMemory(uint32_t offset, uint32_t count, const void *buffer);
@@ -470,6 +481,8 @@ extern uint8_t BrowserRegistry[];
 extern void *BlockCache;
 extern void *MainHeap;
 extern uint16_t ATA_Identify[256];
+extern void *const MediaStream_vtable[];
+extern void *const MP4Parser_vtable[];
 extern volatile uint32_t I2C0Controller[];
 extern volatile uint32_t ClockRegister_PowerGate1;
 extern uint8_t StorageArbiter[];
@@ -731,6 +744,20 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_EAppBlockManager_HandleMessage 0x0819d67c
 #define ADDR_EAppBlocks_Acquire 0x0819d870
 #define ADDR_EAppBlocks_Release 0x0819d40c
+#define ADDR_MediaStream_Seek 0x081db470
+#define ADDR_MP4Parser_SeekToTime 0x081bd1cc
+#define ADDR_MP4Parser_SeekAudioTrack 0x081bb188
+#define ADDR_MP4Parser_SeekPrimaryTrack 0x081bb678
+#define ADDR_MP4Parser_ReadSamples 0x081bb0f8
+#define ADDR_MP4Parser_ReadAudioTrackSamples 0x081bbed0
+#define ADDR_MP4Parser_ReadPrimaryTrackSamples 0x081bc644
+#define ADDR_MP4Parser_LoadSampleSizeWindow 0x081bac44
+#define ADDR_MP4Parser_LoadSampleToChunkWindow 0x081bab1c
+#define ADDR_MP4Parser_LoadChunkOffsetWindow 0x081baaa0
+#define ADDR_MP4Parser_ReadBigEndianWords 0x081b940c
+#define ADDR_MP4Parser_LoadTrackEdit 0x081ba664
+#define ADDR_MP4Parser_LoadPrimaryTrackEdit 0x081ba708
+#define ADDR_Runtime_UDiv64 0x08024024
 #define ADDR_PMU_SetBacklightEnabled 0x08363c70
 #define ADDR_PMU_ReadMemory 0x082dc2e8
 #define ADDR_PMU_WriteMemory 0x082dc5e4
@@ -1052,6 +1079,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_BlockCache 0x089d380c
 #define ADDR_MainHeap 0x089d2c78
 #define ADDR_ATA_Identify 0x08ae087c
+#define ADDR_MediaStream_vtable 0x08996bdc
+#define ADDR_MP4Parser_vtable 0x08994a58
 #define ADDR_I2C0Controller 0x3c600000
 #define ADDR_ClockRegister_PowerGate1 0x3c50004c
 #define ADDR_StorageArbiter 0x08a7e8f8
@@ -1156,6 +1185,8 @@ extern void *const MenuListModel_vtable[];
 #define SITE_FixedPool_SlotRoundMask_word 0x080530b8
 #define SITE_EAppBlocks_Acquire_call 0x0819d6d0
 #define SITE_EAppBlocks_Release_call 0x0819d6d8
+#define SITE_MediaStream_Seek_slot 0x08996c00
+#define SITE_MP4Parser_SeekToTime_slot 0x08994a68
 #define SITE_Sleep_Idle_call 0x0819b32c
 #define SITE_Sleep_Request_call 0x0819bba8
 #define SITE_Preferences_FlushIfDirty_call 0x0806392c
@@ -1597,6 +1628,45 @@ extern void *const MenuListModel_vtable[];
 #define MainHeap_free_bytes 0x0
 #define MainHeap_total_bytes 0x4
 #define MainHeap_used_bytes 0x8
+#define MediaStream_seek_method 0x24
+#define MediaStream_parser 0x107c
+#define MediaStream_duration_ms 0x108c
+#define MediaParser_seek_to_time_method 0x10
+#define MediaParser_read_samples_method 0x14
+#define MP4Parser_file 0x8
+#define MP4Parser_duration_ms 0x58
+#define MP4Parser_movie_timescale 0x64
+#define MP4Parser_audio_track 0x1b8
+#define MP4Parser_audio_fourcc 0x1c0
+#define MP4Track_sample_sizes 0xc
+#define MP4Track_chunk_offsets 0x10
+#define MP4Track_sample_to_chunk 0x14
+#define MP4Track_time_to_sample 0x18
+#define MP4Track_edits 0x1c
+#define MP4Track_sample 0x68
+#define MP4Track_sample_to_chunk_index 0x6c
+#define MP4Track_chunk 0x70
+#define MP4Track_sample_in_chunk 0x74
+#define MP4Track_chunk_byte_offset 0x78
+#define MP4Track_timescale 0x7c
+#define MP4Track_time_to_sample_run 0x84
+#define MP4Track_presentation_time 0x88
+#define MP4Track_decode_time 0x90
+#define MP4Track_duration 0x98
+#define MP4Track_time_to_sample_index 0xa0
+#define MP4Track_edit_index 0xa4
+#define MP4Track_edit_media_start 0xa8
+#define MP4Track_edit_media_end 0xb0
+#define MP4Track_edit_duration 0xb8
+#define MP4SampleSizeTable_constant_size 0x0
+#define MP4SampleSizeTable_count 0x4
+#define MP4SampleSizeTable_window_first 0x8
+#define MP4SampleSizeTable_window 0xc
+#define MP4SampleTable_count 0x0
+#define MP4SampleTable_window_first 0x4
+#define MP4SampleTable_window 0x8
+#define MP4EditList_count 0x0
+#define MP4EditList_entries 0x4
 #define App_browser 0x30
 #define App_disk_mode_requested 0x4cc
 #define App_library_load_started 0x4d2
@@ -1903,6 +1973,10 @@ extern void *const MenuListModel_vtable[];
 #define MediaKind_TVShow 0x40
 #define MediaKind_Rental 0x8000
 #define MediaKind_ITunesU 0x200000
+#define MediaStream_SeekEndMarginMs 0x1388
+#define MP4_SampleSizeWindow 0x8000
+#define MP4_SampleToChunkWindow 0x8000
+#define MP4_ChunkOffsetWindow 0x4000
 #define PMU_I2CWriteAddress 0xe6
 #define PMU_BacklightEnableRegister 0x29
 #define PMU_BacklightEnabled 0x1
