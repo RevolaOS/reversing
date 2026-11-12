@@ -2337,6 +2337,10 @@ extern void *MediaArtworkProvider;
 #define Property_PlayStateWhite 0x7f0c
 #define Property_PlayStateBlack 0x7f0d
 #define Property_PlayStateTVOut 0x7f0e
+#define SelectionBarColor_TopLine 0x96c5da
+#define SelectionBarColor_GradientStart 0x9a4e1
+#define SelectionBarColor_GradientEnd 0x63d3
+#define SelectionBarColor_BottomLine 0x4386
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb

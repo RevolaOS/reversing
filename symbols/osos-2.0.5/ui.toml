@@ -317,8 +317,9 @@ CalendarView_DrawColor_call = { at = 0x081365e4, kind = "call", in = "CalendarVi
 GLAlbumArtView_Draw_slot = { at = 0x0899068c, kind = "slot" }
 AlbumArt_RendererDraw_call = { at = 0x0815cd54, kind = "call", in = "GLAlbumArtAnimation_RenderCover+0x8" }
 AlbumArt_EdgeLines_call = { at = 0x0815cd7c, kind = "call", in = "GLAlbumArtAnimation_RenderCover+0x30" }
-# beq to the SelectionBar_RamGradient rendering; the byte flag it tests is never set in 2.0.5, so
-# the branch is always taken.
+# beq to the SelectionBar_RamGradient rendering. The byte it tests is set at run time (emulator),
+# so stock falls through to the branch that renders the bar from the SelectionBarColor_*
+# immediates; a replacement bar has to force the branch.
 SelectionBar_StyleBranch_word = { at = 0x08263704, kind = "word", in = "View_DrawBackgroundAndBorder+0x1d4" }
 SelectionBar_Highlight_literal = { at = 0x08263e10, kind = "literal" }
 SelectionBar_Gradient_literal = { at = 0x08263e14, kind = "literal" }
@@ -524,6 +525,12 @@ ViewType_Calendar = 0x63616c76
 Property_PlayStateWhite = 0x7f0c
 Property_PlayStateBlack = 0x7f0d
 Property_PlayStateTVOut = 0x7f0e
+# The stock list selection bar, as RGB immediates in View_DrawBackgroundAndBorder: a top line, a
+# vertical gradient and a bottom line, rendered into SelectionGradient_Bitmap.
+SelectionBarColor_TopLine = 0x96c5da
+SelectionBarColor_GradientStart = 0x09a4e1
+SelectionBarColor_GradientEnd = 0x0063d3
+SelectionBarColor_BottomLine = 0x004386
 
 [resources]
 MediaStatus_VideoSelected_Bitmap = 0x0dad0714
