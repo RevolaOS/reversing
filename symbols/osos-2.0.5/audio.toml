@@ -29,6 +29,11 @@ Audio_SetEQPreset = { at = 0x0818ca70, c = "void Audio_SetEQPreset(struct AudioE
 AudioMixer_Get = { at = 0x22007490, c = "void *AudioMixer_Get(void)" }
 Audio_FillOutputBuffer = { at = 0x22007840 }
 AudioOutputQueue_Read = { at = 0x22006b84 }
+# IRAM. Returns AudioOutputQueue, allocating its 128 KiB ring on the first call.
+AudioOutputQueue_Get = { at = 0x22006ea8, c = "void *AudioOutputQueue_Get(void)" }
+# IRAM. Copies frames of S16 stereo into the ring, stores tag and ors flags into the touched 4 KiB
+# pages; returns 0, or -1 without copying when less than frames * 4 bytes are free.
+AudioOutputQueue_Write = { at = 0x22006f60, c = "int AudioOutputQueue_Write(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags)" }
 
 Platform_UsesVolumeWarningPolicy = { at = 0x08047450 }
 Volume_GetRegionalCeiling = { at = 0x081558c0 }
@@ -45,6 +50,9 @@ EQ_PresetIds = { at = 0x083e4110, c = "const uint32_t EQ_PresetIds[]" }
 
 [sites]
 AudioOutputQueue_SilenceFill_call = { at = 0x22006e80, kind = "call", in = "AudioOutputQueue_Read+0x2fc" }
+# Last call before the processed PCM goes to AudioOutputQueue_Write: r6 is the buffer, r4 the frame
+# count, r9 the AudioEffectsContext; the buffer and count were just stored to sp+0x40 and sp+0x44.
+AudioOutputQueue_Get_call = { at = 0x0818cd7c, kind = "call", in = "Audio_ProcessEffectsAndOutput+0x19c" }
 EQ_Process_slot = { at = 0x089ae0e0, kind = "slot" }
 EQ_Reset_slot = { at = 0x089ae0d4, kind = "slot" }
 EQ_SetPreset_Load_call = { at = 0x082735dc, kind = "call", in = "EQ_SetDspPreset+0x18" }
@@ -106,6 +114,10 @@ bytes = 0x8
 
 [offsets.AudioEffectsContext]
 eq = 0x18034
+# Format of the PCM handed to AudioOutputQueue_Write; Audio_InitEffectsChain sets 44100, 16, 2.
+output_rate = 0x2a184
+output_bits = 0x2a188
+output_channels = 0x2a18c
 
 [offsets.AudioMixer]
 effects = 0x20

@@ -41,6 +41,8 @@ int MediaTrack_IsReady(struct MediaTrack *track);
 void Audio_SetPlaybackSource(void *source);
 void Audio_SetEQPreset(struct AudioEffectsContext *audio, uint32_t preset);
 void *AudioMixer_Get(void);
+void *AudioOutputQueue_Get(void);
+int AudioOutputQueue_Write(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags);
 void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
@@ -528,6 +530,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_AudioMixer_Get 0x22007490
 #define ADDR_Audio_FillOutputBuffer 0x22007840
 #define ADDR_AudioOutputQueue_Read 0x22006b84
+#define ADDR_AudioOutputQueue_Get 0x22006ea8
+#define ADDR_AudioOutputQueue_Write 0x22006f60
 #define ADDR_Platform_UsesVolumeWarningPolicy 0x08047450
 #define ADDR_Volume_GetRegionalCeiling 0x081558c0
 #define ADDR_Volume_GetDefaultLimit 0x08155ad0
@@ -1084,6 +1088,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_ArtworkDatabase_FindByDbid_0804581c_call 0x0804581c
 #define SITE_ArtworkDatabase_FindByDbid_08046494_call 0x08046494
 #define SITE_AudioOutputQueue_SilenceFill_call 0x22006e80
+#define SITE_AudioOutputQueue_Get_call 0x0818cd7c
 #define SITE_EQ_Process_slot 0x089ae0e0
 #define SITE_EQ_Reset_slot 0x089ae0d4
 #define SITE_EQ_SetPreset_Load_call 0x082735dc
@@ -1340,6 +1345,9 @@ extern void *const MenuListModel_vtable[];
 #define EQPreset_preview 0x4
 #define EQPreset_bytes 0x8
 #define AudioEffectsContext_eq 0x18034
+#define AudioEffectsContext_output_rate 0x2a184
+#define AudioEffectsContext_output_bits 0x2a188
+#define AudioEffectsContext_output_channels 0x2a18c
 #define AudioMixer_effects 0x20
 #define MediaTrack_state 0x0
 #define MediaTrack_item 0x4
