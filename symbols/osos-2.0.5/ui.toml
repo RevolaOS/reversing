@@ -68,6 +68,17 @@ View_HandleModelNotification = { at = 0x08265a2c, c = "int View_HandleModelNotif
 ProgressBar_CreateFromResource = { at = 0x081d5fac }
 UI_RegisterBuiltinViewFactories = { at = 0x081d7110, c = "void UI_RegisterBuiltinViewFactories(void)" }
 ProgressBar_RefreshFromModel = { at = 0x082053a4, c = "void ProgressBar_RefreshFromModel(void *view)" }
+# Draws one marker bitmap per Ui32 value 1 .. ProgressBar_marker_count - 1 of the bar's
+# View_property, each placed by ProgressBar_FillWidthForValue and clipped to bar.
+ProgressBar_DrawMarkers = { at = 0x0820504c, c = "void ProgressBar_DrawMarkers(void *view, void *context, const int32_t *bar)" }
+ProgressBar_FillWidthForValue = { at = 0x08205028, c = "int ProgressBar_FillWidthForValue(void *view, int value, const int32_t *bar)" }
+# (right - left) * (value - minimum) / (maximum - minimum), as a signed 16-bit width.
+ProgressBar_ComputeFillWidth = { at = 0x082051a0, c = "int ProgressBar_ComputeFillWidth(void *view, int minimum, int maximum, int value, const int32_t *bar)" }
+# Creates the cap and fill bitmap caches on first draw.
+ProgressBar_LoadBitmapCaches = { at = 0x08205224, c = "void ProgressBar_LoadBitmapCaches(void *view)" }
+ProgressBar_Construct = { at = 0x08205ddc }
+# Styles 8 and 9: ProgressBar_Construct, then ProgressBarStyle8_vtable.
+ProgressBarStyle8_Construct = { at = 0x0820996c }
 TextView_CreateFromDescriptor = { at = 0x0817b238, c = "void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor)" }
 TextView_DrawTextWithColor = { at = 0x08287218 }
 MarqueeTextView_Draw = { at = 0x081a8dc8 }
@@ -157,6 +168,9 @@ CapacityView_Draw = { at = 0x08137738 }
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
 View_vtable = { at = 0x089ad8ec, c = "void *const View_vtable[]" }
 TemplateView_vtable = { at = 0x08997824, c = "void *const TemplateView_vtable[]" }
+ProgressBar_vtable = { at = 0x0899a3dc, c = "void *const ProgressBar_vtable[]" }
+# Same methods as ProgressBar_vtable except View_draw_method.
+ProgressBarStyle8_vtable = { at = 0x0899ab84, c = "void *const ProgressBarStyle8_vtable[]" }
 SportTimerChosenDispatcher_vtable = { at = 0x089a72dc, c = "void *const SportTimerChosenDispatcher_vtable[]" }
 SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const SettingsMenuListController_vtable[]" }
 ExtrasMenuController_vtable = { at = 0x0899cb30, c = "void *const ExtrasMenuController_vtable[]" }
@@ -176,6 +190,11 @@ MenuList_vtable = { at = 0x08992c60, c = "void *const MenuList_vtable[]" }
 MenuListModel_vtable = { at = 0x08992c70, c = "void *const MenuListModel_vtable[]" }
 
 [sites]
+# ProgressBar_vtable and ProgressBarStyle8_vtable + ProgressBar_draw_markers_method; both draw
+# methods call it last with (view, context, bar).
+ProgressBar_DrawMarkers_slot = { at = 0x0899a514, kind = "slot" }
+ProgressBarStyle8_DrawMarkers_slot = { at = 0x0899acbc, kind = "slot" }
+ProgressBar_MarkerBlit_call = { at = 0x08205180, kind = "call", in = "ProgressBar_DrawMarkers+0x134" }
 PodcastEpisodes_CancelAppend_call = { at = 0x08230a10, kind = "call", in = "PodcastEpisodes_BuildAndShowContextualMenu+0x40" }
 PodcastEpisodes_Action_slot = { at = 0x089a67a0, kind = "slot" }
 ITunesUEpisodes_CancelAppend_call = { at = 0x08230d6c, kind = "call", in = "ITunesUEpisodes_BuildAndShowContextualMenu+0x40" }
@@ -248,6 +267,21 @@ deactivate_method = 0xf0
 [offsets.Service]
 interface_method = 0x14
 
+# Resource ids come from the descriptor; each has its lazily created BitmapCache in the next word.
+[offsets.ProgressBar]
+value_method = 0x114
+set_value_method = 0x118
+set_minimum_method = 0x11c
+set_maximum_method = 0x120
+load_bitmap_caches_method = 0x134
+draw_markers_method = 0x138
+minimum = 0xac
+maximum = 0xb0
+marker_count = 0xb4
+marker_resource = 0xb8
+marker_cache = 0xbc
+bytes = 0x14c
+
 [offsets.View]
 model = 0x38
 property = 0x44
@@ -294,6 +328,9 @@ Service_String = 0x80
 SourceDestination_Title = 0x1
 Property_Control = 0x436e746c
 Property_Visible = 0x56566973
+# Object_GetInterface and Service_interface_method kind whose result ResourceService_GetResource
+# and ResourceService_GetIndexedResource take.
+Interface_ResourceService = 6
 Interface_List = 0x1700
 Interface_Template = 0x3b80
 Event_Notification = 0x16
@@ -567,6 +604,7 @@ source = 0x64
 font = 0x68
 color = 0x70
 
+# style selects the class (6, 8, 9) and is also stored as ProgressBar_marker_resource.
 [offsets.ProgressDescriptor]
 maximum = 0x5c
 minimum = 0x60

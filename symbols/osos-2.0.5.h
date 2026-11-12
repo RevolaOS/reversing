@@ -69,6 +69,12 @@ int GraphicsContext_GetFontDescent(void *context);
 void Surface_FillRect(void *surface, const int32_t *rect, const uint8_t *rgba, uint32_t mode, void *clip);
 void GLES_ClearColorx(int red, int green, int blue, int alpha);
 uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight);
+void *BitmapCache_Init(void *cache, void *service, uint32_t resource_id);
+void BitmapCache_Load(void *cache);
+void BitmapCache_GetRect(int32_t *rect, void *cache);
+void BitmapCache_Draw(void *cache, void *context, const int32_t *source_rect, const int32_t *rect, uint32_t alpha);
+void Rect_Offset(int32_t *rect, int dx, int dy);
+void Rect_Intersect(int32_t *rect, const int32_t *other);
 int IAP_VerifyDeviceSignatureRSA(void *manager, uint32_t channel, uint32_t key_id, void *signature, uint32_t signature_bytes);
 int IAP_VerifyDeviceSignatureAlternate(void *authentication, void *signature, uint32_t signature_bytes);
 int Wheel_DispatchButtonChanges(int force_center);
@@ -407,6 +413,10 @@ void View_DrawClipped(void *view, void *draw_argument, const int32_t *clip);
 int View_HandleModelNotification(void *view, void *event);
 void UI_RegisterBuiltinViewFactories(void);
 void ProgressBar_RefreshFromModel(void *view);
+void ProgressBar_DrawMarkers(void *view, void *context, const int32_t *bar);
+int ProgressBar_FillWidthForValue(void *view, int value, const int32_t *bar);
+int ProgressBar_ComputeFillWidth(void *view, int minimum, int maximum, int value, const int32_t *bar);
+void ProgressBar_LoadBitmapCaches(void *view);
 void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor);
 int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument);
 int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument);
@@ -499,6 +509,8 @@ extern uint32_t MusicMenuSettingsRows[];
 extern void *const ScreenController_vtable[];
 extern void *const View_vtable[];
 extern void *const TemplateView_vtable[];
+extern void *const ProgressBar_vtable[];
+extern void *const ProgressBarStyle8_vtable[];
 extern void *const SportTimerChosenDispatcher_vtable[];
 extern void *const SettingsMenuListController_vtable[];
 extern void *const ExtrasMenuController_vtable[];
@@ -588,6 +600,12 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_GLES_ClearColorx 0x082c7820
 #define ADDR_RGB565_BlendFixed 0x0826a9a8
 #define ADDR_ArtworkReflection_GenerateRGB565 0x0826a7c0
+#define ADDR_BitmapCache_Init 0x08119d54
+#define ADDR_BitmapCache_Load 0x0828fdc0
+#define ADDR_BitmapCache_GetRect 0x0828fd74
+#define ADDR_BitmapCache_Draw 0x0828fbb0
+#define ADDR_Rect_Offset 0x08262f00
+#define ADDR_Rect_Intersect 0x08262b54
 #define ADDR_IAP_VerifyDeviceSignatureRSA 0x0812dca8
 #define ADDR_IAP_VerifyDeviceSignatureAlternate 0x081592fc
 #define ADDR_IAP_HandleDeviceAuthenticationSignature 0x081892b8
@@ -969,6 +987,12 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ProgressBar_CreateFromResource 0x081d5fac
 #define ADDR_UI_RegisterBuiltinViewFactories 0x081d7110
 #define ADDR_ProgressBar_RefreshFromModel 0x082053a4
+#define ADDR_ProgressBar_DrawMarkers 0x0820504c
+#define ADDR_ProgressBar_FillWidthForValue 0x08205028
+#define ADDR_ProgressBar_ComputeFillWidth 0x082051a0
+#define ADDR_ProgressBar_LoadBitmapCaches 0x08205224
+#define ADDR_ProgressBar_Construct 0x08205ddc
+#define ADDR_ProgressBarStyle8_Construct 0x0820996c
 #define ADDR_TextView_CreateFromDescriptor 0x0817b238
 #define ADDR_TextView_DrawTextWithColor 0x08287218
 #define ADDR_MarqueeTextView_Draw 0x081a8dc8
@@ -1097,6 +1121,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_ScreenController_vtable 0x0899d3fc
 #define ADDR_View_vtable 0x089ad8ec
 #define ADDR_TemplateView_vtable 0x08997824
+#define ADDR_ProgressBar_vtable 0x0899a3dc
+#define ADDR_ProgressBarStyle8_vtable 0x0899ab84
 #define ADDR_SportTimerChosenDispatcher_vtable 0x089a72dc
 #define ADDR_SettingsMenuListController_vtable 0x089a3ae0
 #define ADDR_ExtrasMenuController_vtable 0x0899cb30
@@ -1290,6 +1316,9 @@ extern void *const MenuListModel_vtable[];
 #define SITE_TrackCount_0810897c_word 0x0810897c
 #define SITE_TrackCount_0816ebc4_word 0x0816ebc4
 #define SITE_TrackCount_0829c884_word 0x0829c884
+#define SITE_ProgressBar_DrawMarkers_slot 0x0899a514
+#define SITE_ProgressBarStyle8_DrawMarkers_slot 0x0899acbc
+#define SITE_ProgressBar_MarkerBlit_call 0x08205180
 #define SITE_PodcastEpisodes_CancelAppend_call 0x08230a10
 #define SITE_PodcastEpisodes_Action_slot 0x089a67a0
 #define SITE_ITunesUEpisodes_CancelAppend_call 0x08230d6c
@@ -1415,6 +1444,12 @@ extern void *const MenuListModel_vtable[];
 #define BootDescriptor_flags 0x10
 #define BootDescriptor_sysinfo_magic 0x18
 #define BootDescriptor_sysinfo 0x1c
+#define BitmapCache_service 0x0
+#define BitmapCache_resource_id 0x4
+#define BitmapCache_loaded 0x8
+#define BitmapCache_bitmap 0xc
+#define BitmapCache_context 0xc4
+#define BitmapCache_bytes 0xc8
 #define GraphicsContext_bytes 0x44
 #define GraphicsContext_mode 0x10
 #define GraphicsContext_color 0x11
@@ -1757,6 +1792,18 @@ extern void *const MenuListModel_vtable[];
 #define ScreenController_activate_method 0xec
 #define ScreenController_deactivate_method 0xf0
 #define Service_interface_method 0x14
+#define ProgressBar_value_method 0x114
+#define ProgressBar_set_value_method 0x118
+#define ProgressBar_set_minimum_method 0x11c
+#define ProgressBar_set_maximum_method 0x120
+#define ProgressBar_load_bitmap_caches_method 0x134
+#define ProgressBar_draw_markers_method 0x138
+#define ProgressBar_minimum 0xac
+#define ProgressBar_maximum 0xb0
+#define ProgressBar_marker_count 0xb4
+#define ProgressBar_marker_resource 0xb8
+#define ProgressBar_marker_cache 0xbc
+#define ProgressBar_bytes 0x14c
 #define View_model 0x38
 #define View_property 0x44
 #define View_refresh_method 0xd4
@@ -2092,6 +2139,7 @@ extern void *const MenuListModel_vtable[];
 #define SourceDestination_Title 0x1
 #define Property_Control 0x436e746c
 #define Property_Visible 0x56566973
+#define Interface_ResourceService 0x6
 #define Interface_List 0x1700
 #define Interface_Template 0x3b80
 #define Event_Notification 0x16

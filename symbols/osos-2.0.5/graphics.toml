@@ -25,10 +25,28 @@ Surface_FillRect = { at = 0x08069a5c, c = "void Surface_FillRect(void *surface, 
 GLES_ClearColorx = { at = 0x082c7820, c = "void GLES_ClearColorx(int red, int green, int blue, int alpha)" }
 RGB565_BlendFixed = { at = 0x0826a9a8, c = "uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight)" }
 ArtworkReflection_GenerateRGB565 = { at = 0x0826a7c0 }
+# A BitmapCache_bytes record: service and BMap resource id, loaded into a graphics context on
+# first use.
+BitmapCache_Init = { at = 0x08119d54, c = "void *BitmapCache_Init(void *cache, void *service, uint32_t resource_id)" }
+BitmapCache_Load = { at = 0x0828fdc0, c = "void BitmapCache_Load(void *cache)" }
+BitmapCache_GetRect = { at = 0x0828fd74, c = "void BitmapCache_GetRect(int32_t *rect, void *cache)" }
+BitmapCache_Draw = { at = 0x0828fbb0, c = "void BitmapCache_Draw(void *cache, void *context, const int32_t *source_rect, const int32_t *rect, uint32_t alpha)" }
+# Rects are top, left, bottom, right.
+Rect_Offset = { at = 0x08262f00, c = "void Rect_Offset(int32_t *rect, int dx, int dy)" }
+# In place; an empty result or operand clears rect to zero.
+Rect_Intersect = { at = 0x08262b54, c = "void Rect_Intersect(int32_t *rect, const int32_t *other)" }
 
 [sites]
 GraphicsContext_FillRect_call = { at = 0x0825ae9c, kind = "call", in = "GraphicsContext_FillRect+0x68" }
 ArtworkReflection_Blend_call = { at = 0x0826a890, kind = "call", in = "ArtworkReflection_GenerateRGB565+0xd0" }
+
+[offsets.BitmapCache]
+service = 0x0
+resource_id = 0x4
+loaded = 0x8
+bitmap = 0xc
+context = 0xc4
+bytes = 0xc8
 
 [offsets.GraphicsContext]
 bytes = 0x44
