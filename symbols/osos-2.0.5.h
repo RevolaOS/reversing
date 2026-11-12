@@ -77,6 +77,10 @@ int MediaPlayer_PlayIndex(void *player, int index, uint8_t flag, uint32_t start_
 void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index);
 int MediaPlayer_IsRepeatAll(void *player);
 int MediaPlayer_IsRepeatOne(void *player);
+int MediaPlayer_Seek(void *player, uint32_t position_ms);
+void MediaPlayer_Stop(void *player);
+void MediaListController_PlayRow(void *controller, int row, int mode, uint32_t shuffle);
+int AudiobookChapters_SelectRow(void *controller, int row);
 int MediaPlayer_CreatePlaybackList(void *player, void *browse_context, void **out_list);
 int MediaItem_IsValid(struct MediaItem *item);
 struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags);
@@ -96,6 +100,9 @@ uint16_t MediaItem_GetDiscNumber(struct MediaItem *item);
 uint32_t MediaItem_GetPlayCount(struct MediaItem *item);
 uint32_t MediaItem_GetSkipCount(struct MediaItem *item);
 uint32_t MediaItem_GetChapterCount(struct MediaItem *item);
+uint32_t MediaItem_GetChapterStartMs(struct MediaItem *item, uint32_t index);
+int MediaItem_GetChapterTitleAt(struct MediaItem *item, int position_ms, struct NativeString *out);
+int MediaItem_GetChapterIndexAt(struct MediaItem *item, uint32_t position_ms);
 void MediaItem_GetFileType(struct MediaItem *item, struct NativeString *out);
 void MediaItem_GetComment(struct MediaItem *item, struct NativeString *out);
 void MediaItem_GetCategory(struct MediaItem *item, struct NativeString *out);
@@ -409,6 +416,11 @@ void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
 void UI_DisplayPreparedLayout(void *manager, void *layout);
 void *Navigator_Get(void);
+int NavigatorProperties_Has(void *properties, void *key);
+int NavigatorProperties_GetInteger(void *properties, void *key);
+void NavigatorProperties_SetInteger(void *properties, void *key, const uint32_t *value);
+void *NavigatorProperties_SetString(void *properties, void *key, void *value);
+int NavigatorProperties_Remove(void *properties, void *key);
 void Navigator_Push(void *navigator, void *controller, uint32_t flags);
 void *UI_GetRootOwner(void);
 void TextView_DrawString(void *view, const char *text, void *argument);
@@ -464,6 +476,7 @@ extern void *const AudiobooksController_vtable[];
 extern void *const MoviesController_vtable[];
 extern void *const TVEpisodesController_vtable[];
 extern uint8_t Navigator[];
+extern uint8_t NavigatorProperties[];
 extern void *const TextView_vtable[];
 extern void *const SelectedRowTextView_vtable[];
 extern void *const MenuList_vtable[];
@@ -561,6 +574,10 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaPlayer_RemoveEntryAtIndex 0x081700bc
 #define ADDR_MediaPlayer_IsRepeatAll 0x08172ec8
 #define ADDR_MediaPlayer_IsRepeatOne 0x08172efc
+#define ADDR_MediaPlayer_Seek 0x08172148
+#define ADDR_MediaPlayer_Stop 0x081721a0
+#define ADDR_MediaListController_PlayRow 0x0820f358
+#define ADDR_AudiobookChapters_SelectRow 0x08231bb0
 #define ADDR_MediaPlayer_CreatePlaybackList 0x081719d4
 #define ADDR_MediaItem_IsValid 0x0829a7dc
 #define ADDR_MediaItem_InitFromRecord 0x08266d20
@@ -580,6 +597,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MediaItem_GetPlayCount 0x0829afe8
 #define ADDR_MediaItem_GetSkipCount 0x0829b014
 #define ADDR_MediaItem_GetChapterCount 0x08299644
+#define ADDR_MediaItem_GetChapterStartMs 0x08299b50
+#define ADDR_MediaItem_GetChapterTitleAt 0x08299820
+#define ADDR_MediaItem_GetChapterIndexAt 0x08299c88
 #define ADDR_MediaItem_GetFileType 0x0829a0d0
 #define ADDR_MediaItem_GetComment 0x0829ab98
 #define ADDR_MediaItem_GetCategory 0x0829ab14
@@ -954,6 +974,11 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_UI_ApplyInstanceResources 0x081781c0
 #define ADDR_View_ApplyPropertyBindings 0x08175b7c
 #define ADDR_Navigator_Get 0x08104d00
+#define ADDR_NavigatorProperties_Has 0x080f70bc
+#define ADDR_NavigatorProperties_GetInteger 0x080f7348
+#define ADDR_NavigatorProperties_SetInteger 0x080f6f2c
+#define ADDR_NavigatorProperties_SetString 0x080f6f80
+#define ADDR_NavigatorProperties_Remove 0x080f7310
 #define ADDR_Navigator_Push 0x0810514c
 #define ADDR_UI_GetRootOwner 0x0813e204
 #define ADDR_TextView_DrawString 0x082883f8
@@ -1018,6 +1043,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MoviesController_vtable 0x089a3980
 #define ADDR_TVEpisodesController_vtable 0x089a5b4c
 #define ADDR_Navigator 0x08a822cc
+#define ADDR_NavigatorProperties 0x08a82268
 #define ADDR_TextView_vtable 0x089af07c
 #define ADDR_SelectedRowTextView_vtable 0x08993504
 #define ADDR_MenuList_vtable 0x08992c60
@@ -1396,6 +1422,9 @@ extern void *const MenuListModel_vtable[];
 #define MediaItem_play_count_method 0xc4
 #define MediaItem_skip_count_method 0xcc
 #define MediaItem_chapter_count_method 0x138
+#define MediaItem_chapter_start_method 0x13c
+#define MediaItem_chapter_title_method 0x140
+#define MediaItem_chapter_index_method 0x144
 #define MediaItem_file_type_method 0x6c
 #define MediaItem_comment_method 0x74
 #define MediaItem_category_method 0x78
@@ -1440,6 +1469,8 @@ extern void *const MenuListModel_vtable[];
 #define MediaPlayer_current_index_method 0x158
 #define MediaPlayer_current_item_method 0x15c
 #define MediaPlayer_item_at_index_method 0x170
+#define MediaPlayer_stop_method 0xec
+#define MediaPlayer_seek_method 0x100
 #define MediaPlayer_current_index 0x5c
 #define MediaPlayer_mutex 0xa4c
 #define SongModel_get_item_method 0x22c

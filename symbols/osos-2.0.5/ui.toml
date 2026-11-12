@@ -135,6 +135,13 @@ UI_DisplayPreparedLayout = { at = 0x08174464, c = "void UI_DisplayPreparedLayout
 UI_ApplyInstanceResources = { at = 0x081781c0 }
 View_ApplyPropertyBindings = { at = 0x08175b7c }
 Navigator_Get = { at = 0x08104d00, c = "void *Navigator_Get(void)" }
+# String-keyed hints read by the next screen, such as NowPlayingStartTime (ms) and
+# NowPlayingEndTime, which Now Playing reads and removes when it activates. Keys are CppStrings.
+NavigatorProperties_Has = { at = 0x080f70bc, c = "int NavigatorProperties_Has(void *properties, void *key)" }
+NavigatorProperties_GetInteger = { at = 0x080f7348, c = "int NavigatorProperties_GetInteger(void *properties, void *key)" }
+NavigatorProperties_SetInteger = { at = 0x080f6f2c, c = "void NavigatorProperties_SetInteger(void *properties, void *key, const uint32_t *value)" }
+NavigatorProperties_SetString = { at = 0x080f6f80, c = "void *NavigatorProperties_SetString(void *properties, void *key, void *value)" }
+NavigatorProperties_Remove = { at = 0x080f7310, c = "int NavigatorProperties_Remove(void *properties, void *key)" }
 Navigator_Push = { at = 0x0810514c, c = "void Navigator_Push(void *navigator, void *controller, uint32_t flags)" }
 UI_GetRootOwner = { at = 0x0813e204, c = "void *UI_GetRootOwner(void)" }
 TextView_DrawString = { at = 0x082883f8, c = "void TextView_DrawString(void *view, const char *text, void *argument)" }
@@ -162,6 +169,7 @@ AudiobooksController_vtable = { at = 0x089a59d4, c = "void *const AudiobooksCont
 MoviesController_vtable = { at = 0x089a3980, c = "void *const MoviesController_vtable[]" }
 TVEpisodesController_vtable = { at = 0x089a5b4c, c = "void *const TVEpisodesController_vtable[]" }
 Navigator = { at = 0x08a822cc, c = "uint8_t Navigator[]" }
+NavigatorProperties = { at = 0x08a82268, c = "uint8_t NavigatorProperties[]" }
 TextView_vtable = { at = 0x089af07c, c = "void *const TextView_vtable[]" }
 SelectedRowTextView_vtable = { at = 0x08993504, c = "void *const SelectedRowTextView_vtable[]" }
 MenuList_vtable = { at = 0x08992c60, c = "void *const MenuList_vtable[]" }

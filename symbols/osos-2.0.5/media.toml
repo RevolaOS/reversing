@@ -17,6 +17,14 @@ MediaPlayer_PlayIndex = { at = 0x08171e7c, c = "int MediaPlayer_PlayIndex(void *
 MediaPlayer_RemoveEntryAtIndex = { at = 0x081700bc, c = "void MediaPlayer_RemoveEntryAtIndex(void *player, uint32_t index)" }
 MediaPlayer_IsRepeatAll = { at = 0x08172ec8, c = "int MediaPlayer_IsRepeatAll(void *player)" }
 MediaPlayer_IsRepeatOne = { at = 0x08172efc, c = "int MediaPlayer_IsRepeatOne(void *player)" }
+# Takes MediaPlayer_mutex itself.
+MediaPlayer_Seek = { at = 0x08172148, c = "int MediaPlayer_Seek(void *player, uint32_t position_ms)" }
+MediaPlayer_Stop = { at = 0x081721a0, c = "void MediaPlayer_Stop(void *player)" }
+# Plays a model row from a media list. mode 0 starts the list (3), else enqueues (1); shuffle
+# 0xffffffff keeps the controller's own setting. Emits GotoNowPlaying.
+MediaListController_PlayRow = { at = 0x0820f358, c = "void MediaListController_PlayRow(void *controller, int row, int mode, uint32_t shuffle)" }
+# Stops playback, stores NavigatorProperties NowPlayingStartTime from the row's chapter start and plays.
+AudiobookChapters_SelectRow = { at = 0x08231bb0, c = "int AudiobookChapters_SelectRow(void *controller, int row)" }
 MediaPlayer_CreatePlaybackList = { at = 0x081719d4, c = "int MediaPlayer_CreatePlaybackList(void *player, void *browse_context, void **out_list)" }
 MediaItem_IsValid = { at = 0x0829a7dc, c = "int MediaItem_IsValid(struct MediaItem *item)" }
 MediaItem_InitFromRecord = { at = 0x08266d20, c = "struct MediaItem *MediaItem_InitFromRecord(struct MediaItem *item, void *record, uint8_t flags)" }
@@ -38,6 +46,10 @@ MediaItem_GetDiscNumber = { at = 0x082990f0, c = "uint16_t MediaItem_GetDiscNumb
 MediaItem_GetPlayCount = { at = 0x0829afe8, c = "uint32_t MediaItem_GetPlayCount(struct MediaItem *item)" }
 MediaItem_GetSkipCount = { at = 0x0829b014, c = "uint32_t MediaItem_GetSkipCount(struct MediaItem *item)" }
 MediaItem_GetChapterCount = { at = 0x08299644, c = "uint32_t MediaItem_GetChapterCount(struct MediaItem *item)" }
+MediaItem_GetChapterStartMs = { at = 0x08299b50, c = "uint32_t MediaItem_GetChapterStartMs(struct MediaItem *item, uint32_t index)" }
+# Title of the chapter containing position_ms (0 reads as 1 ms); returns 1 with a title, else clears out.
+MediaItem_GetChapterTitleAt = { at = 0x08299820, c = "int MediaItem_GetChapterTitleAt(struct MediaItem *item, int position_ms, struct NativeString *out)" }
+MediaItem_GetChapterIndexAt = { at = 0x08299c88, c = "int MediaItem_GetChapterIndexAt(struct MediaItem *item, uint32_t position_ms)" }
 # iTunes "Kind" text (iTunesDB mhod 6), such as "AAC audio file".
 MediaItem_GetFileType = { at = 0x0829a0d0, c = "void MediaItem_GetFileType(struct MediaItem *item, struct NativeString *out)" }
 MediaItem_GetComment = { at = 0x0829ab98, c = "void MediaItem_GetComment(struct MediaItem *item, struct NativeString *out)" }
@@ -232,6 +244,9 @@ disc_number_method = 0xc0
 play_count_method = 0xc4
 skip_count_method = 0xcc
 chapter_count_method = 0x138
+chapter_start_method = 0x13c
+chapter_title_method = 0x140
+chapter_index_method = 0x144
 file_type_method = 0x6c
 comment_method = 0x74
 category_method = 0x78
@@ -290,6 +305,8 @@ remove_entry_method = 0x130
 current_index_method = 0x158
 current_item_method = 0x15c
 item_at_index_method = 0x170
+stop_method = 0xec
+seek_method = 0x100
 current_index = 0x5c
 mutex = 0xa4c
 
