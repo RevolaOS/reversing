@@ -32,7 +32,7 @@ The effect's record is a `ThreeBandEQ`: `ThreeBandEQ_sample_rate`, `ThreeBandEQ_
 
 `MP4Parser_SeekAudioTrack` has no index: it advances the `MP4Track` one sample per pass, adding each `time_to_sample` delta to `MP4Track_presentation_time` and `MP4Track_decode_time`, until the presentation time reaches the target in the track's `MP4Track_timescale`; a target behind the current sample restarts from sample 1. Each pass reads the sample size, sample-to-chunk and edit tables through windows that `MP4Parser_LoadSampleSizeWindow`, `MP4Parser_LoadSampleToChunkWindow` and `MP4Parser_LoadChunkOffsetWindow` refill from the file (`MP4_SampleSizeWindow`, `MP4_SampleToChunkWindow`, `MP4_ChunkOffsetWindow` entries at a time) with `MP4Parser_ReadBigEndianWords`. `MP4Parser_LoadTrackEdit` keeps `MP4Track_edit_media_start`, `MP4Track_edit_media_end` and `MP4Track_edit_duration` for the current edit, converting durations with `Runtime_UDiv64`. `MP4Parser_ReadSamples` is the playback read path, split into `MP4Parser_ReadAudioTrackSamples` and `MP4Parser_ReadPrimaryTrackSamples`.
 
-Both the seek walk and the audio read path compare `MP4Track_decode_time` with the edit bounds after sign-extending only its low word, so decode times from 2^31 ticks on compare wrong.
+Both the seek walk and the audio read path compare `MP4Track_decode_time` with the edit bounds after sign-extending only its low word (`MP4Parser_SeekEditEndTest_word`, `MP4Parser_ReadEditStartTest_word`, `MP4Parser_ReadEditEndTest_word`), so a file with an edit list stops at 2^31 ticks: 13:31:35 at 44.1 kHz, 12:25:39 at 48 kHz. A seek replacement enters at `MP4Parser_SeekAudioTrack_entry`, which only the audio task runs.
 
 ## EU volume policy
 

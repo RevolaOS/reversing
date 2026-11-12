@@ -41,6 +41,13 @@ MP4Parser_vtable = { at = 0x08994a58, c = "void *const MP4Parser_vtable[]" }
 MediaStream_Seek_slot = { at = 0x08996c00, kind = "slot" }
 # MP4Parser_vtable + MediaParser_seek_to_time_method.
 MP4Parser_SeekToTime_slot = { at = 0x08994a68, kind = "slot" }
+# Two-word prologue; only the audio task runs it.
+MP4Parser_SeekAudioTrack_entry = { at = 0x081bb188, kind = "entry" }
+# Each is asr r1,r0,#31 sign-extending the low word of MP4Track_decode_time before a 64-bit
+# compare with the edit bound at r2; a correct build loads the high word instead.
+MP4Parser_SeekEditEndTest_word = { at = 0x081bb5e8, kind = "word", in = "MP4Parser_SeekAudioTrack+0x460" }
+MP4Parser_ReadEditStartTest_word = { at = 0x081bc0f4, kind = "word", in = "MP4Parser_ReadAudioTrackSamples+0x224" }
+MP4Parser_ReadEditEndTest_word = { at = 0x081bc114, kind = "word", in = "MP4Parser_ReadAudioTrackSamples+0x244" }
 
 [offsets.MediaStream]
 seek_method = 0x24

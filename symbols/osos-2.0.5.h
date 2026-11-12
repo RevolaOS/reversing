@@ -1187,6 +1187,10 @@ extern void *const MenuListModel_vtable[];
 #define SITE_EAppBlocks_Release_call 0x0819d6d8
 #define SITE_MediaStream_Seek_slot 0x08996c00
 #define SITE_MP4Parser_SeekToTime_slot 0x08994a68
+#define SITE_MP4Parser_SeekAudioTrack_entry 0x081bb188
+#define SITE_MP4Parser_SeekEditEndTest_word 0x081bb5e8
+#define SITE_MP4Parser_ReadEditStartTest_word 0x081bc0f4
+#define SITE_MP4Parser_ReadEditEndTest_word 0x081bc114
 #define SITE_Sleep_Idle_call 0x0819b32c
 #define SITE_Sleep_Request_call 0x0819bba8
 #define SITE_Preferences_FlushIfDirty_call 0x0806392c
