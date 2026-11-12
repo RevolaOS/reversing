@@ -80,6 +80,11 @@ bytes = 0x44
 
 [offsets.NativePath]
 bytes = 0x8
+# What File_OpenLegacyPath and File_DeleteLegacyPath take: a uint16 whose low byte is the volume,
+# then the UTF-8 path, which the opener copies, so the caller chooses the buffer length.
+[offsets.LegacyPath]
+volume = 0x0
+text = 0x2
 
 [offsets.ThreadRecord]
 kernel_thread = 0x0

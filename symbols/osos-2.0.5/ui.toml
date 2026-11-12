@@ -61,6 +61,12 @@ View_Construct = { at = 0x08265bf8, c = "void *View_Construct(void *view, void *
 View_BindGraphicsContext = { at = 0x08264bdc, c = "void View_BindGraphicsContext(void *view, void *context)" }
 View_GetLocalContentRect = { at = 0x08299014, c = "void View_GetLocalContentRect(void *view, int32_t *rect)" }
 View_InvalidateRect = { at = 0x082655a0, c = "void View_InvalidateRect(void *view, const int32_t *rect)" }
+# The window the view draws into: View_window of the view or of the nearest ancestor that has one,
+# else the root's. A view moved to a compositor layer by UI_MoveViewToLayer has its own window with
+# its own Window_bitmap and Window_dirty_rect, so invalidating the root does not redraw it.
+View_GetWindow = { at = 0x08299080, c = "void *View_GetWindow(void *view)" }
+# Unions rect (window coordinates) into Window_dirty_rect; View_InvalidateRect ends here.
+Window_InvalidateRect = { at = 0x082843ac, c = "void Window_InvalidateRect(void *window, const int32_t *rect)" }
 View_DrawBackgroundAndBorder = { at = 0x08263530, c = "void View_DrawBackgroundAndBorder(void *view)" }
 View_Draw = { at = 0x0826576c, c = "void View_Draw(void *view, void *draw_argument, const int32_t *clip)" }
 View_DrawClipped = { at = 0x08265388, c = "void View_DrawClipped(void *view, void *draw_argument, const int32_t *clip)" }
@@ -163,6 +169,51 @@ UI_ResolveTemplateView = { at = 0x0817481c, c = "void *UI_ResolveTemplateView(vo
 CapacityView_CreateFromDescriptor = { at = 0x081d587c }
 CapacityView_LoadSegments = { at = 0x081370f4 }
 CapacityView_Draw = { at = 0x08137738 }
+# View_draw_method of the bitmap view ('imag'): View_Draw, then the bitmap at BitmapView_context
+# through GraphicsContext_CopyRect, tiled across the view when bit 27 of View_flags is set. A
+# paletted bitmap first gets GraphicsContext_SetColor(context, view + BitmapView_color).
+BitmapView_Draw = { at = 0x0810012c, c = "void BitmapView_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+# BitmapView subclass for menu row icons: a highlighted row (ViewFlags_Highlighted) draws a second
+# bitmap context when it has one; otherwise as BitmapView_Draw.
+MenuRowBitmapView_Draw = { at = 0x081911f8, c = "void MenuRowBitmapView_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+# The Search screen's letter keyboard ('kbrd'). Draw walks the rows, DrawKeyRow the keys of one
+# row, and DrawKey draws one key: GraphicsContext_SetColor(context, view +
+# KeyboardView_letter_color, or KeyboardView_selected_letter_color when selected) and the letter.
+KeyboardView_Draw = { at = 0x08204170, c = "void KeyboardView_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+KeyboardView_DrawKeyRow = { at = 0x08203f6c, c = "void KeyboardView_DrawKeyRow(void *view, void *context, const int32_t *rect)" }
+KeyboardView_DrawKey = { at = 0x08203e8c, c = "void KeyboardView_DrawKey(void *view, void *context, int key, const int32_t *rect, int selected)" }
+# The segmented option bar ('opbr'): OptionBarView_segment_count labels in OptionBarView_label_color,
+# the OptionBarView_selected one in OptionBarView_selected_label_color.
+OptionBarView_Draw = { at = 0x081e06d0, c = "void OptionBarView_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+# The monthly calendar ('calv'), at View_draw_clipped_method: the seven weekday names in
+# CalendarView_header_color, then the day cells.
+CalendarView_DrawClipped = { at = 0x081363fc, c = "void CalendarView_DrawClipped(void *view, void *draw_argument, const int32_t *clip)" }
+# One day of the monthly calendar: the cell art, a top-right and a bottom-right marker when the
+# day's Bool properties say so, then the day number in the colour at CalendarDayCell_day_color.
+CalendarDayCell_Draw = { at = 0x081bff58, c = "void CalendarDayCell_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+# GLAlbumArtView_vtable + View_draw_method.
+GLAlbumArtView_Draw = { at = 0x08163efc, c = "void GLAlbumArtView_Draw(void *view, void *draw_argument, const int32_t *clip)" }
+# The view's Resource_Draw image from its model (View_model, View_property).
+GLAlbumArtView_GetImage = { at = 0x08163d64, c = "void *GLAlbumArtView_GetImage(void *view)" }
+# ArtworkRenderer_Draw of GLAlbumArtAnimation_renderer, then CoverFlowEdges_SmoothCenter over the
+# 320 by 240 pixel buffer from GameGraphics_GetCurrentPixelBuffer.
+GLAlbumArtAnimation_RenderCover = { at = 0x0815cd4c, c = "void GLAlbumArtAnimation_RenderCover(void *animation)" }
+# Runs one queued UI message. With wait zero it returns 0 on an empty queue, otherwise it blocks.
+# The quit message returns 0 and sets *out_quit when given.
+UI_ProcessMessage = { at = 0x081215d8, c = "int UI_ProcessMessage(int wait, uint8_t *out_quit)" }
+# The UI task's loop after start-up, entered from UITask_Main.
+UI_RunMessageLoop = { at = 0x08288a94, c = "void UI_RunMessageLoop(void)" }
+# Model_notify_method of the stock models: posts an Event_ModelChange for the property.
+Model_Notify = { at = 0x08268cf8, c = "void Model_Notify(void *model, uint32_t type, uint32_t property)" }
+# SelectionGradient_Bitmap, constructed on first use. Its Bitmap_bounds are the bar bounds it was
+# last rendered for; View_DrawBackgroundAndBorder re-renders when they differ.
+SelectionGradient_GetBitmap = { at = 0x0809353c, c = "void *SelectionGradient_GetBitmap(void)" }
+# The artwork provider shared by the menus, Now Playing and the library import, created on first
+# use and kept in MediaArtworkProvider.
+MediaArtworkProvider_Get = { at = 0x081adae8, c = "void *MediaArtworkProvider_Get(void)" }
+# The artwork loaded for one of the four slots (0 is the menu cover), or NULL while the slot is
+# empty or hidden. The main and Music menu highlight handlers show the no-artwork preview on NULL.
+MediaArtworkProvider_GetSlotArtwork = { at = 0x081ac834, c = "void *MediaArtworkProvider_GetSlotArtwork(void *provider, uint32_t slot)" }
 
 [data]
 ScreenController_vtable = { at = 0x0899d3fc, c = "void *const ScreenController_vtable[]" }
@@ -188,6 +239,14 @@ TextView_vtable = { at = 0x089af07c, c = "void *const TextView_vtable[]" }
 SelectedRowTextView_vtable = { at = 0x08993504, c = "void *const SelectedRowTextView_vtable[]" }
 MenuList_vtable = { at = 0x08992c60, c = "void *const MenuList_vtable[]" }
 MenuListModel_vtable = { at = 0x08992c70, c = "void *const MenuListModel_vtable[]" }
+GLAlbumArtView_vtable = { at = 0x08990618, c = "void *const GLAlbumArtView_vtable[]" }
+# Start and end colour of the selection bar gradient; View_DrawBackgroundAndBorder reaches both
+# through SelectionBar_Gradient_literal and SelectionBar_Highlight_literal.
+SelectionBar_RamGradient = { at = 0x089d4ee8, c = "uint8_t SelectionBar_RamGradient[2][4]" }
+# The gradient's end colour, also the context colour the bar is filled with.
+SelectionBar_RamHighlight = { at = 0x089d4eec, c = "uint8_t SelectionBar_RamHighlight[4]" }
+SelectionGradient_Bitmap = { at = 0x08a82324, c = "uint8_t SelectionGradient_Bitmap[]" }
+MediaArtworkProvider = { at = 0x089d4c74, c = "void *MediaArtworkProvider" }
 
 [sites]
 # ProgressBar_vtable and ProgressBarStyle8_vtable + ProgressBar_draw_markers_method; both draw
@@ -242,6 +301,29 @@ Albums_Action_slot = { at = 0x089a3628, kind = "slot" }
 TextView_DrawTextWithColor_call = { at = 0x08288514, kind = "call", in = "TextView_DrawString+0x11c" }
 TextView_DrawTextLayout_call = { at = 0x082884a8, kind = "call", in = "TextView_DrawString+0xb0" }
 TextView_DrawString_entry = { at = 0x082883f8, kind = "entry" }
+# At the colour and blit sites below the drawing view is in r4, except KeyboardView_DrawColor_call
+# (r5). The blits pass the bitmap context in r1 and alpha and flags on the stack.
+BitmapView_DrawColor_call = { at = 0x0810020c, kind = "call", in = "BitmapView_Draw+0xe0" }
+BitmapView_TileBlit_call = { at = 0x08100278, kind = "call", in = "BitmapView_Draw+0x14c" }
+BitmapView_Blit_call = { at = 0x081002e4, kind = "call", in = "BitmapView_Draw+0x1b8" }
+MenuRowBitmapView_TileBlit_call = { at = 0x0819136c, kind = "call", in = "MenuRowBitmapView_Draw+0x174" }
+MenuRowBitmapView_Blit_call = { at = 0x081913b8, kind = "call", in = "MenuRowBitmapView_Draw+0x1c0" }
+KeyboardView_DrawColor_call = { at = 0x08203f2c, kind = "call", in = "KeyboardView_DrawKey+0xa0" }
+OptionBarView_DrawColor_call = { at = 0x081e0930, kind = "call", in = "OptionBarView_Draw+0x260" }
+CalendarDayCell_TopMarkerBlit_call = { at = 0x081c0064, kind = "call", in = "CalendarDayCell_Draw+0x10c" }
+CalendarDayCell_BottomMarkerBlit_call = { at = 0x081c010c, kind = "call", in = "CalendarDayCell_Draw+0x1b4" }
+CalendarDayCell_DrawColor_call = { at = 0x081c0170, kind = "call", in = "CalendarDayCell_Draw+0x218" }
+CalendarView_DrawColor_call = { at = 0x081365e4, kind = "call", in = "CalendarView_DrawClipped+0x1e8" }
+GLAlbumArtView_Draw_slot = { at = 0x0899068c, kind = "slot" }
+AlbumArt_RendererDraw_call = { at = 0x0815cd54, kind = "call", in = "GLAlbumArtAnimation_RenderCover+0x8" }
+AlbumArt_EdgeLines_call = { at = 0x0815cd7c, kind = "call", in = "GLAlbumArtAnimation_RenderCover+0x30" }
+# beq to the SelectionBar_RamGradient rendering; the byte flag it tests is never set in 2.0.5, so
+# the branch is always taken.
+SelectionBar_StyleBranch_word = { at = 0x08263704, kind = "word", in = "View_DrawBackgroundAndBorder+0x1d4" }
+SelectionBar_Highlight_literal = { at = 0x08263e10, kind = "literal" }
+SelectionBar_Gradient_literal = { at = 0x08263e14, kind = "literal" }
+MediaArtworkProvider_GetSlotArtwork_entry = { at = 0x081ac834, kind = "entry" }
+UI_ProcessMessage_call = { at = 0x08288b98, kind = "call", in = "UI_RunMessageLoop+0x104" }
 
 [offsets.Model]
 notify_method = 0x58
@@ -291,14 +373,61 @@ bytes = 0xa4
 options_bytes = 0x5c
 vtable_bytes = 0x114
 draw_method = 0x74
+draw_clipped_method = 0x70
+# RGBA used when the background style selects the view's own colour.
+background_color = 0x90
+window = 0x3c
 bounds = 0x80
 id = 0x4c
 find_view_method = 0xe4
 linked_view_method = 0xfc
 flags = 0x48
+# Only container views (those whose View_find_view_method is View_FindViewById) have these: an
+# embedded array object whose vtable sits at children, with child_count View pointers at
+# child_items. A plain view ends at View_bytes, and TextView_context overlaps these offsets.
 children = 0xa8
 child_count = 0xac
 child_items = 0xb0
+
+# The colours are RGBA bytes inside the view; art and the markers are GraphicsContext pointers and
+# day_color points at the day number's RGBA.
+[offsets.Window]
+bounds = 0x20
+# The backing Bitmap, allocated when the window gets bounds or becomes visible and cleared to
+# Palette_White.
+bitmap = 0x54
+parent = 0x78
+dirty_rect = 0xdc
+
+[offsets.BitmapView]
+context = 0x15c
+color = 0x160
+
+[offsets.KeyboardView]
+letter_color = 0x1cd
+selected_letter_color = 0x1d1
+
+[offsets.OptionBarView]
+segment_count = 0xa8
+style = 0x121
+selected = 0x124
+label_color = 0x1cc
+selected_label_color = 0x1d0
+
+[offsets.CalendarView]
+header_color = 0x104
+
+[offsets.CalendarDayCell]
+day_color = 0xf4
+art = 0x1b4
+top_marker = 0x274
+bottom_marker = 0x334
+
+[offsets.GLAlbumArtView]
+animation = 0xac
+
+[offsets.GLAlbumArtAnimation]
+renderer = 0x128
 
 [constants]
 Property_PodcastStatus = 0x7835
@@ -379,6 +508,22 @@ LayoutKind_Clock = 7
 LayoutKind_FullScreen = 8
 LayoutKind_Page = 9
 LayoutKind_System = 10
+# Service_interface_method kind that returns a service's model, as UI_FindServiceById(Service_NowPlaying)
+# then interface(service, Interface_Model) for the Now Playing model.
+Interface_Model = 5
+ViewFlags_Highlighted = 0x8
+# Bits 15 to 17 of View_flags choose the background View_DrawBackgroundAndBorder fills: none, a
+# Palette grey, or the view's own or model colour.
+ViewFlags_BackgroundStyle = 0x38000
+ViewType_Image = 0x696d6167
+ViewType_Keyboard = 0x6b627264
+ViewType_OptionBar = 0x6f706272
+ViewType_Calendar = 0x63616c76
+# Resource_Draw properties of the Now Playing model: the play-state icon (play, pause, forward,
+# rewind) of the white status bar templates, of the black one and of TV out.
+Property_PlayStateWhite = 0x7f0c
+Property_PlayStateBlack = 0x7f0d
+Property_PlayStateTVOut = 0x7f0e
 
 [resources]
 MediaStatus_VideoSelected_Bitmap = 0x0dad0714
@@ -413,6 +558,9 @@ NowPlaying_Idle_Template = 0x0dad0925
 NowPlaying_ChapterArt_BackgroundImage_View = 0x0dad092d
 RentalInfo_White_Background_View = 0x0dad09ae
 Search_Input_Text = 0x0dad0ddc
+Alarms_PickDate_Preivew_NumericDay = 0x0dad030e
+Settings_DateTime_NumericDay = 0x0dad0607
+Settings_DateTime_Preivew_NumericDay = 0x0dad061e
 Notes_List_Screen_Alt = 0x0dad09fa
 Notes_List_Screen_Alt_Default = 0x0dad09fb
 Settings_Legal_Template = 0x0dad0041

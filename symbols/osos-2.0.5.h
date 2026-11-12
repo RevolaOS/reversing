@@ -49,6 +49,7 @@ void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t st
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
+void GraphicsContext_ClearRect(void *context, const int32_t *rect);
 void GraphicsContext_SetColor(void *context, const uint8_t *rgba);
 void GraphicsContext_SetBackgroundColor(void *context, const uint8_t *rgba);
 void GraphicsContext_SetFont(void *context, const uint32_t *font);
@@ -75,6 +76,9 @@ void BitmapCache_GetRect(int32_t *rect, void *cache);
 void BitmapCache_Draw(void *cache, void *context, const int32_t *source_rect, const int32_t *rect, uint32_t alpha);
 void Rect_Offset(int32_t *rect, int dx, int dy);
 void Rect_Intersect(int32_t *rect, const int32_t *other);
+void ArtworkRenderer_Draw(void *renderer);
+void CoverFlowEdges_SmoothCenter(const void *buffer);
+void GameGraphics_GetCurrentPixelBuffer(void **out_pixels);
 int IAP_VerifyDeviceSignatureRSA(void *manager, uint32_t channel, uint32_t key_id, void *signature, uint32_t signature_bytes);
 int IAP_VerifyDeviceSignatureAlternate(void *authentication, void *signature, uint32_t signature_bytes);
 int Wheel_DispatchButtonChanges(int force_center);
@@ -407,6 +411,8 @@ void *View_Construct(void *view, void *unused, void *parent, void *event_target,
 void View_BindGraphicsContext(void *view, void *context);
 void View_GetLocalContentRect(void *view, int32_t *rect);
 void View_InvalidateRect(void *view, const int32_t *rect);
+void *View_GetWindow(void *view);
+void Window_InvalidateRect(void *window, const int32_t *rect);
 void View_DrawBackgroundAndBorder(void *view);
 void View_Draw(void *view, void *draw_argument, const int32_t *clip);
 void View_DrawClipped(void *view, void *draw_argument, const int32_t *clip);
@@ -466,6 +472,23 @@ void Navigator_Push(void *navigator, void *controller, uint32_t flags);
 void *UI_GetRootOwner(void);
 void TextView_DrawString(void *view, const char *text, void *argument);
 void *UI_ResolveTemplateView(void *manager, uint32_t template_id, uint8_t *out_from_root);
+void BitmapView_Draw(void *view, void *draw_argument, const int32_t *clip);
+void MenuRowBitmapView_Draw(void *view, void *draw_argument, const int32_t *clip);
+void KeyboardView_Draw(void *view, void *draw_argument, const int32_t *clip);
+void KeyboardView_DrawKeyRow(void *view, void *context, const int32_t *rect);
+void KeyboardView_DrawKey(void *view, void *context, int key, const int32_t *rect, int selected);
+void OptionBarView_Draw(void *view, void *draw_argument, const int32_t *clip);
+void CalendarView_DrawClipped(void *view, void *draw_argument, const int32_t *clip);
+void CalendarDayCell_Draw(void *view, void *draw_argument, const int32_t *clip);
+void GLAlbumArtView_Draw(void *view, void *draw_argument, const int32_t *clip);
+void *GLAlbumArtView_GetImage(void *view);
+void GLAlbumArtAnimation_RenderCover(void *animation);
+int UI_ProcessMessage(int wait, uint8_t *out_quit);
+void UI_RunMessageLoop(void);
+void Model_Notify(void *model, uint32_t type, uint32_t property);
+void *SelectionGradient_GetBitmap(void);
+void *MediaArtworkProvider_Get(void);
+void *MediaArtworkProvider_GetSlotArtwork(void *provider, uint32_t slot);
 void USB_HandleSetupPacket(void *usb);
 void *USB_DispatchControlRead(void *usb, uint32_t *inout_length);
 void *USB_HandleVendorDeviceRead(void *usb, uint32_t *inout_length);
@@ -483,6 +506,11 @@ extern const uint32_t EQ_PresetIds[];
 extern const uint8_t DisplayLayerOrders[];
 extern const uint32_t DisplayBlendRegisters[];
 extern void *const Bitmap_vtable[];
+extern uint8_t Palette_White[4];
+extern uint8_t Palette_LightGray[4];
+extern uint8_t Palette_Gray[4];
+extern uint8_t Palette_DarkGray[4];
+extern uint8_t Palette_Black[4];
 extern volatile uint32_t WheelController[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
@@ -502,6 +530,7 @@ extern void *const ScsiDiskClient_vtable[];
 extern void *const MusicLoadingTask_vtable[];
 extern void *App;
 extern uint8_t ResourceNameMap[];
+extern const uint8_t ResourceRomImage[];
 extern uint32_t ClickerRoute;
 extern uint8_t IRQ_Nesting;
 extern uint32_t MainMenuSettingsRows[];
@@ -528,6 +557,11 @@ extern void *const TextView_vtable[];
 extern void *const SelectedRowTextView_vtable[];
 extern void *const MenuList_vtable[];
 extern void *const MenuListModel_vtable[];
+extern void *const GLAlbumArtView_vtable[];
+extern uint8_t SelectionBar_RamGradient[2][4];
+extern uint8_t SelectionBar_RamHighlight[4];
+extern uint8_t SelectionGradient_Bitmap[];
+extern void *MediaArtworkProvider;
 #endif
 
 #define ADDR_ArtworkDatabase_Import 0x08059000
@@ -579,6 +613,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
+#define ADDR_GraphicsContext_ClearRect 0x0825ad4c
 #define ADDR_GraphicsContext_SetColor 0x08259b28
 #define ADDR_GraphicsContext_SetBackgroundColor 0x08259b20
 #define ADDR_GraphicsContext_SetFont 0x0825aba8
@@ -606,6 +641,9 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_BitmapCache_Draw 0x0828fbb0
 #define ADDR_Rect_Offset 0x08262f00
 #define ADDR_Rect_Intersect 0x08262b54
+#define ADDR_ArtworkRenderer_Draw 0x08271fa0
+#define ADDR_CoverFlowEdges_SmoothCenter 0x0826a44c
+#define ADDR_GameGraphics_GetCurrentPixelBuffer 0x082c7f14
 #define ADDR_IAP_VerifyDeviceSignatureRSA 0x0812dca8
 #define ADDR_IAP_VerifyDeviceSignatureAlternate 0x081592fc
 #define ADDR_IAP_HandleDeviceAuthenticationSignature 0x081892b8
@@ -980,6 +1018,8 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_View_BindGraphicsContext 0x08264bdc
 #define ADDR_View_GetLocalContentRect 0x08299014
 #define ADDR_View_InvalidateRect 0x082655a0
+#define ADDR_View_GetWindow 0x08299080
+#define ADDR_Window_InvalidateRect 0x082843ac
 #define ADDR_View_DrawBackgroundAndBorder 0x08263530
 #define ADDR_View_Draw 0x0826576c
 #define ADDR_View_DrawClipped 0x08265388
@@ -1075,6 +1115,23 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_CapacityView_CreateFromDescriptor 0x081d587c
 #define ADDR_CapacityView_LoadSegments 0x081370f4
 #define ADDR_CapacityView_Draw 0x08137738
+#define ADDR_BitmapView_Draw 0x0810012c
+#define ADDR_MenuRowBitmapView_Draw 0x081911f8
+#define ADDR_KeyboardView_Draw 0x08204170
+#define ADDR_KeyboardView_DrawKeyRow 0x08203f6c
+#define ADDR_KeyboardView_DrawKey 0x08203e8c
+#define ADDR_OptionBarView_Draw 0x081e06d0
+#define ADDR_CalendarView_DrawClipped 0x081363fc
+#define ADDR_CalendarDayCell_Draw 0x081bff58
+#define ADDR_GLAlbumArtView_Draw 0x08163efc
+#define ADDR_GLAlbumArtView_GetImage 0x08163d64
+#define ADDR_GLAlbumArtAnimation_RenderCover 0x0815cd4c
+#define ADDR_UI_ProcessMessage 0x081215d8
+#define ADDR_UI_RunMessageLoop 0x08288a94
+#define ADDR_Model_Notify 0x08268cf8
+#define ADDR_SelectionGradient_GetBitmap 0x0809353c
+#define ADDR_MediaArtworkProvider_Get 0x081adae8
+#define ADDR_MediaArtworkProvider_GetSlotArtwork 0x081ac834
 #define ADDR_USB_HandleSetupPacket 0x0828a404
 #define ADDR_USB_DispatchControlRead 0x0828a7d4
 #define ADDR_USB_HandleVendorDeviceRead 0x0828a27c
@@ -1095,6 +1152,11 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_DisplayLayerOrders 0x083f35ec
 #define ADDR_DisplayBlendRegisters 0x083f35e0
 #define ADDR_Bitmap_vtable 0x08989298
+#define ADDR_Palette_White 0x089d4f18
+#define ADDR_Palette_LightGray 0x089d4f1c
+#define ADDR_Palette_Gray 0x089d4f20
+#define ADDR_Palette_DarkGray 0x089d4f24
+#define ADDR_Palette_Black 0x089d4f28
 #define ADDR_WheelController 0x3c200000
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
@@ -1114,6 +1176,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_MusicLoadingTask_vtable 0x08994174
 #define ADDR_App 0x089d2cb4
 #define ADDR_ResourceNameMap 0x08ae02c4
+#define ADDR_ResourceRomImage 0x084020dc
 #define ADDR_ClickerRoute 0x089d2bdc
 #define ADDR_IRQ_Nesting 0x22008af4
 #define ADDR_MainMenuSettingsRows 0x08a815f0
@@ -1140,6 +1203,11 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_SelectedRowTextView_vtable 0x08993504
 #define ADDR_MenuList_vtable 0x08992c60
 #define ADDR_MenuListModel_vtable 0x08992c70
+#define ADDR_GLAlbumArtView_vtable 0x08990618
+#define ADDR_SelectionBar_RamGradient 0x089d4ee8
+#define ADDR_SelectionBar_RamHighlight 0x089d4eec
+#define ADDR_SelectionGradient_Bitmap 0x08a82324
+#define ADDR_MediaArtworkProvider 0x089d4c74
 
 #define SITE_ArtworkDatabase_Import_call 0x0804d458
 #define SITE_ArtworkDatabase_ReadImageThumbs_call 0x08074f34
@@ -1173,6 +1241,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_MediaPlayer_PostVolumeExposureLimitEvent_word 0x080cfe74
 #define SITE_GameManifest_InitReader_call 0x080f9418
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
+#define SITE_GraphicsContext_ClearRect_call 0x0825adb4
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
 #define SITE_IAP_VerifyDeviceSignatureRSA_call 0x081893a8
 #define SITE_IAP_VerifyDeviceSignatureAlternate_call 0x081893fc
@@ -1366,6 +1435,25 @@ extern void *const MenuListModel_vtable[];
 #define SITE_TextView_DrawTextWithColor_call 0x08288514
 #define SITE_TextView_DrawTextLayout_call 0x082884a8
 #define SITE_TextView_DrawString_entry 0x082883f8
+#define SITE_BitmapView_DrawColor_call 0x0810020c
+#define SITE_BitmapView_TileBlit_call 0x08100278
+#define SITE_BitmapView_Blit_call 0x081002e4
+#define SITE_MenuRowBitmapView_TileBlit_call 0x0819136c
+#define SITE_MenuRowBitmapView_Blit_call 0x081913b8
+#define SITE_KeyboardView_DrawColor_call 0x08203f2c
+#define SITE_OptionBarView_DrawColor_call 0x081e0930
+#define SITE_CalendarDayCell_TopMarkerBlit_call 0x081c0064
+#define SITE_CalendarDayCell_BottomMarkerBlit_call 0x081c010c
+#define SITE_CalendarDayCell_DrawColor_call 0x081c0170
+#define SITE_CalendarView_DrawColor_call 0x081365e4
+#define SITE_GLAlbumArtView_Draw_slot 0x0899068c
+#define SITE_AlbumArt_RendererDraw_call 0x0815cd54
+#define SITE_AlbumArt_EdgeLines_call 0x0815cd7c
+#define SITE_SelectionBar_StyleBranch_word 0x08263704
+#define SITE_SelectionBar_Highlight_literal 0x08263e10
+#define SITE_SelectionBar_Gradient_literal 0x08263e14
+#define SITE_MediaArtworkProvider_GetSlotArtwork_entry 0x081ac834
+#define SITE_UI_ProcessMessage_call 0x08288b98
 #define SITE_USB_ContinueControlWrite_call 0x0828b1e0
 #define SITE_USB_HandleVendorDeviceRead_call 0x0828a820
 #define SITE_USB_DispatchNoDataRequest_call 0x0828a458
@@ -1477,6 +1565,10 @@ extern void *const MenuListModel_vtable[];
 #define Bitmap_bounds 0x98
 #define Bitmap_owns_pixels 0xb4
 #define Bitmap_bytes 0xb8
+#define PixelBuffer_pixels 0x0
+#define PixelBuffer_width 0x4
+#define PixelBuffer_height 0x6
+#define PixelBuffer_bytes 0x8
 #define WheelState_notify_pending 0x0
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
@@ -1744,6 +1836,23 @@ extern void *const MenuListModel_vtable[];
 #define ResourceOverride_length 0x0
 #define ResourceOverride_data 0x4
 #define ResourceOverride_bytes 0x8
+#define ResourceRomHeader_version 0x0
+#define ResourceRomHeader_index_bytes 0x4
+#define ResourceRomHeader_type_count 0x8
+#define ResourceRomHeader_types 0xc
+#define ResourceRomHeader_bytes 0xc
+#define ResourceRomType_type 0x0
+#define ResourceRomType_count 0x4
+#define ResourceRomType_entries 0xc
+#define ResourceRomType_bytes 0x10
+#define ResourceRomEntry_id 0x0
+#define ResourceRomEntry_offset 0x4
+#define ResourceRomEntry_length 0x8
+#define ResourceRomEntry_bytes 0xc
+#define RomResourceIndex_index 0x0
+#define RomResourceIndex_data 0x8
+#define RomResourceIndex_type_count 0xc
+#define RomResourceIndex_types 0x10
 #define Preferences_object 0x378
 #define Preferences_get_method 0xdc
 #define Preferences_set_method 0xd4
@@ -1754,6 +1863,8 @@ extern void *const MenuListModel_vtable[];
 #define PreferencesFile_dirty 0xb94
 #define DirectoryIterator_bytes 0x44
 #define NativePath_bytes 0x8
+#define LegacyPath_volume 0x0
+#define LegacyPath_text 0x2
 #define ThreadRecord_kernel_thread 0x0
 #define ThreadRecord_context 0x8
 #define ThreadRecord_name 0xc
@@ -1812,6 +1923,9 @@ extern void *const MenuListModel_vtable[];
 #define View_options_bytes 0x5c
 #define View_vtable_bytes 0x114
 #define View_draw_method 0x74
+#define View_draw_clipped_method 0x70
+#define View_background_color 0x90
+#define View_window 0x3c
 #define View_bounds 0x80
 #define View_id 0x4c
 #define View_find_view_method 0xe4
@@ -1820,6 +1934,26 @@ extern void *const MenuListModel_vtable[];
 #define View_children 0xa8
 #define View_child_count 0xac
 #define View_child_items 0xb0
+#define Window_bounds 0x20
+#define Window_bitmap 0x54
+#define Window_parent 0x78
+#define Window_dirty_rect 0xdc
+#define BitmapView_context 0x15c
+#define BitmapView_color 0x160
+#define KeyboardView_letter_color 0x1cd
+#define KeyboardView_selected_letter_color 0x1d1
+#define OptionBarView_segment_count 0xa8
+#define OptionBarView_style 0x121
+#define OptionBarView_selected 0x124
+#define OptionBarView_label_color 0x1cc
+#define OptionBarView_selected_label_color 0x1d0
+#define CalendarView_header_color 0x104
+#define CalendarDayCell_day_color 0xf4
+#define CalendarDayCell_art 0x1b4
+#define CalendarDayCell_top_marker 0x274
+#define CalendarDayCell_bottom_marker 0x334
+#define GLAlbumArtView_animation 0xac
+#define GLAlbumArtAnimation_renderer 0x128
 #define EventTimer_period_ms 0x4
 #define EventTimer_recipient 0x24
 #define EventTimer_event_queue 0x28
@@ -1988,7 +2122,9 @@ extern void *const MenuListModel_vtable[];
 #define MMU_UNMAPPED_ADDRESS 0x10000000
 #define IRAM_END 0x22040000
 #define IRQ_STACK_TOP 0x8b3b1b0
+#define GraphicsDrawMode_Copy 0x0
 #define GraphicsDrawMode_Text 0x21
+#define GraphicsDrawMode_Blend 0x22
 #define BMapFormat_Mask4 0x4
 #define BMapFormat_Mask8 0x8
 #define BMapFormat_Indexed8 0x64
@@ -2083,6 +2219,9 @@ extern void *const MenuListModel_vtable[];
 #define Resource_VSlt 0x56536c74
 #define ResourceBankKind_Heap 0x1
 #define ResourceBankKind_Rom 0x2
+#define ResourceRomImage_bytes 0x431924
+#define BMapPayloads_address 0x841b158
+#define BMapPayloads_bytes 0x314506
 #define FileError_NotFound 0xffffffd5
 #define FileError_EndOfFile 0xffffffd9
 #define ClockRegister_Microseconds 0x3c7000b4
@@ -2188,6 +2327,16 @@ extern void *const MenuListModel_vtable[];
 #define LayoutKind_FullScreen 0x8
 #define LayoutKind_Page 0x9
 #define LayoutKind_System 0xa
+#define Interface_Model 0x5
+#define ViewFlags_Highlighted 0x8
+#define ViewFlags_BackgroundStyle 0x38000
+#define ViewType_Image 0x696d6167
+#define ViewType_Keyboard 0x6b627264
+#define ViewType_OptionBar 0x6f706272
+#define ViewType_Calendar 0x63616c76
+#define Property_PlayStateWhite 0x7f0c
+#define Property_PlayStateBlack 0x7f0d
+#define Property_PlayStateTVOut 0x7f0e
 
 #define RES_Settings_Off_String 0x0dad0bda
 #define RES_Settings_On_String 0x0dad0bdb
@@ -2283,6 +2432,9 @@ extern void *const MenuListModel_vtable[];
 #define RES_NowPlaying_ChapterArt_BackgroundImage_View 0x0dad092d
 #define RES_RentalInfo_White_Background_View 0x0dad09ae
 #define RES_Search_Input_Text 0x0dad0ddc
+#define RES_Alarms_PickDate_Preivew_NumericDay 0x0dad030e
+#define RES_Settings_DateTime_NumericDay 0x0dad0607
+#define RES_Settings_DateTime_Preivew_NumericDay 0x0dad061e
 #define RES_Notes_List_Screen_Alt 0x0dad09fa
 #define RES_Notes_List_Screen_Alt_Default 0x0dad09fb
 #define RES_Settings_Legal_Template 0x0dad0041

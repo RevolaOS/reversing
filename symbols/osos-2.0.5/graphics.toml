@@ -4,6 +4,9 @@
 Bitmap_LoadResource = { at = 0x08103984, c = "void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags)" }
 GraphicsContext_ConstructDefault = { at = 0x0825b008, c = "void *GraphicsContext_ConstructDefault(void *context)" }
 GraphicsContext_FillRect = { at = 0x0825ae34, c = "void GraphicsContext_FillRect(void *context, const int32_t *rect)" }
+# GraphicsContext_FillRect with GraphicsContext_background_color and mode GraphicsDrawMode_Copy;
+# used to clear offscreen bitmaps before rows and marquee text are pre-rendered into them.
+GraphicsContext_ClearRect = { at = 0x0825ad4c, c = "void GraphicsContext_ClearRect(void *context, const int32_t *rect)" }
 GraphicsContext_SetColor = { at = 0x08259b28, c = "void GraphicsContext_SetColor(void *context, const uint8_t *rgba)" }
 GraphicsContext_SetBackgroundColor = { at = 0x08259b20, c = "void GraphicsContext_SetBackgroundColor(void *context, const uint8_t *rgba)" }
 GraphicsContext_SetFont = { at = 0x0825aba8, c = "void GraphicsContext_SetFont(void *context, const uint32_t *font)" }
@@ -35,9 +38,15 @@ BitmapCache_Draw = { at = 0x0828fbb0, c = "void BitmapCache_Draw(void *cache, vo
 Rect_Offset = { at = 0x08262f00, c = "void Rect_Offset(int32_t *rect, int dx, int dy)" }
 # In place; an empty result or operand clears rect to zero.
 Rect_Intersect = { at = 0x08262b54, c = "void Rect_Intersect(int32_t *rect, const int32_t *other)" }
+# Renders the artwork into the current GL target.
+ArtworkRenderer_Draw = { at = 0x08271fa0, c = "void ArtworkRenderer_Draw(void *renderer)" }
+# Smooths the centre edge lines of a PixelBuffer in place.
+CoverFlowEdges_SmoothCenter = { at = 0x0826a44c, c = "void CoverFlowEdges_SmoothCenter(const void *buffer)" }
+GameGraphics_GetCurrentPixelBuffer = { at = 0x082c7f14, c = "void GameGraphics_GetCurrentPixelBuffer(void **out_pixels)" }
 
 [sites]
 GraphicsContext_FillRect_call = { at = 0x0825ae9c, kind = "call", in = "GraphicsContext_FillRect+0x68" }
+GraphicsContext_ClearRect_call = { at = 0x0825adb4, kind = "call", in = "GraphicsContext_ClearRect+0x68" }
 ArtworkReflection_Blend_call = { at = 0x0826a890, kind = "call", in = "ArtworkReflection_GenerateRGB565+0xd0" }
 
 [offsets.BitmapCache]
@@ -72,7 +81,11 @@ payload_bytes = 0x18
 payload = 0x1c
 
 [constants]
+# Surface_FillRect modes, from GraphicsContext_mode: Blend mixes by the colour's alpha when it is
+# below 0xff; every other mode, Copy and Text included, writes the colour.
+GraphicsDrawMode_Copy = 0x0
 GraphicsDrawMode_Text = 0x21
+GraphicsDrawMode_Blend = 0x22
 BMapFormat_Mask4 = 0x4
 BMapFormat_Mask8 = 0x8
 BMapFormat_Indexed8 = 0x64
@@ -88,9 +101,23 @@ bytes = 0xc
 
 [data]
 Bitmap_vtable = { at = 0x08989298, c = "void *const Bitmap_vtable[]" }
+# Five RGBA greys filled at start-up (white, 0xaa, 0x7f, 0x55, black, alpha 0xff). Highlighted text
+# views pass Palette_White to GraphicsContext_SetColor.
+Palette_White = { at = 0x089d4f18, c = "uint8_t Palette_White[4]" }
+Palette_LightGray = { at = 0x089d4f1c, c = "uint8_t Palette_LightGray[4]" }
+Palette_Gray = { at = 0x089d4f20, c = "uint8_t Palette_Gray[4]" }
+Palette_DarkGray = { at = 0x089d4f24, c = "uint8_t Palette_DarkGray[4]" }
+Palette_Black = { at = 0x089d4f28, c = "uint8_t Palette_Black[4]" }
 
 [offsets.Bitmap]
 pixels = 0x4
 bounds = 0x98
 owns_pixels = 0xb4
 bytes = 0xb8
+
+# What CoverFlowEdges_SmoothCenter takes: the pixels and their size as two uint16.
+[offsets.PixelBuffer]
+pixels = 0x0
+width = 0x4
+height = 0x6
+bytes = 0x8

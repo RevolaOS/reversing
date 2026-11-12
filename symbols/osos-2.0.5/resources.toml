@@ -24,6 +24,10 @@ ResourceName_GetId = { at = 0x08286e74, c = "uint32_t ResourceName_GetId(void *n
 
 [data]
 ResourceNameMap = { at = 0x08ae02c4, c = "uint8_t ResourceNameMap[]" }
+# The ROM resource image: a ResourceRomHeader, ResourceRomHeader_type_count ResourceRomType records,
+# their ResourceRomEntry tables, and the payloads from ResourceRomHeader_index_bytes in. A payload
+# is at ResourceRomImage + ResourceRomHeader_index_bytes + ResourceRomEntry_offset.
+ResourceRomImage = { at = 0x084020dc, c = "const uint8_t ResourceRomImage[]" }
 
 [sites]
 ResourceBlockList_AppendBorrowedBlock_call = { at = 0x0817a88c, kind = "call", in = "ResourceBlockList_Load+0x60" }
@@ -51,6 +55,10 @@ Resource_String = 0x53747220
 Resource_VSlt = 0x56536c74
 ResourceBankKind_Heap = 1
 ResourceBankKind_Rom = 2
+ResourceRomImage_bytes = 0x431924
+# The lowest BMap payload in the image and the span to the end of the highest.
+BMapPayloads_address = 0x0841b158
+BMapPayloads_bytes = 0x314506
 
 [offsets.ResourceBlock]
 length = 0x0
@@ -70,3 +78,30 @@ overrides = 0x18
 length = 0x0
 data = 0x4
 bytes = 0x8
+
+[offsets.ResourceRomHeader]
+version = 0x0
+index_bytes = 0x4
+type_count = 0x8
+types = 0xc
+bytes = 0xc
+
+[offsets.ResourceRomType]
+type = 0x0
+count = 0x4
+entries = 0xc
+bytes = 0x10
+
+[offsets.ResourceRomEntry]
+id = 0x0
+offset = 0x4
+length = 0x8
+bytes = 0xc
+
+# The record at ResourceBank_rom_index of a ROM bank: the image, its payload base and the type
+# table, as ResourceBank_FirstResource and ResourceBank_NextResource walk them.
+[offsets.RomResourceIndex]
+index = 0x0
+data = 0x8
+type_count = 0xc
+types = 0x10
