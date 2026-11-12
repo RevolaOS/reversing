@@ -5,65 +5,33 @@ What is known about Apple's iPod Classic firmware, and the symbols the RevolaOS 
 | Path | Contents |
 |---|---|
 | `symbols/` | One directory per firmware version plus its generated linker script and C header |
-| `docs/<version>/` | One file per Apple subsystem |
-| `ghidra/` | Headless scripts, the program manifest and the exported analysis (names, prototypes, comments, types) |
+| `docs/` | Workflow pages and one directory per firmware version, one file per subsystem |
+| `ghidra/` | Headless scripts, the program manifest and the exported analysis: names, prototypes, comments, types |
 | `tools/` | `symbols.py` (symbols), `ghidra.py` (Ghidra project) |
 
-## Symbols
+## Workflow
 
-`symbols/osos-2.0.5/` is the source of truth for every address RevolaOS code uses. It holds one TOML file per subsystem, such as `media.toml` or `artwork.toml`; `firmware.toml` carries the image identity and memory map. Each file can use every table below, so a subsystem's functions, sites and struct offsets sit together. Names are unique across the directory. Prose in `docs/` uses the names, never raw addresses.
-
-| Table | Entry | Generated as |
-|---|---|---|
-| `[functions]` | `Name = { at, c, thumb }` | linker symbol (bit 0 set for Thumb), the prototype `c`, and `#define ADDR_Name` for patch declarations |
-| `[data]` | `Name = { at, c }` | linker symbol, `extern c` and `#define ADDR_Name` |
-| `[sites]` | `Name = { at, kind, in }` | `#define SITE_Name` |
-| `[offsets.Struct]` | `field = value` | `#define Struct_field` |
-| `[constants]`, `[resources]` | `Name = value` | `#define Name`, `#define RES_Name` |
-
-Site kinds: `call` (a `BL`, or a `BLX` through a register, to redirect), `slot` (a pointer in a vtable or table), `word` (a constant), `entry` (a function start for a jump hook), `literal` (an address held in a literal pool). `in` names the containing function and offset; `verify` checks it.
+Names and addresses start in Ghidra and end in `symbols/osos-2.0.5/`, from which the linker script and header are generated. Requires Python 3.11+, Ghidra 12.1.4, JDK 21 and the `revola` CLI from the installer repository.
 
 ```sh
+python tools/ghidra.py import --inputs <decrypted 2.0.5 inputs>
+python tools/symbols.py refresh symbols/osos-2.0.5 --ghidra build/ghidra
+python tools/symbols.py push symbols/osos-2.0.5 --ghidra build/ghidra
 python tools/symbols.py generate symbols/osos-2.0.5
 python tools/symbols.py check symbols/osos-2.0.5
 python tools/symbols.py verify symbols/osos-2.0.5
 ```
 
-`generate` writes `osos-2.0.5.ld` and `osos-2.0.5.h` next to the directory; both are committed. `check` fails when they are stale. `verify` compares every function and site with `ghidra/analysis/2.0.5/osos` (or `--analysis <dir>`) and lists functions Ghidra has not defined yet. CI runs `check` and `verify`.
-
-Code links against the linker script with `-Wl,--just-symbols=osos-2.0.5.ld` and includes the header. A function without a prototype gets only its linker symbol and `ADDR_` define; add `c` before calling it from C.
-
 Apple firmware bytes are never committed. Analysis is reproduced from the user's own decrypted inputs.
 
-## Ghidra
+## Documentation
 
-Requires Ghidra 12.1.4, JDK 21 and the `revola` CLI from the installer repository (for `firmware extract-efi`) on `PATH` or given with `--cli`.
-
-```sh
-python tools/ghidra.py import --inputs <decrypted 2.0.5 inputs>   # builds build/ghidra
-python tools/symbols.py push symbols/osos-2.0.5 --ghidra build/ghidra
-python tools/symbols.py refresh symbols/osos-2.0.5 --ghidra build/ghidra
-python tools/ghidra.py export                                      # writes ghidra/analysis
-```
-
-`--inputs` holds `osos.bin` and `apple-loader.bin`, checked against `ghidra/profiles/firmware-2.0.5.json`. `import` builds ELF images of OSOS and every NOR module, checks them against `ghidra/programs.json`, runs auto-analysis, applies the saved analysis and verifies the result. It fails if any saved function, symbol, comment or bookmark does not apply.
-
-`push` makes the project match the symbols file: functions get their name and prototype, data gets a label, sites get a Note bookmark in category `site`. When auto-analysis has merged a function into the caller that tail-jumps to it, `push` splits it out at the symbols-file address. `refresh` goes the other way for entries that already exist: it updates `at`, `thumb` and `c` from the project and moves sites with their function. Run `refresh` before `push` so edits made in Ghidra are kept. Close the project in Ghidra before running either.
-
-`export` keeps only what auto-analysis cannot reproduce. Per program, `ghidra/analysis/2.0.5/<program>/` holds:
-
-| File | Records | Use |
-|---|---|---|
-| `program.json` | SARIF header | language, image base, Ghidra version |
-| `memory_map.jsonl` | every block | layout and permissions of the prepared image |
-| `entry_points.jsonl` | every entry | analysis seeds |
-| `functions.jsonl` | named, typed, thunk or custom-storage functions | names, prototypes and bodies; input to `verify` |
-| `symbols.jsonl` | user-defined and imported labels | data and code labels |
-| `comments.jsonl` | every comment | analyst notes |
-| `datatype.jsonl` | every data type | structures, unions, enums |
-| `bookmarks.jsonl` | Note and Info bookmarks | core sites and analyst notes |
-
-Register values, references, code ranges, defined data and analysis bookmarks are regenerated by auto-analysis and not kept. A file larger than 4 MiB is split into `<name>.NN.jsonl`.
+| Page | Contents |
+|---|---|
+| [Symbols](docs/symbols.md) | The symbols files and what is generated from them |
+| [Ghidra](docs/ghidra.md) | Project, push and refresh, exported analysis |
+| [Apple firmware 2.0.5](docs/2.0.5/README.md) | One page per subsystem |
+| [STYLE.md](STYLE.md) | Principles and rules for every file |
 
 ## Credits
 
