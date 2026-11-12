@@ -1562,6 +1562,10 @@ extern void *MediaArtworkProvider;
 #define FontResource_style 0x8
 #define FontResource_bytes 0xc
 #define Bitmap_pixels 0x4
+#define Bitmap_stride 0x8
+#define Bitmap_bits_per_pixel 0xc
+#define Bitmap_bytes_per_pixel 0x10
+#define Bitmap_format 0x14
 #define Bitmap_bounds 0x98
 #define Bitmap_owns_pixels 0xb4
 #define Bitmap_bytes 0xb8
