@@ -134,6 +134,7 @@ Library_LoadDatabases = { at = 0x0805d6c8 }
 MediaPlayer_GetReadAheadBytes = { at = 0x0822c92c, c = "uint32_t MediaPlayer_GetReadAheadBytes(void *player)" }
 
 [data]
+MediaPlayer_vtable = { at = 0x08990da4, c = "void *const MediaPlayer_vtable[]" }
 BrowserRegistry = { at = 0x08a1a6dc, c = "uint8_t BrowserRegistry[]" }
 
 [sites]

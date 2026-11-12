@@ -461,6 +461,7 @@ extern void *const Bitmap_vtable[];
 extern volatile uint32_t WheelController[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
+extern void *const MediaPlayer_vtable[];
 extern uint8_t BrowserRegistry[];
 extern void *BlockCache;
 extern void *MainHeap;
@@ -1038,6 +1039,7 @@ extern void *const MenuListModel_vtable[];
 #define ADDR_WheelController 0x3c200000
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
+#define ADDR_MediaPlayer_vtable 0x08990da4
 #define ADDR_BrowserRegistry 0x08a1a6dc
 #define ADDR_BlockCache 0x089d380c
 #define ADDR_MainHeap 0x089d2c78
@@ -1090,6 +1092,7 @@ extern void *const MenuListModel_vtable[];
 #define SITE_EQ_TrackGuard_word 0x08173b74
 #define SITE_EQ_TrackPreset_call 0x08173b80
 #define SITE_EQ_SettingsIdToDspPreset_entry 0x080b28a0
+#define SITE_EQ_ApplySettingsId_slot 0x08990e44
 #define SITE_EQ_SettingsCount_word 0x080bb498
 #define SITE_EQ_ProviderCount_word 0x081e1ae8
 #define SITE_EQ_MenuIds_literal 0x0807bfb0

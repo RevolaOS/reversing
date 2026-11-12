@@ -538,6 +538,7 @@ Bitmap_vtable = 0x08989298;
 WheelController = 0x3c200000;
 WheelState = 0x089d2b8c;
 ButtonKeyCodes = 0x089d2ec5;
+MediaPlayer_vtable = 0x08990da4;
 BrowserRegistry = 0x08a1a6dc;
 BlockCache = 0x089d380c;
 MainHeap = 0x089d2c78;

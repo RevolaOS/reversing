@@ -54,6 +54,8 @@ EQ_TrackGuard_word = { at = 0x08173b74, kind = "word", in = "MediaTrack_ApplyEQ+
 # First MediaItem_GetEQSettingsId call; a 0 result skips the track's own preset.
 EQ_TrackPreset_call = { at = 0x08173b80, kind = "call", in = "MediaTrack_ApplyEQ+0x38" }
 EQ_SettingsIdToDspPreset_entry = { at = 0x080b28a0, kind = "entry" }
+# MediaPlayer_vtable + MediaPlayer_apply_eq_method.
+EQ_ApplySettingsId_slot = { at = 0x08990e44, kind = "slot" }
 EQ_SettingsCount_word = { at = 0x080bb498, kind = "word", in = "EQ_SettingsIdToMenuIndex+0x38" }
 EQ_ProviderCount_word = { at = 0x081e1ae8, kind = "word" }
 EQ_MenuIds_literal = { at = 0x0807bfb0, kind = "literal" }
