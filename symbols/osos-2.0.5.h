@@ -13,6 +13,9 @@
 struct AudioEffectsContext;
 struct DateTime;
 struct DirectoryIterator;
+struct GameFileRequest;
+struct GameInputEvent;
+struct GameUser;
 struct MediaEntry;
 struct MediaItem;
 struct MediaList;
@@ -72,6 +75,159 @@ void GamesService_ScanRoot(void *service, void *list, uint32_t volume, const cha
 void GamesService_ClearList(void *service);
 int GamesService_GetIndexedProperty(void *service, uint32_t type, uint32_t property, uint32_t index, void **out);
 void GamesService_RequestSelectedGameLaunch(void *service);
+int GameSystem_SetBacklightEnabled(int enabled);
+int GameSystem_SetBacklightLevel(int percent);
+int GameSystem_GetBacklightLevel(void);
+void GameSystem_SetBacklightDimmed(int dimmed);
+void GameSystem_Sleep(uint32_t milliseconds);
+void GameSystem_GetDateTime(uint32_t out_fields[6]);
+int GameSystem_GetHostStatusValue(void);
+int GameSystem_IsExternalPowerConnected(void);
+int GameSystem_GetPath(uint32_t directory_kind, char *out_path, int *size, const char *relative_path);
+int GameSystem_GetGameName(char *out_name, int capacity, int localized);
+uint32_t GameSystem_GetDeviceFamily(void);
+int GameSystem_IsModelCode1(void);
+void Clock_ReadMicroseconds(uint32_t *out_microseconds);
+int GameDebug_OpenFile(uint32_t directory_kind, const char *relative_path, int read_only, void **out_handle);
+void GameDebug_CloseFile(void *handle);
+int GameDebug_ReadFile(void *handle, void *buffer, uint32_t byte_count, uint32_t *out_count);
+int GameDebug_WriteFile(void *handle, const void *buffer, uint32_t byte_count, uint32_t *out_count);
+void GameDebug_Printf(const char *format, ...);
+void GameInput_ForwardButtonEvent(const struct GameInputEvent *event);
+int GameFile_QueueOpen(uint32_t directory_kind, const char *relative_path, int read_only, struct GameFileRequest *request);
+int GameFile_QueueClose(struct GameFileRequest *request);
+int GameFile_QueueTransfer(struct GameFileRequest *request);
+int GameFile_QueueReadFile(uint32_t directory_kind, const char *relative_path, struct GameFileRequest *request);
+int GameFile_QueueWriteFile(uint32_t directory_kind, const char *relative_path, struct GameFileRequest *request);
+int GameFile_QueueDelete(uint32_t directory_kind, const char *relative_path, struct GameFileRequest *request);
+int GameFile_QueueRename(uint32_t directory_kind, const char *directory, const char *name, const char *new_name, struct GameFileRequest *request);
+int GameDirectory_QueueList(uint32_t directory_kind, const char *relative_path, uint32_t create, struct GameFileRequest *request);
+int GameDirectory_Rewind(int list_handle);
+int GameDirectory_ReadEntry(int list_handle, char *out_name, uint32_t capacity, uint8_t *out_is_directory);
+void GameDirectory_ReleaseList(int list_handle);
+int GameDirectory_GetStatus(int list_handle);
+int GameSaveFile_Open(uint32_t directory_kind, const char *relative_path, int *out_slot);
+int GameSaveFile_Retain(uint32_t slot);
+int GameSaveFile_Close(uint32_t slot);
+int GameSaveFile_Read(uint32_t slot, void *buffer, int *byte_count, int whence, uint32_t offset);
+int GameSaveFile_Write(uint32_t slot, const void *buffer, int byte_count);
+int GameSound_Create(void);
+int GameSound_Destroy(int sound);
+int GameSound_Play(int sound);
+int GameSound_Pause(int sound);
+int GameSound_Resume(int sound);
+int GameSound_Stop(int sound);
+int GameSound_Unused(int sound);
+int GameSound_SetData(int sound, const void *samples);
+int GameSound_SetByteCount(int sound, uint32_t byte_count);
+int GameSound_SetFlagC(int sound, uint8_t value);
+int GameSound_SetSampleRate(int sound, uint32_t hertz);
+int GameSound_SetChannels(int sound, uint32_t channels);
+int GameSound_SetBitsPerSample(int sound, uint32_t bits);
+int GameSound_SetVolume(int sound, uint32_t volume);
+int GameSound_SetPan(int sound, int32_t pan);
+int GameSound_SetSpeed(int sound, uint32_t speed);
+int GameSound_SetPlayCount(int sound, uint32_t count);
+int GameSound_SetState(int sound, uint8_t state);
+int GameSound_SetFlags(int sound, uint8_t flags);
+int GameSound_SetTailMilliseconds(int sound, uint32_t milliseconds);
+int GameSound_SetLeadInMilliseconds(int sound, uint32_t milliseconds);
+int GameSound_SetNext(int sound, int next_sound);
+int GameSound_SetMusicDuck(int sound, uint32_t level, uint32_t milliseconds);
+const void *GameSound_GetData(int sound);
+uint32_t GameSound_GetByteCount(int sound);
+uint8_t GameSound_GetFlagC(int sound);
+uint32_t GameSound_GetSampleRate(int sound);
+uint32_t GameSound_GetChannels(int sound);
+uint32_t GameSound_GetBitsPerSample(int sound);
+uint32_t GameSound_GetVolume(int sound);
+uint32_t GameSound_GetSpeed(int sound);
+uint32_t GameSound_GetPlayCount(int sound);
+int32_t GameSound_GetPan(int sound);
+uint32_t GameSound_GetSpeedScale(void);
+uint32_t GameSound_GetZero(void);
+int GameSound_GetState(int sound);
+int GameSound_GetFlags(int sound);
+uint32_t GameSound_GetTailMilliseconds(int sound);
+uint32_t GameSound_GetLeadInMilliseconds(int sound);
+uint32_t GameSound_GetVoicePosition(int sound);
+int GameSound_GetNext(int sound);
+int GameSound_IsPlaying(int sound);
+uint32_t GameAudio_GetRepeatMode(void);
+void GameAudio_SetRepeatMode(uint8_t mode);
+uint32_t GameAudio_GetPlaybackOrder(void);
+void GameAudio_SetPlaybackOrder(uint8_t order);
+void GameAudio_RefreshCurrentEntry(void);
+void GameAudio_SetListOption(uint8_t enabled);
+void GameAudio_SetEQMenuIndexTemporary(uint32_t index);
+void GameAudio_SetEQMenuIndex(uint32_t index);
+uint32_t GameAudio_GetEQMenuIndex(void);
+int GameAudio_SetSpeed(int speed);
+int GameAudio_GetSpeed(void);
+void GameAudio_SetGain(int32_t gain);
+int32_t GameAudio_GetGain(void);
+void GameAudio_InitPlaybackList(uint8_t mode, uint8_t option);
+void GameAudio_AppendMediaSelection(const void *selection, void *record, uint8_t use_record, uint32_t option);
+void GameAudio_RemoveEntryAtIndex(uint32_t index);
+void GameAudio_ClearPlaybackList(void);
+void GameAudio_SetPlaybackChanged(uint8_t changed);
+void GameAudio_PlayIndex(uint32_t index, uint8_t flag, uint32_t option);
+void GameAudio_Stop(void);
+void GameAudio_TogglePlayPause(uint8_t wait);
+void GameAudio_StartScanForward(void);
+void GameAudio_StartScanBackward(void);
+void GameAudio_StopScan(void);
+void GameAudio_Seek(uint32_t milliseconds);
+void GameAudio_SetPendingItem(uint32_t index, uint32_t value);
+void GameAudio_NextTrack(void);
+void GameAudio_PreviousTrack(void);
+uint32_t GameAudio_GetCurrentIndex(void);
+uint32_t GameAudio_GetEntryCount(void);
+uint32_t GameAudio_GetItemHandleAtIndex(uint32_t index);
+uint32_t GameAudio_GetPosition(void);
+uint32_t GameAudio_GetRemainingPosition(void);
+uint8_t GameAudio_GetPlaybackState(void);
+int GameAudio_IsPlaying(void);
+int GameAudio_IsPaused(void);
+int GameAudio_IsStopped(void);
+int GameAudio_IsScanningForward(void);
+int GameAudio_IsScanningBackward(void);
+int GameAudio_IsScanning(void);
+int GameAudio_IsShuffleEnabled(void);
+int GameAudio_IsRepeatOne(void);
+int GameAudio_IsRepeatAll(void);
+int GameAudio_IsPlaybackOrderReversed(void);
+uint8_t GameAudio_GetPlayerFlag93F(void);
+uint8_t GameAudio_GetCurrentEntryFlag(void);
+int GameAudio_HasPlaybackList(void);
+uint32_t GameAudio_GetVolume(void);
+uint32_t GameAudio_GetVolumeLimit(void);
+void GameAudio_SetVolume(uint32_t volume);
+uint32_t GameAudio_GetMixerLevel(void);
+void GameAudio_SetMixerLevel(uint32_t level);
+void GameAudio_GetVersion(uint16_t out_version[2]);
+void GameAudio_RequestPowerHold(void);
+uint32_t GameUser_GetCount(void);
+struct GameUser *GameUser_GetAt(uint32_t index);
+struct GameUser *GameUser_FindById(uint32_t id);
+void GameUser_Remove(struct GameUser *user);
+struct GameUser *GameUser_Add(const char *name);
+const char *GameUser_GetName(struct GameUser *user);
+void GameUser_CopyDateA(void *out_date, struct GameUser *user);
+void GameUser_CopyDateB(void *out_date, struct GameUser *user);
+uint16_t GameUser_GetId(struct GameUser *user);
+void GameUser_SetName(struct GameUser *user, const char *name);
+int32_t GameSettings_ReadMappedString(int32_t preference, void *out_value, uint32_t *size, const void *table);
+int GameBacklight_SetLevel(void *backlight, int percent);
+void GameBacklight_SetDimmed(void *backlight, int dimmed);
+int GameSaveTable_Close(void *table, uint32_t slot);
+struct GameUser *GameUserList_Add(void *users, const char *name);
+int GameAudio_GetCachedSpeed(void *bridge);
+void GameAudio_QueuePreviousTrack(void *bridge);
+uint8_t GameAudio_ReadPlayerFlag93F(void *bridge);
+uint8_t GameAudio_ReadCurrentEntryFlag(void *bridge);
+uint32_t GameAudio_ReadMixerLevel(void);
+uint32_t AudioMixer_GetMusicLevel(void);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
@@ -562,6 +718,20 @@ extern const uint8_t EQ_Presets[];
 extern const uint32_t EQ_PresetIds[];
 extern const uint8_t DisplayLayerOrders[];
 extern const uint32_t DisplayBlendRegisters[];
+extern const uint8_t GameAPI_ModuleRegistry[];
+extern const char GameImport_EndOfListName[];
+extern const uint8_t GameSettings_Table[];
+extern const uint8_t GameAPI_MiscTBD_Module[];
+extern const uint8_t GameAPI_DebugUtil_Module[];
+extern const uint8_t GameAPI_MemoryAlloc_Module[];
+extern const uint8_t GameAPI_InputEvents_Module[];
+extern const uint8_t GameAPI_Settings_Module[];
+extern const uint8_t GameAPI_AsyncFileIO_Module[];
+extern const uint8_t GameAPI_SoundEffect_Module[];
+extern const uint8_t GameAPI_OpenGLES_Module[];
+extern const uint8_t GameAPI_Audio_Module[];
+extern const uint8_t GameAPI_Metadata_Module[];
+extern const uint8_t GameAPI_Users_Module[];
 extern void *const Bitmap_vtable[];
 extern uint8_t Palette_White[4];
 extern uint8_t Palette_LightGray[4];
@@ -693,6 +863,159 @@ extern void *MediaArtworkProvider;
 #define ADDR_GamesService_ClearList 0x080f5858
 #define ADDR_GamesService_GetIndexedProperty 0x080f63b8
 #define ADDR_GamesService_RequestSelectedGameLaunch 0x080f6708
+#define ADDR_GameSystem_SetBacklightEnabled 0x082c0f90
+#define ADDR_GameSystem_SetBacklightLevel 0x082c0fa8
+#define ADDR_GameSystem_GetBacklightLevel 0x082bdd18
+#define ADDR_GameSystem_SetBacklightDimmed 0x082bd9bc
+#define ADDR_GameSystem_Sleep 0x082bd9b8
+#define ADDR_GameSystem_GetDateTime 0x082bddbc
+#define ADDR_GameSystem_GetHostStatusValue 0x082bdd28
+#define ADDR_GameSystem_IsExternalPowerConnected 0x082c0e24
+#define ADDR_GameSystem_GetPath 0x082bde10
+#define ADDR_GameSystem_GetGameName 0x082bdd4c
+#define ADDR_GameSystem_GetDeviceFamily 0x082bdce0
+#define ADDR_GameSystem_IsModelCode1 0x082bdf04
+#define ADDR_Clock_ReadMicroseconds 0x0807bffc
+#define ADDR_GameDebug_OpenFile 0x082bdaf8
+#define ADDR_GameDebug_CloseFile 0x082bdaa4
+#define ADDR_GameDebug_ReadFile 0x082bdc20
+#define ADDR_GameDebug_WriteFile 0x082bdc6c
+#define ADDR_GameDebug_Printf 0x082c0e60
+#define ADDR_GameInput_ForwardButtonEvent 0x082c0e98
+#define ADDR_GameFile_QueueOpen 0x082bd3ec
+#define ADDR_GameFile_QueueClose 0x082bd3d0
+#define ADDR_GameFile_QueueTransfer 0x082bd44c
+#define ADDR_GameFile_QueueReadFile 0x082bd420
+#define ADDR_GameFile_QueueWriteFile 0x082bd468
+#define ADDR_GameFile_QueueDelete 0x082c1134
+#define ADDR_GameFile_QueueRename 0x082c1160
+#define ADDR_GameDirectory_QueueList 0x082bda44
+#define ADDR_GameDirectory_Rewind 0x082bda78
+#define ADDR_GameDirectory_ReadEntry 0x082bda10
+#define ADDR_GameDirectory_ReleaseList 0x082bd9d4
+#define ADDR_GameDirectory_GetStatus 0x082bd9f4
+#define ADDR_GameSaveFile_Open 0x082bd918
+#define ADDR_GameSaveFile_Retain 0x082bd940
+#define ADDR_GameSaveFile_Close 0x082bd900
+#define ADDR_GameSaveFile_Read 0x082bd958
+#define ADDR_GameSaveFile_Write 0x082bd990
+#define ADDR_GameSound_Create 0x082c03b8
+#define ADDR_GameSound_Destroy 0x082c0470
+#define ADDR_GameSound_Play 0x082c08b4
+#define ADDR_GameSound_Pause 0x082c0870
+#define ADDR_GameSound_Resume 0x082c0900
+#define ADDR_GameSound_Stop 0x082c0d9c
+#define ADDR_GameSound_Unused 0x082c0de0
+#define ADDR_GameSound_SetData 0x082c09c4
+#define ADDR_GameSound_SetByteCount 0x082c0a08
+#define ADDR_GameSound_SetFlagC 0x082c0984
+#define ADDR_GameSound_SetSampleRate 0x082c0d1c
+#define ADDR_GameSound_SetChannels 0x082c0bdc
+#define ADDR_GameSound_SetBitsPerSample 0x082c0944
+#define ADDR_GameSound_SetVolume 0x082c0d5c
+#define ADDR_GameSound_SetPan 0x082c0c1c
+#define ADDR_GameSound_SetSpeed 0x082c0c5c
+#define ADDR_GameSound_SetPlayCount 0x082c0a88
+#define ADDR_GameSound_SetState 0x082c0ac8
+#define ADDR_GameSound_SetFlags 0x082c0a48
+#define ADDR_GameSound_SetTailMilliseconds 0x082c0c9c
+#define ADDR_GameSound_SetLeadInMilliseconds 0x082c0cdc
+#define ADDR_GameSound_SetNext 0x082c0b88
+#define ADDR_GameSound_SetMusicDuck 0x082c0b40
+#define ADDR_GameSound_GetData 0x082c0578
+#define ADDR_GameSound_GetByteCount 0x082c05ac
+#define ADDR_GameSound_GetFlagC 0x082c0544
+#define ADDR_GameSound_GetSampleRate 0x082c07c4
+#define ADDR_GameSound_GetChannels 0x082c06c0
+#define ADDR_GameSound_GetBitsPerSample 0x082c04d4
+#define ADDR_GameSound_GetVolume 0x082c07f8
+#define ADDR_GameSound_GetSpeed 0x082c0728
+#define ADDR_GameSound_GetPlayCount 0x082c061c
+#define ADDR_GameSound_GetPan 0x082c06f4
+#define ADDR_GameSound_GetSpeedScale 0x082c04cc
+#define ADDR_GameSound_GetZero 0x082c04c4
+#define ADDR_GameSound_GetState 0x082c0650
+#define ADDR_GameSound_GetFlags 0x082c05e0
+#define ADDR_GameSound_GetTailMilliseconds 0x082c075c
+#define ADDR_GameSound_GetLeadInMilliseconds 0x082c0790
+#define ADDR_GameSound_GetVoicePosition 0x082c0508
+#define ADDR_GameSound_GetNext 0x082c068c
+#define ADDR_GameSound_IsPlaying 0x082c082c
+#define ADDR_GameAudio_GetRepeatMode 0x082bd5b4
+#define ADDR_GameAudio_SetRepeatMode 0x082bd828
+#define ADDR_GameAudio_GetPlaybackOrder 0x082bd5c4
+#define ADDR_GameAudio_SetPlaybackOrder 0x082bd840
+#define ADDR_GameAudio_RefreshCurrentEntry 0x082bd708
+#define ADDR_GameAudio_SetListOption 0x082bd758
+#define ADDR_GameAudio_SetEQMenuIndexTemporary 0x082bd7ac
+#define ADDR_GameAudio_SetEQMenuIndex 0x082bd7d4
+#define ADDR_GameAudio_GetEQMenuIndex 0x082bd574
+#define ADDR_GameAudio_SetSpeed 0x082bd810
+#define ADDR_GameAudio_GetSpeed 0x082bd594
+#define ADDR_GameAudio_SetGain 0x082bd7f8
+#define ADDR_GameAudio_GetGain 0x082bd584
+#define ADDR_GameAudio_InitPlaybackList 0x082bd6a0
+#define ADDR_GameAudio_AppendMediaSelection 0x082bd4a4
+#define ADDR_GameAudio_RemoveEntryAtIndex 0x082bd6d0
+#define ADDR_GameAudio_ClearPlaybackList 0x082bd4d4
+#define ADDR_GameAudio_SetPlaybackChanged 0x082bd4e4
+#define ADDR_GameAudio_PlayIndex 0x082bd644
+#define ADDR_GameAudio_Stop 0x082bd888
+#define ADDR_GameAudio_TogglePlayPause 0x082bd8c8
+#define ADDR_GameAudio_StartScanForward 0x082bd868
+#define ADDR_GameAudio_StartScanBackward 0x082bd878
+#define ADDR_GameAudio_StopScan 0x082bd898
+#define ADDR_GameAudio_Seek 0x082bd728
+#define ADDR_GameAudio_SetPendingItem 0x082bd78c
+#define ADDR_GameAudio_NextTrack 0x082bd634
+#define ADDR_GameAudio_PreviousTrack 0x082bd6c0
+#define ADDR_GameAudio_GetCurrentIndex 0x082bd4fc
+#define ADDR_GameAudio_GetEntryCount 0x082bd8e0
+#define ADDR_GameAudio_GetItemHandleAtIndex 0x082bd51c
+#define ADDR_GameAudio_GetPosition 0x082bd8a8
+#define ADDR_GameAudio_GetRemainingPosition 0x082bd8b8
+#define ADDR_GameAudio_GetPlaybackState 0x082bd5a4
+#define ADDR_GameAudio_IsPlaying 0x082bd614
+#define ADDR_GameAudio_IsPaused 0x082bd604
+#define ADDR_GameAudio_IsStopped 0x082bd624
+#define ADDR_GameAudio_IsScanningForward 0x082bd5d4
+#define ADDR_GameAudio_IsScanningBackward 0x082bd5f4
+#define ADDR_GameAudio_IsScanning 0x082bd5e4
+#define ADDR_GameAudio_IsShuffleEnabled 0x082bd858
+#define ADDR_GameAudio_IsRepeatOne 0x082bd6f8
+#define ADDR_GameAudio_IsRepeatAll 0x082bd6e8
+#define ADDR_GameAudio_IsPlaybackOrderReversed 0x082bd718
+#define ADDR_GameAudio_GetPlayerFlag93F 0x082bd66c
+#define ADDR_GameAudio_GetCurrentEntryFlag 0x082bd494
+#define ADDR_GameAudio_HasPlaybackList 0x082bd8f0
+#define ADDR_GameAudio_GetVolume 0x082bd50c
+#define ADDR_GameAudio_GetVolumeLimit 0x082bd534
+#define ADDR_GameAudio_SetVolume 0x082bd740
+#define ADDR_GameAudio_GetMixerLevel 0x082bd564
+#define ADDR_GameAudio_SetMixerLevel 0x082bd770
+#define ADDR_GameAudio_GetVersion 0x082bd544
+#define ADDR_GameAudio_RequestPowerHold 0x082bd67c
+#define ADDR_GameUser_GetCount 0x082c1090
+#define ADDR_GameUser_GetAt 0x082c1058
+#define ADDR_GameUser_FindById 0x082c1004
+#define ADDR_GameUser_Remove 0x082c0fe8
+#define ADDR_GameUser_Add 0x082c0fc0
+#define ADDR_GameUser_GetName 0x082c1118
+#define ADDR_GameUser_CopyDateA 0x082c10a8
+#define ADDR_GameUser_CopyDateB 0x082c10d8
+#define ADDR_GameUser_GetId 0x082c1108
+#define ADDR_GameUser_SetName 0x082c1128
+#define ADDR_GameSettings_ReadMappedString 0x08073f5c
+#define ADDR_GameBacklight_SetLevel 0x081b1928
+#define ADDR_GameBacklight_SetDimmed 0x081b18ec
+#define ADDR_GameSaveTable_Close 0x0813eee0
+#define ADDR_GameUserList_Add 0x0812bb00
+#define ADDR_GameAudio_GetCachedSpeed 0x0817f7ec
+#define ADDR_GameAudio_QueuePreviousTrack 0x0817f528
+#define ADDR_GameAudio_ReadPlayerFlag93F 0x0817eb70
+#define ADDR_GameAudio_ReadCurrentEntryFlag 0x0817f054
+#define ADDR_GameAudio_ReadMixerLevel 0x0817f09c
+#define ADDR_AudioMixer_GetMusicLevel 0x081a6b78
 #define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
@@ -1265,6 +1588,20 @@ extern void *MediaArtworkProvider;
 #define ADDR_EQ_PresetIds 0x083e4110
 #define ADDR_DisplayLayerOrders 0x083f35ec
 #define ADDR_DisplayBlendRegisters 0x083f35e0
+#define ADDR_GameAPI_ModuleRegistry 0x08a182e0
+#define ADDR_GameImport_EndOfListName 0x089b10a0
+#define ADDR_GameSettings_Table 0x089d29a0
+#define ADDR_GameAPI_MiscTBD_Module 0x08a182e0
+#define ADDR_GameAPI_DebugUtil_Module 0x08a18358
+#define ADDR_GameAPI_MemoryAlloc_Module 0x08a183b0
+#define ADDR_GameAPI_InputEvents_Module 0x08a18400
+#define ADDR_GameAPI_Settings_Module 0x08a1844c
+#define ADDR_GameAPI_AsyncFileIO_Module 0x08a18494
+#define ADDR_GameAPI_SoundEffect_Module 0x08a1851c
+#define ADDR_GameAPI_OpenGLES_Module 0x08a18608
+#define ADDR_GameAPI_Audio_Module 0x08a188f4
+#define ADDR_GameAPI_Metadata_Module 0x08a18a10
+#define ADDR_GameAPI_Users_Module 0x08a18cf8
 #define ADDR_Bitmap_vtable 0x08989298
 #define ADDR_Palette_White 0x089d4f18
 #define ADDR_Palette_LightGray 0x089d4f1c
@@ -1664,6 +2001,7 @@ extern void *MediaArtworkProvider;
 #define GameImageHeader_bytes 0x28
 #define GameFrameInput_state 0x0
 #define GameFrameInput_events 0x30
+#define GameFrameInput_completed_requests 0x2c
 #define GameFrameInput_pixels 0x38
 #define GameFrameInput_bytes 0x100
 #define GameFrameOutput_state 0x0
@@ -1685,6 +2023,10 @@ extern void *MediaArtworkProvider;
 #define GameRuntime_init_entry 0x26c
 #define GameRuntime_shutdown_entry 0x270
 #define GameRuntime_frame_entry 0x27c
+#define GameRuntime_game_heap 0x294
+#define GameRuntime_file_service 0x298
+#define GameRuntime_completed_requests 0x29c
+#define GameRuntime_completed_tail 0x2a0
 #define GameManifestReader_manifest_path 0x0
 #define GameManifestReader_signature_path 0x4
 #define GameManifestReader_volume 0x8
@@ -1697,8 +2039,77 @@ extern void *MediaArtworkProvider;
 #define GameListEntry_user_data_path 0x34
 #define GameListEntry_bytes 0x50
 #define GamesService_list 0x28
+#define GamesService_users 0x54
 #define GamesService_selected_index 0x8c
 #define GamesService_list_built 0x90
+#define GameAPIModule_name 0x0
+#define GameAPIModule_interface_count 0x20
+#define GameAPIModule_function_count 0x24
+#define GameAPIModule_next 0x28
+#define GameAPIModule_functions 0x2c
+#define GameAPIInterface_id 0x0
+#define GameAPIInterface_function_count 0x10
+#define GameAPIInterface_bytes 0x14
+#define GameImport_name 0x0
+#define GameImport_interface_id 0x20
+#define GameImport_function_count 0x30
+#define GameImport_next 0x34
+#define GameImport_stubs 0x38
+#define GameFileRequest_next 0x0
+#define GameFileRequest_type 0x10
+#define GameFileRequest_completion 0x14
+#define GameFileRequest_offset 0x18
+#define GameFileRequest_whence 0x1c
+#define GameFileRequest_buffer 0x20
+#define GameFileRequest_length 0x24
+#define GameFileRequest_result 0x28
+#define GameFileRequest_transferred 0x2c
+#define GameFileRequest_size 0x30
+#define GameFileRequest_handle 0x34
+#define GameSaveSlot_path 0x0
+#define GameSaveSlot_data 0x8
+#define GameSaveSlot_bytes 0xc
+#define GameSaveSlot_position 0x10
+#define GameSaveSlot_references 0x14
+#define GameSaveSlot_dirty 0x18
+#define GameSaveSlot_lock 0x1c
+#define GameSaveSlot_record_bytes 0x24
+#define GameSound_data 0x4
+#define GameSound_byte_count 0x8
+#define GameSound_flag_c 0xc
+#define GameSound_sample_rate 0x10
+#define GameSound_channels 0x14
+#define GameSound_bits_per_sample 0x18
+#define GameSound_volume 0x1c
+#define GameSound_speed 0x20
+#define GameSound_pan 0x24
+#define GameSound_lead_in_ms 0x28
+#define GameSound_tail_ms 0x2c
+#define GameSound_gain 0x30
+#define GameSound_voice 0x34
+#define GameSound_play_count 0x38
+#define GameSound_state 0x3d
+#define GameSound_flags 0x3e
+#define GameSound_next 0x40
+#define GameSound_duck_level 0x44
+#define GameSound_duck_ms 0x48
+#define GameSound_attached 0x4c
+#define GameSound_bytes 0x50
+#define GameUser_name 0x0
+#define GameUser_date_a 0x8
+#define GameUser_date_b 0x12
+#define GameUser_id 0x1c
+#define GameUser_bytes 0x20
+#define GameSetting_id 0x0
+#define GameSetting_name 0x4
+#define GameSetting_name_bytes 0x8
+#define GameSetting_read 0xc
+#define GameSetting_argument 0x10
+#define GameSetting_bytes 0x14
+#define GameUserList_entries 0x0
+#define GameUserList_count 0x4
+#define GameUserList_next_id 0x18
+#define GameUserList_dirty 0x1a
 #define BitmapCache_service 0x0
 #define BitmapCache_resource_id 0x4
 #define BitmapCache_loaded 0x8
@@ -2387,6 +2798,85 @@ extern void *MediaArtworkProvider;
 #define GameDirectory_UserData 0x1
 #define GameDirectory_Stats 0x2
 #define GameDirectory_SharedData 0x3
+#define GameAPI_ModuleRegistryBytes 0xa84
+#define GameAPIModule_NameBytes 0x20
+#define GameAPIModule_Tail 0x13061973
+#define GameImport_Tail 0x29061968
+#define GameAPI_MiscTBD_Count 0xd
+#define GameAPI_MiscTBD_Id0 0x155ee219
+#define GameAPI_MiscTBD_Id1 0x93d0dcbc
+#define GameAPI_MiscTBD_Id2 0xd74289cf
+#define GameAPI_MiscTBD_Id3 0x221c280b
+#define GameAPI_DebugUtil_Count 0x5
+#define GameAPI_DebugUtil_Id0 0xeec53825
+#define GameAPI_DebugUtil_Id1 0x1fc24a39
+#define GameAPI_DebugUtil_Id2 0x5c05a410
+#define GameAPI_DebugUtil_Id3 0x5cedfb4f
+#define GameAPI_MemoryAlloc_Count 0x3
+#define GameAPI_MemoryAlloc_Id0 0xe3d00bdb
+#define GameAPI_MemoryAlloc_Id1 0x115445bf
+#define GameAPI_MemoryAlloc_Id2 0x9bf892bb
+#define GameAPI_MemoryAlloc_Id3 0x9be6a996
+#define GameAPI_InputEvents_Count 0x2
+#define GameAPI_InputEvents_Id0 0xd05733c7
+#define GameAPI_InputEvents_Id1 0xbd747148
+#define GameAPI_InputEvents_Id2 0xe578f302
+#define GameAPI_InputEvents_Id3 0xe6e13744
+#define GameAPI_Settings_Count 0x1
+#define GameAPI_Settings_Id0 0x991af58f
+#define GameAPI_Settings_Id1 0x1ca24585
+#define GameAPI_Settings_Id2 0x70bf1e30
+#define GameAPI_Settings_Id3 0x950e59f4
+#define GameAPI_AsyncFileIO_Count 0x11
+#define GameAPI_AsyncFileIO_Id0 0x60f01200
+#define GameAPI_AsyncFileIO_Id1 0xa7c30511
+#define GameAPI_AsyncFileIO_Id2 0x4e312551
+#define GameAPI_AsyncFileIO_Id3 0x9a98aa17
+#define GameAPI_SoundEffect_Count 0x2a
+#define GameAPI_SoundEffect_Id0 0xdb7071da
+#define GameAPI_SoundEffect_Id1 0x14ce0c2b
+#define GameAPI_SoundEffect_Id2 0x43bdda3b
+#define GameAPI_SoundEffect_Id3 0x8df78cf7
+#define GameAPI_OpenGLES_Count 0xaa
+#define GameAPI_OpenGLES_Id0 0x16c6ae7d
+#define GameAPI_OpenGLES_Id1 0x1a0305da
+#define GameAPI_OpenGLES_Id2 0xc768a66c
+#define GameAPI_OpenGLES_Id3 0xb49cfc81
+#define GameAPI_Audio_Count 0x36
+#define GameAPI_Audio_Id0 0xbf88e153
+#define GameAPI_Audio_Id1 0xd5a3310a
+#define GameAPI_Audio_Id2 0x30e865ac
+#define GameAPI_Audio_Id3 0xbe00bab9
+#define GameAPI_Metadata_Count 0xa9
+#define GameAPI_Metadata_Id0 0x3b6ee1e
+#define GameAPI_Metadata_Id1 0x1b4d1309
+#define GameAPI_Metadata_Id2 0xcac3a877
+#define GameAPI_Metadata_Id3 0x7bfa9832
+#define GameAPI_Users_Count 0xa
+#define GameAPI_Users_Id0 0x512e6d21
+#define GameAPI_Users_Id1 0x78aae6d4
+#define GameAPI_Users_Id2 0xc413a6df
+#define GameAPI_Users_Id3 0xaf8cccef
+#define GameFileRequest_Open 0x1
+#define GameFileRequest_Close 0x2
+#define GameFileRequest_Read 0x3
+#define GameFileRequest_Write 0x4
+#define GameFileRequest_Seek 0x5
+#define GameFileRequest_ReadFile 0x6
+#define GameFileRequest_WriteFile 0x7
+#define GameFileRequest_Delete 0x8
+#define GameFileRequest_Rename 0x9
+#define GameFileRequest_ListDirectory 0xa
+#define GameFileRequest_Complete 0x64
+#define GameSave_MaxSlots 0x4
+#define GameSave_MaxBytes 0x19000
+#define GameSoundState_Playing 0x1
+#define GameSoundState_Paused 0x2
+#define GameSoundState_Stopped 0x3
+#define GamePlaybackState_Stopped 0x0
+#define GamePlaybackState_Playing 0x1
+#define GamePlaybackState_Paused 0x2
+#define GameSettings_Count 0x3
 #define GraphicsDrawMode_Copy 0x0
 #define GraphicsDrawMode_Text 0x21
 #define GraphicsDrawMode_Blend 0x22

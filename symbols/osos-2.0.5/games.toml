@@ -7,12 +7,12 @@ GameLoader_LoadVerifiedManifest = { at = 0x080f9374, c = "int GameLoader_LoadVer
 GameLoader_ReadVerifyAndDecryptExecutable = { at = 0x080f971c, c = "int GameLoader_ReadVerifyAndDecryptExecutable(void *loader, const char *identifier, uint32_t capacity, void *buffer, uint32_t *out_bytes)" }
 GameLoader_ResolveImportsAndEntryPoints = { at = 0x080e91f8, c = "int GameLoader_ResolveImportsAndEntryPoints(void *image, uint32_t image_bytes, uint32_t *out_entries)" }
 # The host services an image imports. The heap entries work on the current game heap.
-GameMemory_Allocate = { at = 0x082c0e38, c = "void *GameMemory_Allocate(uint32_t byte_count)" }
-GameMemory_Reallocate = { at = 0x082c0e64, c = "void *GameMemory_Reallocate(void *block, uint32_t byte_count)" }
-GameMemory_Free = { at = 0x082bdcb8, c = "void GameMemory_Free(void *block)" }
+GameMemory_Allocate = { at = 0x082c0e38, c = "void *GameMemory_Allocate(uint32_t byte_count)" } # MemoryAlloc 0
+GameMemory_Reallocate = { at = 0x082c0e64, c = "void *GameMemory_Reallocate(void *block, uint32_t byte_count)" } # MemoryAlloc 2
+GameMemory_Free = { at = 0x082bdcb8, c = "void GameMemory_Free(void *block)" } # MemoryAlloc 1
 # out_flags: low byte is the wheel position (right 0, up 64), WheelTouch_Down when touched.
-GameInput_ReadWheel = { at = 0x082bda94, c = "void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags)" }
-GameSettings_GetValue = { at = 0x082bdf20, c = "int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size)" }
+GameInput_ReadWheel = { at = 0x082bda94, c = "void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags)" } # InputEvents 0
+GameSettings_GetValue = { at = 0x082bdf20, c = "int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size)" } # Settings 0
 GameGraphics_GetCurrentSurface = { at = 0x082c19fc, c = "void *GameGraphics_GetCurrentSurface(uint32_t selector)" }
 GameGraphics_SwapBuffers = { at = 0x082c1b80, c = "int GameGraphics_SwapBuffers(void *display, void *surface)" }
 # The runtime task. Frame callbacks get the runtime as the input and runtime + GameRuntime_frame_output.
@@ -41,6 +41,205 @@ GamesService_ClearList = { at = 0x080f5858, c = "void GamesService_ClearList(voi
 GamesService_GetIndexedProperty = { at = 0x080f63b8, c = "int GamesService_GetIndexedProperty(void *service, uint32_t type, uint32_t property, uint32_t index, void **out)" }
 GamesService_RequestSelectedGameLaunch = { at = 0x080f6708, c = "void GamesService_RequestSelectedGameLaunch(void *service)" }
 
+# The import modules of GameAPI_FindModuleByName. Each block is one module's function table in
+# table order; the trailing comment gives the module and index the loader fills a stub from.
+# miscTBD: backlight, sleep, clock, paths and device identity. SetBacklightLevel takes 0..100 and
+# answers 0; SetBacklightEnabled answers 0 or 0xb when the PMU path is unavailable. SetBacklightDimmed
+# caps the level at 20 while dimmed. GetDateTime fills second, minute, hour, day, month, year.
+# GetHostStatusValue reads App member +0x430 through vtable +0xd0 and negates values above 22;
+# its meaning is unverified. IsExternalPowerConnected is the check the sleep timer uses. GetPath
+# and GetGameName copy into the caller's buffer and return the length, or -1 when it does not fit;
+# GetGameName with localized nonzero prefers the manifest name for the current language.
+# GetDeviceFamily maps the SysInfo board id: 0xb to 1, 0x14 to 2, 0x13 to 3, else 0.
+# IsModelCode1 is true when the SysInfo model code is 1.
+GameSystem_SetBacklightEnabled = { at = 0x082c0f90, c = "int GameSystem_SetBacklightEnabled(int enabled)" } # miscTBD 0
+GameSystem_SetBacklightLevel = { at = 0x082c0fa8, c = "int GameSystem_SetBacklightLevel(int percent)" } # miscTBD 1
+GameSystem_GetBacklightLevel = { at = 0x082bdd18, c = "int GameSystem_GetBacklightLevel(void)" } # miscTBD 2
+GameSystem_SetBacklightDimmed = { at = 0x082bd9bc, c = "void GameSystem_SetBacklightDimmed(int dimmed)" } # miscTBD 3
+GameSystem_Sleep = { at = 0x082bd9b8, c = "void GameSystem_Sleep(uint32_t milliseconds)" } # miscTBD 4
+GameSystem_GetDateTime = { at = 0x082bddbc, c = "void GameSystem_GetDateTime(uint32_t out_fields[6])" } # miscTBD 5
+GameSystem_GetHostStatusValue = { at = 0x082bdd28, c = "int GameSystem_GetHostStatusValue(void)" } # miscTBD 6
+GameSystem_IsExternalPowerConnected = { at = 0x082c0e24, c = "int GameSystem_IsExternalPowerConnected(void)" } # miscTBD 7
+GameSystem_GetPath = { at = 0x082bde10, c = "int GameSystem_GetPath(uint32_t directory_kind, char *out_path, int *size, const char *relative_path)" } # miscTBD 8
+GameSystem_GetGameName = { at = 0x082bdd4c, c = "int GameSystem_GetGameName(char *out_name, int capacity, int localized)" } # miscTBD 9
+GameSystem_GetDeviceFamily = { at = 0x082bdce0, c = "uint32_t GameSystem_GetDeviceFamily(void)" } # miscTBD 10
+GameSystem_IsModelCode1 = { at = 0x082bdf04, c = "int GameSystem_IsModelCode1(void)" } # miscTBD 11
+# A firmware helper, not a game-only entry: stores Clock_GetMicroseconds.
+Clock_ReadMicroseconds = { at = 0x0807bffc, c = "void Clock_ReadMicroseconds(uint32_t *out_microseconds)" } # miscTBD 12
+# DebugUtil: up to ten plain files under the package directories. read_only 1 opens for reading,
+# 0 for writing. OpenFile answers 0, 0x19 when no slot is free, or the native open status;
+# Read and Write answer 0x22 for an unknown handle. Printf goes to the semihosting console.
+GameDebug_OpenFile = { at = 0x082bdaf8, c = "int GameDebug_OpenFile(uint32_t directory_kind, const char *relative_path, int read_only, void **out_handle)" } # DebugUtil 0
+GameDebug_CloseFile = { at = 0x082bdaa4, c = "void GameDebug_CloseFile(void *handle)" } # DebugUtil 1
+GameDebug_ReadFile = { at = 0x082bdc20, c = "int GameDebug_ReadFile(void *handle, void *buffer, uint32_t byte_count, uint32_t *out_count)" } # DebugUtil 2
+GameDebug_WriteFile = { at = 0x082bdc6c, c = "int GameDebug_WriteFile(void *handle, const void *buffer, uint32_t byte_count, uint32_t *out_count)" } # DebugUtil 3
+GameDebug_Printf = { at = 0x082c0e60, c = "void GameDebug_Printf(const char *format, ...)" } # DebugUtil 4
+# InputEvents slot 1 hands a released button back to the host: Menu asks the games service to
+# leave the game, Next and Previous skip tracks, Play toggles playback.
+GameInput_ForwardButtonEvent = { at = 0x082c0e98, c = "void GameInput_ForwardButtonEvent(const struct GameInputEvent *event)" } # InputEvents 1
+# AsyncFileIO: the Queue functions take a GameFileRequest whose type field must match (see
+# GameFileRequest_*), build the path with GameFiles_BuildPath under the current game, and answer 1
+# when queued. Writing, deleting and renaming need a writable directory kind (not Package or 4).
+# The worker stores the result in GameFileRequest_result and hands the request back through the
+# frame input list. Directory lists hold at most 500 entries. The GameSaveFile table keeps four
+# in-memory files (GameSave_MaxSlots) capped at GameSave_MaxBytes together; Write replaces the
+# contents, Read copies from memory (whence 0 absolute, 1 from the position; 5 at the end, 6 for
+# a bad offset), and the files reach the disk at System_SaveAll and when the game ends.
+GameFile_QueueOpen = { at = 0x082bd3ec, c = "int GameFile_QueueOpen(uint32_t directory_kind, const char *relative_path, int read_only, struct GameFileRequest *request)" } # AsyncFileIO 0
+GameFile_QueueClose = { at = 0x082bd3d0, c = "int GameFile_QueueClose(struct GameFileRequest *request)" } # AsyncFileIO 1
+GameFile_QueueTransfer = { at = 0x082bd44c, c = "int GameFile_QueueTransfer(struct GameFileRequest *request)" } # AsyncFileIO 2
+GameFile_QueueReadFile = { at = 0x082bd420, c = "int GameFile_QueueReadFile(uint32_t directory_kind, const char *relative_path, struct GameFileRequest *request)" } # AsyncFileIO 3
+GameFile_QueueWriteFile = { at = 0x082bd468, c = "int GameFile_QueueWriteFile(uint32_t directory_kind, const char *relative_path, struct GameFileRequest *request)" } # AsyncFileIO 4
+GameFile_QueueDelete = { at = 0x082c1134, c = "int GameFile_QueueDelete(uint32_t directory_kind, const char *relative_path, struct GameFileRequest *request)" } # AsyncFileIO 5
+GameFile_QueueRename = { at = 0x082c1160, c = "int GameFile_QueueRename(uint32_t directory_kind, const char *directory, const char *name, const char *new_name, struct GameFileRequest *request)" } # AsyncFileIO 6
+GameDirectory_QueueList = { at = 0x082bda44, c = "int GameDirectory_QueueList(uint32_t directory_kind, const char *relative_path, uint32_t create, struct GameFileRequest *request)" } # AsyncFileIO 7
+GameDirectory_Rewind = { at = 0x082bda78, c = "int GameDirectory_Rewind(int list_handle)" } # AsyncFileIO 8
+GameDirectory_ReadEntry = { at = 0x082bda10, c = "int GameDirectory_ReadEntry(int list_handle, char *out_name, uint32_t capacity, uint8_t *out_is_directory)" } # AsyncFileIO 9
+GameDirectory_ReleaseList = { at = 0x082bd9d4, c = "void GameDirectory_ReleaseList(int list_handle)" } # AsyncFileIO 10
+GameDirectory_GetStatus = { at = 0x082bd9f4, c = "int GameDirectory_GetStatus(int list_handle)" } # AsyncFileIO 11
+GameSaveFile_Open = { at = 0x082bd918, c = "int GameSaveFile_Open(uint32_t directory_kind, const char *relative_path, int *out_slot)" } # AsyncFileIO 12
+GameSaveFile_Retain = { at = 0x082bd940, c = "int GameSaveFile_Retain(uint32_t slot)" } # AsyncFileIO 13
+GameSaveFile_Close = { at = 0x082bd900, c = "int GameSaveFile_Close(uint32_t slot)" } # AsyncFileIO 14
+GameSaveFile_Read = { at = 0x082bd958, c = "int GameSaveFile_Read(uint32_t slot, void *buffer, int *byte_count, int whence, uint32_t offset)" } # AsyncFileIO 15
+GameSaveFile_Write = { at = 0x082bd990, c = "int GameSaveFile_Write(uint32_t slot, const void *buffer, int byte_count)" } # AsyncFileIO 16
+# SoundEffect: PCM samples mixed by the IRAM mixer. Create returns a handle (-1 when full) with
+# 44100 Hz, one channel, 16 bits, volume 0x7fff, speed 1000 and play count 1; the setters answer 1
+# on success. Speed is 500..2000 per mille, pan -0x7fff..0x7fff, play count 0 loops. Lead-in and
+# tail are silences before the sound and before the chained next sound; SetMusicDuck lowers the
+# mixer level to level over milliseconds while the sound plays. States are GameSoundState_*.
+# GetSpeedScale answers 1000 and GetZero 0; Unused does nothing.
+GameSound_Create = { at = 0x082c03b8, c = "int GameSound_Create(void)" } # SoundEffect 0
+GameSound_Destroy = { at = 0x082c0470, c = "int GameSound_Destroy(int sound)" } # SoundEffect 1
+GameSound_Play = { at = 0x082c08b4, c = "int GameSound_Play(int sound)" } # SoundEffect 2
+GameSound_Pause = { at = 0x082c0870, c = "int GameSound_Pause(int sound)" } # SoundEffect 3
+GameSound_Resume = { at = 0x082c0900, c = "int GameSound_Resume(int sound)" } # SoundEffect 4
+GameSound_Stop = { at = 0x082c0d9c, c = "int GameSound_Stop(int sound)" } # SoundEffect 5
+GameSound_Unused = { at = 0x082c0de0, c = "int GameSound_Unused(int sound)" } # SoundEffect 6
+GameSound_SetData = { at = 0x082c09c4, c = "int GameSound_SetData(int sound, const void *samples)" } # SoundEffect 7
+GameSound_SetByteCount = { at = 0x082c0a08, c = "int GameSound_SetByteCount(int sound, uint32_t byte_count)" } # SoundEffect 8
+GameSound_SetFlagC = { at = 0x082c0984, c = "int GameSound_SetFlagC(int sound, uint8_t value)" } # SoundEffect 9
+GameSound_SetSampleRate = { at = 0x082c0d1c, c = "int GameSound_SetSampleRate(int sound, uint32_t hertz)" } # SoundEffect 10
+GameSound_SetChannels = { at = 0x082c0bdc, c = "int GameSound_SetChannels(int sound, uint32_t channels)" } # SoundEffect 11
+GameSound_SetBitsPerSample = { at = 0x082c0944, c = "int GameSound_SetBitsPerSample(int sound, uint32_t bits)" } # SoundEffect 12
+GameSound_SetVolume = { at = 0x082c0d5c, c = "int GameSound_SetVolume(int sound, uint32_t volume)" } # SoundEffect 13
+GameSound_SetPan = { at = 0x082c0c1c, c = "int GameSound_SetPan(int sound, int32_t pan)" } # SoundEffect 14
+GameSound_SetSpeed = { at = 0x082c0c5c, c = "int GameSound_SetSpeed(int sound, uint32_t speed)" } # SoundEffect 15
+GameSound_SetPlayCount = { at = 0x082c0a88, c = "int GameSound_SetPlayCount(int sound, uint32_t count)" } # SoundEffect 16
+GameSound_SetState = { at = 0x082c0ac8, c = "int GameSound_SetState(int sound, uint8_t state)" } # SoundEffect 17
+GameSound_SetFlags = { at = 0x082c0a48, c = "int GameSound_SetFlags(int sound, uint8_t flags)" } # SoundEffect 18
+GameSound_SetTailMilliseconds = { at = 0x082c0c9c, c = "int GameSound_SetTailMilliseconds(int sound, uint32_t milliseconds)" } # SoundEffect 19
+GameSound_SetLeadInMilliseconds = { at = 0x082c0cdc, c = "int GameSound_SetLeadInMilliseconds(int sound, uint32_t milliseconds)" } # SoundEffect 20
+GameSound_SetNext = { at = 0x082c0b88, c = "int GameSound_SetNext(int sound, int next_sound)" } # SoundEffect 21
+GameSound_SetMusicDuck = { at = 0x082c0b40, c = "int GameSound_SetMusicDuck(int sound, uint32_t level, uint32_t milliseconds)" } # SoundEffect 22
+GameSound_GetData = { at = 0x082c0578, c = "const void *GameSound_GetData(int sound)" } # SoundEffect 23
+GameSound_GetByteCount = { at = 0x082c05ac, c = "uint32_t GameSound_GetByteCount(int sound)" } # SoundEffect 24
+GameSound_GetFlagC = { at = 0x082c0544, c = "uint8_t GameSound_GetFlagC(int sound)" } # SoundEffect 25
+GameSound_GetSampleRate = { at = 0x082c07c4, c = "uint32_t GameSound_GetSampleRate(int sound)" } # SoundEffect 26
+GameSound_GetChannels = { at = 0x082c06c0, c = "uint32_t GameSound_GetChannels(int sound)" } # SoundEffect 27
+GameSound_GetBitsPerSample = { at = 0x082c04d4, c = "uint32_t GameSound_GetBitsPerSample(int sound)" } # SoundEffect 28
+GameSound_GetVolume = { at = 0x082c07f8, c = "uint32_t GameSound_GetVolume(int sound)" } # SoundEffect 29
+GameSound_GetSpeed = { at = 0x082c0728, c = "uint32_t GameSound_GetSpeed(int sound)" } # SoundEffect 30
+GameSound_GetPlayCount = { at = 0x082c061c, c = "uint32_t GameSound_GetPlayCount(int sound)" } # SoundEffect 31
+GameSound_GetPan = { at = 0x082c06f4, c = "int32_t GameSound_GetPan(int sound)" } # SoundEffect 32
+GameSound_GetSpeedScale = { at = 0x082c04cc, c = "uint32_t GameSound_GetSpeedScale(void)" } # SoundEffect 33
+GameSound_GetZero = { at = 0x082c04c4, c = "uint32_t GameSound_GetZero(void)" } # SoundEffect 34
+GameSound_GetState = { at = 0x082c0650, c = "int GameSound_GetState(int sound)" } # SoundEffect 35
+GameSound_GetFlags = { at = 0x082c05e0, c = "int GameSound_GetFlags(int sound)" } # SoundEffect 36
+GameSound_GetTailMilliseconds = { at = 0x082c075c, c = "uint32_t GameSound_GetTailMilliseconds(int sound)" } # SoundEffect 37
+GameSound_GetLeadInMilliseconds = { at = 0x082c0790, c = "uint32_t GameSound_GetLeadInMilliseconds(int sound)" } # SoundEffect 38
+GameSound_GetVoicePosition = { at = 0x082c0508, c = "uint32_t GameSound_GetVoicePosition(int sound)" } # SoundEffect 39
+GameSound_GetNext = { at = 0x082c068c, c = "int GameSound_GetNext(int sound)" } # SoundEffect 40
+GameSound_IsPlaying = { at = 0x082c082c, c = "int GameSound_IsPlaying(int sound)" } # SoundEffect 41
+# Audio: the music player. Setters post a games-service event that the dispatcher applies on the
+# UI task; the Get functions read the bridge's prediction when one is pending. Repeat modes are
+# 0 off, 1 one, 2 all; speed is 500..2000; gain -32767..32767; volume 0..255. SetEQMenuIndex keeps
+# the index, SetEQMenuIndexTemporary restores the old one when the game ends. The scan functions
+# are the press-and-hold fast forward and rewind. SetListOption writes bit 2 of the playback list
+# flags, SetPendingItem fills the player's pending-item record, GetPlayerFlag93F reads player byte
+# 0x93f and GetCurrentEntryFlag bit 6 of the current entry's byte 0x18d; their meanings are
+# unverified. GetMixerLevel and SetMixerLevel are the music level the duck restores. GetVersion
+# writes 4 and 1. RequestPowerHold posts power message 6 as begin, then end after 10 s.
+GameAudio_GetRepeatMode = { at = 0x082bd5b4, c = "uint32_t GameAudio_GetRepeatMode(void)" } # Audio 0
+GameAudio_SetRepeatMode = { at = 0x082bd828, c = "void GameAudio_SetRepeatMode(uint8_t mode)" } # Audio 1
+GameAudio_GetPlaybackOrder = { at = 0x082bd5c4, c = "uint32_t GameAudio_GetPlaybackOrder(void)" } # Audio 2
+GameAudio_SetPlaybackOrder = { at = 0x082bd840, c = "void GameAudio_SetPlaybackOrder(uint8_t order)" } # Audio 3
+GameAudio_RefreshCurrentEntry = { at = 0x082bd708, c = "void GameAudio_RefreshCurrentEntry(void)" } # Audio 4
+GameAudio_SetListOption = { at = 0x082bd758, c = "void GameAudio_SetListOption(uint8_t enabled)" } # Audio 5
+GameAudio_SetEQMenuIndexTemporary = { at = 0x082bd7ac, c = "void GameAudio_SetEQMenuIndexTemporary(uint32_t index)" } # Audio 6
+GameAudio_SetEQMenuIndex = { at = 0x082bd7d4, c = "void GameAudio_SetEQMenuIndex(uint32_t index)" } # Audio 7
+GameAudio_GetEQMenuIndex = { at = 0x082bd574, c = "uint32_t GameAudio_GetEQMenuIndex(void)" } # Audio 8
+GameAudio_SetSpeed = { at = 0x082bd810, c = "int GameAudio_SetSpeed(int speed)" } # Audio 9
+GameAudio_GetSpeed = { at = 0x082bd594, c = "int GameAudio_GetSpeed(void)" } # Audio 10
+GameAudio_SetGain = { at = 0x082bd7f8, c = "void GameAudio_SetGain(int32_t gain)" } # Audio 11
+GameAudio_GetGain = { at = 0x082bd584, c = "int32_t GameAudio_GetGain(void)" } # Audio 12
+GameAudio_InitPlaybackList = { at = 0x082bd6a0, c = "void GameAudio_InitPlaybackList(uint8_t mode, uint8_t option)" } # Audio 13
+GameAudio_AppendMediaSelection = { at = 0x082bd4a4, c = "void GameAudio_AppendMediaSelection(const void *selection, void *record, uint8_t use_record, uint32_t option)" } # Audio 14
+GameAudio_RemoveEntryAtIndex = { at = 0x082bd6d0, c = "void GameAudio_RemoveEntryAtIndex(uint32_t index)" } # Audio 15
+GameAudio_ClearPlaybackList = { at = 0x082bd4d4, c = "void GameAudio_ClearPlaybackList(void)" } # Audio 16
+GameAudio_SetPlaybackChanged = { at = 0x082bd4e4, c = "void GameAudio_SetPlaybackChanged(uint8_t changed)" } # Audio 17
+GameAudio_PlayIndex = { at = 0x082bd644, c = "void GameAudio_PlayIndex(uint32_t index, uint8_t flag, uint32_t option)" } # Audio 18
+GameAudio_Stop = { at = 0x082bd888, c = "void GameAudio_Stop(void)" } # Audio 19
+GameAudio_TogglePlayPause = { at = 0x082bd8c8, c = "void GameAudio_TogglePlayPause(uint8_t wait)" } # Audio 20
+GameAudio_StartScanForward = { at = 0x082bd868, c = "void GameAudio_StartScanForward(void)" } # Audio 21
+GameAudio_StartScanBackward = { at = 0x082bd878, c = "void GameAudio_StartScanBackward(void)" } # Audio 22
+GameAudio_StopScan = { at = 0x082bd898, c = "void GameAudio_StopScan(void)" } # Audio 23
+GameAudio_Seek = { at = 0x082bd728, c = "void GameAudio_Seek(uint32_t milliseconds)" } # Audio 24
+GameAudio_SetPendingItem = { at = 0x082bd78c, c = "void GameAudio_SetPendingItem(uint32_t index, uint32_t value)" } # Audio 25
+GameAudio_NextTrack = { at = 0x082bd634, c = "void GameAudio_NextTrack(void)" } # Audio 26
+GameAudio_PreviousTrack = { at = 0x082bd6c0, c = "void GameAudio_PreviousTrack(void)" } # Audio 27
+GameAudio_GetCurrentIndex = { at = 0x082bd4fc, c = "uint32_t GameAudio_GetCurrentIndex(void)" } # Audio 28
+GameAudio_GetEntryCount = { at = 0x082bd8e0, c = "uint32_t GameAudio_GetEntryCount(void)" } # Audio 29
+GameAudio_GetItemHandleAtIndex = { at = 0x082bd51c, c = "uint32_t GameAudio_GetItemHandleAtIndex(uint32_t index)" } # Audio 30
+GameAudio_GetPosition = { at = 0x082bd8a8, c = "uint32_t GameAudio_GetPosition(void)" } # Audio 31
+GameAudio_GetRemainingPosition = { at = 0x082bd8b8, c = "uint32_t GameAudio_GetRemainingPosition(void)" } # Audio 32
+GameAudio_GetPlaybackState = { at = 0x082bd5a4, c = "uint8_t GameAudio_GetPlaybackState(void)" } # Audio 33
+GameAudio_IsPlaying = { at = 0x082bd614, c = "int GameAudio_IsPlaying(void)" } # Audio 34
+GameAudio_IsPaused = { at = 0x082bd604, c = "int GameAudio_IsPaused(void)" } # Audio 35
+GameAudio_IsStopped = { at = 0x082bd624, c = "int GameAudio_IsStopped(void)" } # Audio 36
+GameAudio_IsScanningForward = { at = 0x082bd5d4, c = "int GameAudio_IsScanningForward(void)" } # Audio 37
+GameAudio_IsScanningBackward = { at = 0x082bd5f4, c = "int GameAudio_IsScanningBackward(void)" } # Audio 38
+GameAudio_IsScanning = { at = 0x082bd5e4, c = "int GameAudio_IsScanning(void)" } # Audio 39
+GameAudio_IsShuffleEnabled = { at = 0x082bd858, c = "int GameAudio_IsShuffleEnabled(void)" } # Audio 40
+GameAudio_IsRepeatOne = { at = 0x082bd6f8, c = "int GameAudio_IsRepeatOne(void)" } # Audio 41
+GameAudio_IsRepeatAll = { at = 0x082bd6e8, c = "int GameAudio_IsRepeatAll(void)" } # Audio 42
+GameAudio_IsPlaybackOrderReversed = { at = 0x082bd718, c = "int GameAudio_IsPlaybackOrderReversed(void)" } # Audio 43
+GameAudio_GetPlayerFlag93F = { at = 0x082bd66c, c = "uint8_t GameAudio_GetPlayerFlag93F(void)" } # Audio 44
+GameAudio_GetCurrentEntryFlag = { at = 0x082bd494, c = "uint8_t GameAudio_GetCurrentEntryFlag(void)" } # Audio 45
+GameAudio_HasPlaybackList = { at = 0x082bd8f0, c = "int GameAudio_HasPlaybackList(void)" } # Audio 46
+GameAudio_GetVolume = { at = 0x082bd50c, c = "uint32_t GameAudio_GetVolume(void)" } # Audio 47
+GameAudio_GetVolumeLimit = { at = 0x082bd534, c = "uint32_t GameAudio_GetVolumeLimit(void)" } # Audio 48
+GameAudio_SetVolume = { at = 0x082bd740, c = "void GameAudio_SetVolume(uint32_t volume)" } # Audio 49
+GameAudio_GetMixerLevel = { at = 0x082bd564, c = "uint32_t GameAudio_GetMixerLevel(void)" } # Audio 50
+GameAudio_SetMixerLevel = { at = 0x082bd770, c = "void GameAudio_SetMixerLevel(uint32_t level)" } # Audio 51
+GameAudio_GetVersion = { at = 0x082bd544, c = "void GameAudio_GetVersion(uint16_t out_version[2])" } # Audio 52
+GameAudio_RequestPowerHold = { at = 0x082bd67c, c = "void GameAudio_RequestPowerHold(void)" } # Audio 53
+# Users: the games service's player list, a vector of GameUser records saved with the service.
+# The two dates are DtTm records copied from resource 0x80aa when a user is added; SetName resets
+# the second one.
+GameUser_GetCount = { at = 0x082c1090, c = "uint32_t GameUser_GetCount(void)" } # Users 0
+GameUser_GetAt = { at = 0x082c1058, c = "struct GameUser *GameUser_GetAt(uint32_t index)" } # Users 1
+GameUser_FindById = { at = 0x082c1004, c = "struct GameUser *GameUser_FindById(uint32_t id)" } # Users 2
+GameUser_Remove = { at = 0x082c0fe8, c = "void GameUser_Remove(struct GameUser *user)" } # Users 3
+GameUser_Add = { at = 0x082c0fc0, c = "struct GameUser *GameUser_Add(const char *name)" } # Users 4
+GameUser_GetName = { at = 0x082c1118, c = "const char *GameUser_GetName(struct GameUser *user)" } # Users 5
+GameUser_CopyDateA = { at = 0x082c10a8, c = "void GameUser_CopyDateA(void *out_date, struct GameUser *user)" } # Users 6
+GameUser_CopyDateB = { at = 0x082c10d8, c = "void GameUser_CopyDateB(void *out_date, struct GameUser *user)" } # Users 7
+GameUser_GetId = { at = 0x082c1108, c = "uint16_t GameUser_GetId(struct GameUser *user)" } # Users 8
+GameUser_SetName = { at = 0x082c1128, c = "void GameUser_SetName(struct GameUser *user, const char *name)" } # Users 9
+# Bodies the module shims tail-call. GameSettings_ReadMappedString is the TimeFormat and Language
+# reader: argument is a table of { preference value, string, uint16 length } records, 0xc apart.
+GameSettings_ReadMappedString = { at = 0x08073f5c, c = "int32_t GameSettings_ReadMappedString(int32_t preference, void *out_value, uint32_t *size, const void *table)" }
+GameBacklight_SetLevel = { at = 0x081b1928, c = "int GameBacklight_SetLevel(void *backlight, int percent)" }
+GameBacklight_SetDimmed = { at = 0x081b18ec, c = "void GameBacklight_SetDimmed(void *backlight, int dimmed)" }
+GameSaveTable_Close = { at = 0x0813eee0, c = "int GameSaveTable_Close(void *table, uint32_t slot)" }
+GameUserList_Add = { at = 0x0812bb00, c = "struct GameUser *GameUserList_Add(void *users, const char *name)" }
+GameAudio_GetCachedSpeed = { at = 0x0817f7ec, c = "int GameAudio_GetCachedSpeed(void *bridge)" }
+GameAudio_QueuePreviousTrack = { at = 0x0817f528, c = "void GameAudio_QueuePreviousTrack(void *bridge)" }
+GameAudio_ReadPlayerFlag93F = { at = 0x0817eb70, c = "uint8_t GameAudio_ReadPlayerFlag93F(void *bridge)" }
+GameAudio_ReadCurrentEntryFlag = { at = 0x0817f054, c = "uint8_t GameAudio_ReadCurrentEntryFlag(void *bridge)" }
+GameAudio_ReadMixerLevel = { at = 0x0817f09c, c = "uint32_t GameAudio_ReadMixerLevel(void)" }
+AudioMixer_GetMusicLevel = { at = 0x081a6b78, c = "uint32_t AudioMixer_GetMusicLevel(void)" }
+
 [sites]
 GameManifest_InitReader_call = { at = 0x080f9418, kind = "call", in = "GameLoader_LoadVerifiedManifest+0xa4" }
 # The two scans of GamesService_BuildList: GamesService_ScanRoot(service, list,
@@ -53,6 +252,23 @@ GameFiles_BuildPath_entry = { at = 0x08096f58, kind = "entry" }
 # GamesMenu_PlayedTimes_String before it is formatted.
 GamesService_PlayedString_call = { at = 0x080f64a0, kind = "call", in = "GamesService_GetIndexedProperty+0xe8" }
 GamesService_PlayedTimesString_call = { at = 0x080f64ec, kind = "call", in = "GamesService_GetIndexedProperty+0x134" }
+
+[data]
+GameAPI_ModuleRegistry = { at = 0x08a182e0, c = "const uint8_t GameAPI_ModuleRegistry[]" }
+GameImport_EndOfListName = { at = 0x089b10a0, c = "const char GameImport_EndOfListName[]" }
+# Three GameSetting records: TimeFormat (0x60a8), Language (0x6066) and HoldSwitch (0x60f6).
+GameSettings_Table = { at = 0x089d29a0, c = "const uint8_t GameSettings_Table[]" }
+GameAPI_MiscTBD_Module = { at = 0x08a182e0, c = "const uint8_t GameAPI_MiscTBD_Module[]" }
+GameAPI_DebugUtil_Module = { at = 0x08a18358, c = "const uint8_t GameAPI_DebugUtil_Module[]" }
+GameAPI_MemoryAlloc_Module = { at = 0x08a183b0, c = "const uint8_t GameAPI_MemoryAlloc_Module[]" }
+GameAPI_InputEvents_Module = { at = 0x08a18400, c = "const uint8_t GameAPI_InputEvents_Module[]" }
+GameAPI_Settings_Module = { at = 0x08a1844c, c = "const uint8_t GameAPI_Settings_Module[]" }
+GameAPI_AsyncFileIO_Module = { at = 0x08a18494, c = "const uint8_t GameAPI_AsyncFileIO_Module[]" }
+GameAPI_SoundEffect_Module = { at = 0x08a1851c, c = "const uint8_t GameAPI_SoundEffect_Module[]" }
+GameAPI_OpenGLES_Module = { at = 0x08a18608, c = "const uint8_t GameAPI_OpenGLES_Module[]" }
+GameAPI_Audio_Module = { at = 0x08a188f4, c = "const uint8_t GameAPI_Audio_Module[]" }
+GameAPI_Metadata_Module = { at = 0x08a18a10, c = "const uint8_t GameAPI_Metadata_Module[]" }
+GameAPI_Users_Module = { at = 0x08a18cf8, c = "const uint8_t GameAPI_Users_Module[]" }
 
 [constants]
 # The image header GameLoader_ResolveImportsAndEntryPoints accepts: 'eapp', a version no newer
@@ -93,6 +309,93 @@ GameDirectory_UserData = 1
 GameDirectory_Stats = 2
 GameDirectory_SharedData = 3
 
+# GameAPI_FindModuleByName walks GameAPI_ModuleRegistry, RegistryBytes long, by GameAPIModule_next.
+# A GameAPIModule record ends with one GameAPIInterface and the Tail word; a GameImport record ends
+# with its Tail word, and the import list ends at a record named GameImport_EndOfListName.
+# Interface ids are the four words of the module's GameAPIInterface_id.
+GameAPI_ModuleRegistryBytes = 0xa84
+GameAPIModule_NameBytes = 0x20
+GameAPIModule_Tail = 0x13061973
+GameImport_Tail = 0x29061968
+GameAPI_MiscTBD_Count = 13
+GameAPI_MiscTBD_Id0 = 0x155ee219
+GameAPI_MiscTBD_Id1 = 0x93d0dcbc
+GameAPI_MiscTBD_Id2 = 0xd74289cf
+GameAPI_MiscTBD_Id3 = 0x221c280b
+GameAPI_DebugUtil_Count = 5
+GameAPI_DebugUtil_Id0 = 0xeec53825
+GameAPI_DebugUtil_Id1 = 0x1fc24a39
+GameAPI_DebugUtil_Id2 = 0x5c05a410
+GameAPI_DebugUtil_Id3 = 0x5cedfb4f
+GameAPI_MemoryAlloc_Count = 3
+GameAPI_MemoryAlloc_Id0 = 0xe3d00bdb
+GameAPI_MemoryAlloc_Id1 = 0x115445bf
+GameAPI_MemoryAlloc_Id2 = 0x9bf892bb
+GameAPI_MemoryAlloc_Id3 = 0x9be6a996
+GameAPI_InputEvents_Count = 2
+GameAPI_InputEvents_Id0 = 0xd05733c7
+GameAPI_InputEvents_Id1 = 0xbd747148
+GameAPI_InputEvents_Id2 = 0xe578f302
+GameAPI_InputEvents_Id3 = 0xe6e13744
+GameAPI_Settings_Count = 1
+GameAPI_Settings_Id0 = 0x991af58f
+GameAPI_Settings_Id1 = 0x1ca24585
+GameAPI_Settings_Id2 = 0x70bf1e30
+GameAPI_Settings_Id3 = 0x950e59f4
+GameAPI_AsyncFileIO_Count = 17
+GameAPI_AsyncFileIO_Id0 = 0x60f01200
+GameAPI_AsyncFileIO_Id1 = 0xa7c30511
+GameAPI_AsyncFileIO_Id2 = 0x4e312551
+GameAPI_AsyncFileIO_Id3 = 0x9a98aa17
+GameAPI_SoundEffect_Count = 42
+GameAPI_SoundEffect_Id0 = 0xdb7071da
+GameAPI_SoundEffect_Id1 = 0x14ce0c2b
+GameAPI_SoundEffect_Id2 = 0x43bdda3b
+GameAPI_SoundEffect_Id3 = 0x8df78cf7
+GameAPI_OpenGLES_Count = 170
+GameAPI_OpenGLES_Id0 = 0x16c6ae7d
+GameAPI_OpenGLES_Id1 = 0x1a0305da
+GameAPI_OpenGLES_Id2 = 0xc768a66c
+GameAPI_OpenGLES_Id3 = 0xb49cfc81
+GameAPI_Audio_Count = 54
+GameAPI_Audio_Id0 = 0xbf88e153
+GameAPI_Audio_Id1 = 0xd5a3310a
+GameAPI_Audio_Id2 = 0x30e865ac
+GameAPI_Audio_Id3 = 0xbe00bab9
+GameAPI_Metadata_Count = 169
+GameAPI_Metadata_Id0 = 0x03b6ee1e
+GameAPI_Metadata_Id1 = 0x1b4d1309
+GameAPI_Metadata_Id2 = 0xcac3a877
+GameAPI_Metadata_Id3 = 0x7bfa9832
+GameAPI_Users_Count = 10
+GameAPI_Users_Id0 = 0x512e6d21
+GameAPI_Users_Id1 = 0x78aae6d4
+GameAPI_Users_Id2 = 0xc413a6df
+GameAPI_Users_Id3 = 0xaf8cccef
+# GameFileRequest_type.
+GameFileRequest_Open = 1
+GameFileRequest_Close = 2
+GameFileRequest_Read = 3
+GameFileRequest_Write = 4
+GameFileRequest_Seek = 5
+GameFileRequest_ReadFile = 6
+GameFileRequest_WriteFile = 7
+GameFileRequest_Delete = 8
+GameFileRequest_Rename = 9
+GameFileRequest_ListDirectory = 10
+GameFileRequest_Complete = 100
+GameSave_MaxSlots = 4
+GameSave_MaxBytes = 0x19000
+# GameSound_state.
+GameSoundState_Playing = 1
+GameSoundState_Paused = 2
+GameSoundState_Stopped = 3
+# GameAudio_GetPlaybackState.
+GamePlaybackState_Stopped = 0
+GamePlaybackState_Playing = 1
+GamePlaybackState_Paused = 2
+GameSettings_Count = 3
+
 [offsets.GameImageHeader]
 magic = 0x0
 version = 0x4
@@ -107,6 +410,8 @@ bytes = 0x28
 state = 0x0
 # The GameInputEvent list of this frame, freed after the callback.
 events = 0x30
+# The GameFileRequest list completed since the last frame.
+completed_requests = 0x2c
 pixels = 0x38
 bytes = 0x100
 
@@ -139,6 +444,10 @@ entry_count = 0x268
 init_entry = 0x26c
 shutdown_entry = 0x270
 frame_entry = 0x27c
+game_heap = 0x294
+file_service = 0x298
+completed_requests = 0x29c
+completed_tail = 0x2a0
 
 # What GameManifest_InitReader fills; a null signature_path skips verification.
 [offsets.GameManifestReader]
@@ -159,5 +468,108 @@ bytes = 0x50
 
 [offsets.GamesService]
 list = 0x28
+# The GameUserList behind the Users module.
+users = 0x54
 selected_index = 0x8c
 list_built = 0x90
+
+# A module of the import registry: the name, then the function pointers, then one
+# GameAPIInterface, then GameAPIModule_Tail.
+[offsets.GameAPIModule]
+name = 0x0
+interface_count = 0x20
+function_count = 0x24
+next = 0x28
+functions = 0x2c
+
+[offsets.GameAPIInterface]
+id = 0x0
+function_count = 0x10
+bytes = 0x14
+
+# An entry of the image import list (GameImageHeader_imports): stubs holds function_count
+# `ldr pc, [pc, #imm]` words followed by function_count literal words the loader fills.
+[offsets.GameImport]
+name = 0x0
+interface_id = 0x20
+function_count = 0x30
+next = 0x34
+stubs = 0x38
+
+# The request a game hands to AsyncFileIO. The worker fills result, transferred, size and handle;
+# completion, when set, receives the size (file size, or entry count of a listing) at +8. next
+# links the completed list the frame input carries.
+[offsets.GameFileRequest]
+next = 0x0
+type = 0x10
+completion = 0x14
+offset = 0x18
+whence = 0x1c
+buffer = 0x20
+length = 0x24
+result = 0x28
+transferred = 0x2c
+size = 0x30
+handle = 0x34
+
+# A GameSaveFile slot.
+[offsets.GameSaveSlot]
+path = 0x0
+data = 0x8
+bytes = 0xc
+position = 0x10
+references = 0x14
+dirty = 0x18
+lock = 0x1c
+record_bytes = 0x24
+
+# A SoundEffect object (GameSound_* handles index a table of these).
+[offsets.GameSound]
+data = 0x4
+byte_count = 0x8
+flag_c = 0xc
+sample_rate = 0x10
+channels = 0x14
+bits_per_sample = 0x18
+volume = 0x1c
+speed = 0x20
+pan = 0x24
+lead_in_ms = 0x28
+tail_ms = 0x2c
+gain = 0x30
+voice = 0x34
+play_count = 0x38
+state = 0x3d
+flags = 0x3e
+next = 0x40
+duck_level = 0x44
+duck_ms = 0x48
+attached = 0x4c
+bytes = 0x50
+
+# A Users record: a NativeString name followed by two 10-byte DtTm records and the uint16 id,
+# taken from GameUserList_next_id when the user is added.
+[offsets.GameUser]
+name = 0x0
+date_a = 0x8
+date_b = 0x12
+id = 0x1c
+bytes = 0x20
+
+# A GameSettings_Table record; read is called as read(preference, out_value, size, argument).
+# name_bytes counts the terminator and is written by a static initializer at start-up, so the
+# image shows zero.
+[offsets.GameSetting]
+id = 0x0
+name = 0x4
+name_bytes = 0x8
+read = 0xc
+argument = 0x10
+bytes = 0x14
+
+# A vector of GameUser pointers with the next id and the dirty flag the service saves on.
+[offsets.GameUserList]
+entries = 0x0
+count = 0x4
+next_id = 0x18
+dirty = 0x1a
