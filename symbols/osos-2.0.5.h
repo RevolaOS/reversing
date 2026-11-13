@@ -1642,6 +1642,7 @@ extern void *MediaArtworkProvider;
 #define MediaBrowser_track_data 0xf60
 #define MediaBrowser_artists 0xe64
 #define MediaBrowser_albums 0xeb0
+#define MediaBrowser_albums_end 0xeb4
 #define MediaBrowser_artist_tokens 0xe4c
 #define MediaBrowser_artist_jump 0xe50
 #define MediaBrowser_artist_count 0xe54

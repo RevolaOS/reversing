@@ -208,6 +208,8 @@ library = 0xf64
 track_data = 0xf60
 artists = 0xe64
 albums = 0xeb0
+# AlbumGroupVector_Append advances this by AlbumGroup_bytes per row.
+albums_end = 0xeb4
 artist_tokens = 0xe4c
 artist_jump = 0xe50
 artist_count = 0xe54
