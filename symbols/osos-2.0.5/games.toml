@@ -13,8 +13,8 @@ GameMemory_Free = { at = 0x082bdcb8, c = "void GameMemory_Free(void *block)" } #
 # out_flags: low byte is the wheel position (right 0, up 64), WheelTouch_Down when touched.
 GameInput_ReadWheel = { at = 0x082bda94, c = "void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags)" } # InputEvents 0
 GameSettings_GetValue = { at = 0x082bdf20, c = "int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size)" } # Settings 0
-GameGraphics_GetCurrentSurface = { at = 0x082c19fc, c = "void *GameGraphics_GetCurrentSurface(uint32_t selector)" }
-GameGraphics_SwapBuffers = { at = 0x082c1b80, c = "int GameGraphics_SwapBuffers(void *display, void *surface)" }
+GameGraphics_GetCurrentSurface = { at = 0x082c19fc, c = "void *GameGraphics_GetCurrentSurface(uint32_t selector)" } # OpenGLES 160
+GameGraphics_SwapBuffers = { at = 0x082c1b80, c = "int GameGraphics_SwapBuffers(void *display, void *surface)" } # OpenGLES 165
 # The runtime task. Frame callbacks get the runtime as the input and runtime + GameRuntime_frame_output.
 GameRuntime_RequestLaunch = { at = 0x0828c3e4, c = "int GameRuntime_RequestLaunch(void *runtime, struct NativeString *identifier, uint8_t storage, uint32_t notification)" }
 GameRuntime_LoadManifestAndLaunch = { at = 0x0828d2a0, c = "int GameRuntime_LoadManifestAndLaunch(void *runtime)" }
