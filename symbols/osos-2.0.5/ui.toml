@@ -55,6 +55,15 @@ ButtonEvent_GetUIKeyCode = { at = 0x0829b978, c = "uint32_t ButtonEvent_GetUIKey
 WheelAccumulator_Init = { at = 0x081b0efc, c = "void *WheelAccumulator_Init(void *state, int threshold, uint8_t accelerate, uint32_t interval)" }
 WheelAccumulator_ConsumeMotion = { at = 0x081b0e4c, c = "int WheelAccumulator_ConsumeMotion(void *state, int motion, uint32_t speed)" }
 WheelAccumulator_Reset = { at = 0x081b0e7c, c = "void WheelAccumulator_Reset(void *accumulator)" }
+WheelAccumulator_AccumulateMotion = { at = 0x081b0d4c, c = "int WheelAccumulator_AccumulateMotion(void *state, int motion, uint32_t speed)" }
+WheelAccumulator_SetThreshold = { at = 0x081b0d40, c = "void WheelAccumulator_SetThreshold(void *state, int threshold)" }
+WheelAccumulator_SetMaxMultiplier = { at = 0x081b0d38, c = "void WheelAccumulator_SetMaxMultiplier(void *state, int max_multiplier)" }
+# speed is WheelEvent_GetSpeed: smaller for faster turns. IsSlowTurn is 1 when the multiplier must
+# stay 1: acceleration off, speed 0, or speed above WheelAccumulator_slow_speed. Stock menu views
+# clamp the steps to one row when it is 1. IsFastTurn is 1 below WheelAccumulator_fast_speed with
+# acceleration on; the menu view shows the fast-scroll overlay then.
+WheelAccumulator_IsSlowTurn = { at = 0x081b0ebc, c = "int WheelAccumulator_IsSlowTurn(void *state, uint32_t speed)" }
+WheelAccumulator_IsFastTurn = { at = 0x081b0e9c, c = "int WheelAccumulator_IsFastTurn(void *state, uint32_t speed)" }
 View_InitOptionsFromDescriptor = { at = 0x0829b090, c = "void View_InitOptionsFromDescriptor(const void *descriptor, void *options)" }
 View_ResolveBounds = { at = 0x08264f9c, c = "void View_ResolveBounds(void *view, int32_t *bounds)" }
 View_Construct = { at = 0x08265bf8, c = "void *View_Construct(void *view, void *unused, void *parent, void *event_target, const void *options)" }
@@ -798,7 +807,24 @@ minimum = 0x60
 source = 0x64
 style = 0x6c
 
+# Times are milliseconds. Init sets max_multiplier 16 and the speed limits 17000/20000, or
+# 10000/15000 when a device check in Init fails. ConsumeMotion returns 0 without accumulating
+# while last_event_time is 0, the state Reset leaves, so the first event after Reset is swallowed.
 [offsets.WheelAccumulator]
+last_event_time = 0x0
+acceleration_deadline = 0x4
+gesture_deadline = 0x8
+multiplier = 0xc
+last_motion = 0x10
+remainder = 0x14
+threshold = 0x18
+max_multiplier = 0x1c
+last_result = 0x20
+accelerate = 0x24
+multiplier_disabled = 0x25
+fast_speed = 0x28
+slow_speed = 0x2c
+interval = 0x30
 bytes = 0x34
 
 [offsets.ItemTableBinding]

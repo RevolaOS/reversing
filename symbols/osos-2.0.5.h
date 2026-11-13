@@ -418,6 +418,11 @@ uint32_t ButtonEvent_GetUIKeyCode(void *event);
 void *WheelAccumulator_Init(void *state, int threshold, uint8_t accelerate, uint32_t interval);
 int WheelAccumulator_ConsumeMotion(void *state, int motion, uint32_t speed);
 void WheelAccumulator_Reset(void *accumulator);
+int WheelAccumulator_AccumulateMotion(void *state, int motion, uint32_t speed);
+void WheelAccumulator_SetThreshold(void *state, int threshold);
+void WheelAccumulator_SetMaxMultiplier(void *state, int max_multiplier);
+int WheelAccumulator_IsSlowTurn(void *state, uint32_t speed);
+int WheelAccumulator_IsFastTurn(void *state, uint32_t speed);
 void View_InitOptionsFromDescriptor(const void *descriptor, void *options);
 void View_ResolveBounds(void *view, int32_t *bounds);
 void *View_Construct(void *view, void *unused, void *parent, void *event_target, const void *options);
@@ -1039,6 +1044,11 @@ extern void *MediaArtworkProvider;
 #define ADDR_WheelAccumulator_Init 0x081b0efc
 #define ADDR_WheelAccumulator_ConsumeMotion 0x081b0e4c
 #define ADDR_WheelAccumulator_Reset 0x081b0e7c
+#define ADDR_WheelAccumulator_AccumulateMotion 0x081b0d4c
+#define ADDR_WheelAccumulator_SetThreshold 0x081b0d40
+#define ADDR_WheelAccumulator_SetMaxMultiplier 0x081b0d38
+#define ADDR_WheelAccumulator_IsSlowTurn 0x081b0ebc
+#define ADDR_WheelAccumulator_IsFastTurn 0x081b0e9c
 #define ADDR_View_InitOptionsFromDescriptor 0x0829b090
 #define ADDR_View_ResolveBounds 0x08264f9c
 #define ADDR_View_Construct 0x08265bf8
@@ -2056,6 +2066,20 @@ extern void *MediaArtworkProvider;
 #define ProgressDescriptor_minimum 0x60
 #define ProgressDescriptor_source 0x64
 #define ProgressDescriptor_style 0x6c
+#define WheelAccumulator_last_event_time 0x0
+#define WheelAccumulator_acceleration_deadline 0x4
+#define WheelAccumulator_gesture_deadline 0x8
+#define WheelAccumulator_multiplier 0xc
+#define WheelAccumulator_last_motion 0x10
+#define WheelAccumulator_remainder 0x14
+#define WheelAccumulator_threshold 0x18
+#define WheelAccumulator_max_multiplier 0x1c
+#define WheelAccumulator_last_result 0x20
+#define WheelAccumulator_accelerate 0x24
+#define WheelAccumulator_multiplier_disabled 0x25
+#define WheelAccumulator_fast_speed 0x28
+#define WheelAccumulator_slow_speed 0x2c
+#define WheelAccumulator_interval 0x30
 #define WheelAccumulator_bytes 0x34
 #define ItemTableBinding_item_table 0x4
 #define ViewLayout_title 0x24
