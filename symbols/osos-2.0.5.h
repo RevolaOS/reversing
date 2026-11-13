@@ -490,6 +490,8 @@ void Navigator_PopToPixoMainScreen(void);
 int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t argument);
 void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
 void UI_LoadScreenLayouts(void *definition);
+void *ScreenDefinition_Destruct(void *definition);
+void *Layout_Destruct(void *layout);
 uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving);
 uint32_t GamesMenuController_Deactivate(void *controller, uint32_t leaving);
 int ResourceScreen_HandleEvent(void *controller, void *event);
@@ -510,6 +512,9 @@ int UI_InstanceLeaveStyle(void *manager, void *instance, int transition_5, int o
 void *UI_GetCompositorLayer(void *layers, uint32_t index);
 int UI_EmitControllerEvent(void *controller, void *event_name);
 void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id);
+void *UI_CreateTemplateFromResource(void *context, void *owner, void *event_target, const void *options, uint32_t view_id, uint32_t argument);
+void *UI_ConstructLayout(void *layout, uint32_t layout_id, uint8_t kind, const void *screen_list_record);
+void **UIntPointerMap_GetOrInsert(void *map, const uint32_t *key);
 void *View_FindViewById(void *view, uint32_t id);
 void *UI_FindTemplateView(void *owner, uint32_t template_id);
 void UI_DisplayPreparedLayout(void *manager, void *layout);
@@ -1163,6 +1168,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_ExtrasMenu_DispatchAction 0x0811a664
 #define ADDR_UI_ConstructScreenDefinition 0x0813ca44
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
+#define ADDR_ScreenDefinition_Destruct 0x0813cb3c
+#define ADDR_Layout_Destruct 0x081d6b7c
 #define ADDR_SettingsMenuListController_Deactivate 0x083a4a90
 #define ADDR_GamesMenuController_Deactivate 0x0839736c
 #define ADDR_ResourceScreen_HandleEvent 0x08398bdc
@@ -1197,6 +1204,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_ScreenController_ShowLayout 0x08398a94
 #define ADDR_ControllerLayoutCache_GetOrInsert 0x0813ca2c
 #define ADDR_UI_CreateTemplateFromResource 0x081df580
+#define ADDR_UI_ConstructLayout 0x081d6adc
+#define ADDR_UIntPointerMap_GetOrInsert 0x083d25fc
 #define ADDR_View_FindViewById 0x08292580
 #define ADDR_UI_FindTemplateView 0x081af514
 #define ADDR_UI_DisplayPreparedLayout 0x08174464
@@ -2094,6 +2103,7 @@ extern void *MediaArtworkProvider;
 #define ProgressBar_marker_resource 0xb8
 #define ProgressBar_marker_cache 0xbc
 #define ProgressBar_bytes 0x14c
+#define View_parent 0x34
 #define View_model 0x38
 #define View_property 0x44
 #define View_refresh_method 0xd4
@@ -2109,6 +2119,7 @@ extern void *MediaArtworkProvider;
 #define View_id 0x4c
 #define View_find_view_method 0xe4
 #define View_linked_view_method 0xfc
+#define View_has_event_target_method 0x18
 #define View_flags 0x48
 #define View_children 0xa8
 #define View_child_count 0xac
@@ -2154,10 +2165,15 @@ extern void *MediaArtworkProvider;
 #define Layout_events 0x38
 #define Layout_screen 0x58
 #define Layout_kind 0xc
+#define Layout_bytes 0x5c
 #define LayoutInstance_id 0x8
 #define LayoutScreen_id 0x4
 #define ResourceScreenController_screen_definition 0xb0
 #define ResourceScreenController_bytes 0xec
+#define ExtrasMenuController_screen_definition 0xb8
+#define ExtrasMenuController_bytes 0xf4
+#define MainMediaMenuController_screen_definition 0xc8
+#define MainMediaMenuController_bytes 0x104
 #define SettingsMenuListController_screen_definition 0xc0
 #define SettingsMenuListController_bytes 0xfc
 #define ScreenDefinition_layout 0x30
@@ -2227,12 +2243,28 @@ extern void *MediaArtworkProvider;
 #define ControlRange_bytes 0xc
 #define MenuList_item_blocks 0x18
 #define LayoutManager_screen 0x20
-#define LayoutManager_layout 0x28
-#define LayoutManager_kind 0x2c
-#define LayoutManager_saved_transition 0x80
+#define LayoutManager_template_owner 0x38
+#define ViewOptions_left_offset 0x0
+#define ViewOptions_top_offset 0xc
+#define ViewOptions_bottom_offset 0x18
+#define ViewOptions_right_offset 0x24
+#define ViewOptions_bytes 0x5c
+#define Rect_top 0x0
+#define Rect_left 0x4
+#define Rect_bottom 0x8
+#define Rect_right 0xc
+#define Rect_bytes 0x10
+#define Rect_layout 0x28
+#define Rect_kind 0x2c
+#define Rect_saved_transition 0x80
 #define TemplateView_enter_styles 0xfc
 #define TemplateView_leave_styles 0x107
 #define TemplateView_shared_styles 0x112
+#define TemplateView_kind 0x11e
+#define TemplateOwner_context 0x38
+#define TemplateOwner_bounds 0x80
+#define TemplateOwner_templates 0xa8
+#define TemplateOwner_list_kinds 0x108
 #define TemplateResource_has_styles 0x4
 #define TemplateResource_styles 0x6
 #define TemplateStyle_enter 0x0
