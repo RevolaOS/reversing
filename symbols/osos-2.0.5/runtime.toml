@@ -120,6 +120,20 @@ FileSeek_End = 2
 # Legacy statuses from File_OpenLegacyPath and File_ReadLegacyHandle, as uint32_t.
 FileError_NotFound = 0xffffffd5
 FileError_EndOfFile = 0xffffffd9
+# The native filesystem statuses the File_* API maps to FileError_*; the eApp file services hand
+# them to games unmapped (GameFileRequest_result, GameDirectory_GetStatus). OpenForWrite is a
+# read open of a file another handle writes, OpenForRead a write open of a file another handle
+# reads. ListTruncated, NoSlot and BadRequestType are produced by the eApp services themselves.
+FileStatus_Ok = 0
+FileStatus_VolumeUnavailable = 2
+FileStatus_BadHandle = 4
+FileStatus_NotFound = 7
+FileStatus_OpenForWrite = 9
+FileStatus_OpenForRead = 10
+FileStatus_ListTruncated = 0x14
+FileStatus_NotPermitted = 0x15
+FileStatus_NoSlot = 0x19
+FileStatus_BadRequestType = 0x21
 ClockRegister_Microseconds = 0x3c7000b4
 Service_Preferences = 0x6000
 Preference_Toggle = 0x60bf

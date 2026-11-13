@@ -424,6 +424,15 @@ GamePlaybackState_Stopped = 0
 GamePlaybackState_Playing = 1
 GamePlaybackState_Paused = 2
 GameSettings_Count = 3
+# GameDirectory_GetStatus and GameDirectory_ReadEntry when the list is healthy; otherwise a
+# FileStatus_* value.
+GameDirectoryStatus_More = 0
+GameDirectoryStatus_Last = 1
+# GameSaveFile_* returns besides FileStatus_Ok and FileStatus_NoSlot.
+GameSaveStatus_EndOfData = 5
+GameSaveStatus_BadOffset = 6
+GameSaveStatus_BadSlot = 8
+GameSaveStatus_TooLarge = 0x19
 
 [offsets.GameImageHeader]
 magic = 0x0
