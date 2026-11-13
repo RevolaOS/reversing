@@ -54,6 +54,21 @@ SetWarmBootModeTag = { at = 0x082b3a44, c = "char *SetWarmBootModeTag(uint32_t m
 ResetSocAndWait = { at = 0x0835e934, c = "void ResetSocAndWait(void)" }
 Timer_Stop = { at = 0x081219d0, c = "void Timer_Stop(void *timer)" }
 
+# The native file object behind the File_*LegacyHandle API and the eApp file services. Open takes a
+# UTF-8 path, OpenString a NativeString; both register the object in the open-handle tree, then
+# OpenNative resolves sharing against that tree (FileStatus_OpenForRead, FileStatus_OpenForWrite)
+# and calls the volume's open, which fills FileHandle_descriptor and FileHandle_size and stores its
+# result in FileHandle_status. A sharing conflict returns before FileHandle_status is written, so
+# the field keeps whatever the heap held while FileHandle_descriptor stays -1; Read and Write then
+# answer that stale status without touching the buffer. Close a handle even when its open failed.
+FileHandle_Open = { at = 0x0826f7bc, c = "void *FileHandle_Open(void *handle, const char *path, int read_only, int volume, uint32_t buffer_bytes, int flag, int argument)" }
+FileHandle_OpenString = { at = 0x0826f884, c = "void *FileHandle_OpenString(void *handle, struct NativeString *path, int read_only, int volume, uint32_t buffer_bytes, int flag, int argument)" }
+FileHandle_OpenNative = { at = 0x0826ec48, c = "int FileHandle_OpenNative(void *handle)" }
+FileHandle_IsOpen = { at = 0x0829be9c, c = "int FileHandle_IsOpen(void *handle)" }
+FileHandle_Read = { at = 0x0826eecc, c = "int FileHandle_Read(void *handle, uint32_t byte_count, void *buffer, uint32_t *out_count, uint32_t flags)" }
+FileHandle_Write = { at = 0x0826f3b0, c = "int FileHandle_Write(void *handle, uint32_t byte_count, const void *buffer, uint32_t *out_count, uint32_t flags)" }
+File_StoreLegacyHandleSize = { at = 0x0806d198, c = "void File_StoreLegacyHandleSize(void *handle, uint32_t *out_bytes)" }
+
 [sites]
 Preferences_LoadFile_call = { at = 0x08058808, kind = "call", in = "Preferences_LoadAndMigrate+0x14" }
 HeapRegionBase_literal = { at = 0x0804b478, kind = "literal" }
@@ -155,3 +170,14 @@ WarmBootMode_DiskMode = 1
 WarmBootMode_DiskScan = 2
 WarmBootMode_SoftwareUpdate = 3
 WarmBootMode_RetailOS = 4
+
+[offsets.FileHandle]
+filesystem = 0x4
+writable = 0x9
+path = 0xc
+read_only = 0x14
+descriptor = 0x18
+status = 0x1c
+size = 0x20
+position = 0x34
+buffered = 0x38

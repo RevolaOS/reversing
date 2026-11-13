@@ -233,6 +233,17 @@ void GameFileService_RunWorker(void *service);
 void GameFileService_Perform(void *service, void *entry);
 void GameFileService_Append(void *service, void *entry);
 void GameFileService_Drain(void *service);
+void GameFileService_PerformOpen(void *service, void *entry);
+void GameFileService_PerformClose(void *service, void *entry);
+void GameFileService_PerformRead(void *service, void *entry);
+void GameFileService_PerformWrite(void *service, void *entry);
+void GameFileService_PerformSeek(void *service, void *entry);
+void GameFileService_PerformDelete(void *service, void *entry);
+void GameFileService_PerformRename(void *service, void *entry);
+void GameFileService_PerformList(void *service, void *entry);
+int GameFileService_AddHandle(void *service, void **handle);
+void *GameFileService_GetHandle(void *service, int index);
+void GameFileService_RemoveHandle(void *service, int index);
 void GameRuntime_AppendCompletedRequest(void *runtime, struct GameFileRequest *request);
 struct GameFileRequest *GameRuntime_TakeCompletedRequests(void *runtime);
 void *GameSaveTable_Get(void);
@@ -533,6 +544,13 @@ uint32_t Clock_GetMicroseconds(void);
 char *SetWarmBootModeTag(uint32_t mode);
 void ResetSocAndWait(void);
 void Timer_Stop(void *timer);
+void *FileHandle_Open(void *handle, const char *path, int read_only, int volume, uint32_t buffer_bytes, int flag, int argument);
+void *FileHandle_OpenString(void *handle, struct NativeString *path, int read_only, int volume, uint32_t buffer_bytes, int flag, int argument);
+int FileHandle_OpenNative(void *handle);
+int FileHandle_IsOpen(void *handle);
+int FileHandle_Read(void *handle, uint32_t byte_count, void *buffer, uint32_t *out_count, uint32_t flags);
+int FileHandle_Write(void *handle, uint32_t byte_count, const void *buffer, uint32_t *out_count, uint32_t flags);
+void File_StoreLegacyHandleSize(void *handle, uint32_t *out_bytes);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
 void *SettingsModel_GetInstance(void);
 void SettingsModel_ToggleClicker(void *model);
@@ -1040,6 +1058,17 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameFileService_Perform 0x081e48f4
 #define ADDR_GameFileService_Append 0x081e45b0
 #define ADDR_GameFileService_Drain 0x081e42c8
+#define ADDR_GameFileService_PerformOpen 0x081e4ea0
+#define ADDR_GameFileService_PerformClose 0x081e4fd8
+#define ADDR_GameFileService_PerformRead 0x081e4f3c
+#define ADDR_GameFileService_PerformWrite 0x081e4ff4
+#define ADDR_GameFileService_PerformSeek 0x081e4f80
+#define ADDR_GameFileService_PerformDelete 0x081e5168
+#define ADDR_GameFileService_PerformRename 0x081e520c
+#define ADDR_GameFileService_PerformList 0x081e5358
+#define ADDR_GameFileService_AddHandle 0x081e50e4
+#define ADDR_GameFileService_GetHandle 0x081e5258
+#define ADDR_GameFileService_RemoveHandle 0x081e52f0
 #define ADDR_GameRuntime_AppendCompletedRequest 0x0828cc60
 #define ADDR_GameRuntime_TakeCompletedRequests 0x0828ceb0
 #define ADDR_GameSaveTable_Get 0x0813ecb4
@@ -1375,6 +1404,13 @@ extern void *MediaArtworkProvider;
 #define ADDR_SetWarmBootModeTag 0x082b3a44
 #define ADDR_ResetSocAndWait 0x0835e934
 #define ADDR_Timer_Stop 0x081219d0
+#define ADDR_FileHandle_Open 0x0826f7bc
+#define ADDR_FileHandle_OpenString 0x0826f884
+#define ADDR_FileHandle_OpenNative 0x0826ec48
+#define ADDR_FileHandle_IsOpen 0x0829be9c
+#define ADDR_FileHandle_Read 0x0826eecc
+#define ADDR_FileHandle_Write 0x0826f3b0
+#define ADDR_File_StoreLegacyHandleSize 0x0806d198
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
 #define ADDR_SettingsModel_GetInstance 0x081e0ff4
@@ -2530,6 +2566,15 @@ extern void *MediaArtworkProvider;
 #define IRQFrame_lr 0x38
 #define IRQFrame_pc 0x3c
 #define IRQFrame_bytes 0x40
+#define FileHandle_filesystem 0x4
+#define FileHandle_writable 0x9
+#define FileHandle_path 0xc
+#define FileHandle_read_only 0x14
+#define FileHandle_descriptor 0x18
+#define FileHandle_status 0x1c
+#define FileHandle_size 0x20
+#define FileHandle_position 0x34
+#define FileHandle_buffered 0x38
 #define MenuSettingsRow_item 0x0
 #define MenuSettingsRow_title 0x4
 #define MenuSettingsRow_layout_kind 0x8

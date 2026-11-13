@@ -248,6 +248,20 @@ GameFileService_RunWorker = { at = 0x081e527c, c = "void GameFileService_RunWork
 GameFileService_Perform = { at = 0x081e48f4, c = "void GameFileService_Perform(void *service, void *entry)" }
 GameFileService_Append = { at = 0x081e45b0, c = "void GameFileService_Append(void *service, void *entry)" }
 GameFileService_Drain = { at = 0x081e42c8, c = "void GameFileService_Drain(void *service)" }
+# Perform's operations. PerformOpen adds the FileHandle to GameFileService_handles before it looks
+# at FileHandle_status, so a failed open still takes a handle slot and stays registered until the
+# game closes it; it then copies FileHandle_status as the result and, when zero, the size.
+GameFileService_PerformOpen = { at = 0x081e4ea0, c = "void GameFileService_PerformOpen(void *service, void *entry)" }
+GameFileService_PerformClose = { at = 0x081e4fd8, c = "void GameFileService_PerformClose(void *service, void *entry)" }
+GameFileService_PerformRead = { at = 0x081e4f3c, c = "void GameFileService_PerformRead(void *service, void *entry)" }
+GameFileService_PerformWrite = { at = 0x081e4ff4, c = "void GameFileService_PerformWrite(void *service, void *entry)" }
+GameFileService_PerformSeek = { at = 0x081e4f80, c = "void GameFileService_PerformSeek(void *service, void *entry)" }
+GameFileService_PerformDelete = { at = 0x081e5168, c = "void GameFileService_PerformDelete(void *service, void *entry)" }
+GameFileService_PerformRename = { at = 0x081e520c, c = "void GameFileService_PerformRename(void *service, void *entry)" }
+GameFileService_PerformList = { at = 0x081e5358, c = "void GameFileService_PerformList(void *service, void *entry)" }
+GameFileService_AddHandle = { at = 0x081e50e4, c = "int GameFileService_AddHandle(void *service, void **handle)" }
+GameFileService_GetHandle = { at = 0x081e5258, c = "void *GameFileService_GetHandle(void *service, int index)" }
+GameFileService_RemoveHandle = { at = 0x081e52f0, c = "void GameFileService_RemoveHandle(void *service, int index)" }
 # The completed list: Append writes the request into the previous tail's GameFileRequest_next
 # without clearing the new request's own; Take hands the head to the frame input and empties it.
 GameRuntime_AppendCompletedRequest = { at = 0x0828cc60, c = "void GameRuntime_AppendCompletedRequest(void *runtime, struct GameFileRequest *request)" }
