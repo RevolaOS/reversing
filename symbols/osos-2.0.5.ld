@@ -434,6 +434,7 @@ StringInputStream_Destroy = 0x0829e81c;
 NativeString_InitEmpty = 0x0826de38;
 NativeString_Destroy = 0x0826de7c;
 NativeString_GetUtf8 = 0x0829bac0;
+NativeString_InitUtf8 = 0x0826dcfc;
 NativeString_AssignUtf8 = 0x0826cd94;
 NativeString_AssignUtf16 = 0x0826cfa0;
 SongText_CompareUtf16 = 0x0803a574;

@@ -394,6 +394,7 @@ void StringInputStream_Destroy(void *stream, uint32_t flags, void *storage);
 struct NativeString *NativeString_InitEmpty(struct NativeString *string);
 struct NativeString *NativeString_Destroy(struct NativeString *string);
 char *NativeString_GetUtf8(struct NativeString *string);
+struct NativeString *NativeString_InitUtf8(struct NativeString *string, const char *utf8);
 void NativeString_AssignUtf8(struct NativeString *string, const char *text);
 void NativeString_AssignUtf16(struct NativeString *string, const uint16_t *text, int characters);
 int SongText_CompareUtf16(void *collation, const uint16_t *left, uint32_t left_units, const uint16_t *right, uint32_t right_units);
@@ -1055,6 +1056,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_NativeString_InitEmpty 0x0826de38
 #define ADDR_NativeString_Destroy 0x0826de7c
 #define ADDR_NativeString_GetUtf8 0x0829bac0
+#define ADDR_NativeString_InitUtf8 0x0826dcfc
 #define ADDR_NativeString_AssignUtf8 0x0826cd94
 #define ADDR_NativeString_AssignUtf16 0x0826cfa0
 #define ADDR_SongText_CompareUtf16 0x0803a574
@@ -2244,6 +2246,9 @@ extern void *MediaArtworkProvider;
 #define MenuList_item_blocks 0x18
 #define LayoutManager_screen 0x20
 #define LayoutManager_template_owner 0x38
+#define LayoutManager_layout 0x28
+#define LayoutManager_kind 0x2c
+#define LayoutManager_saved_transition 0x80
 #define ViewOptions_left_offset 0x0
 #define ViewOptions_top_offset 0xc
 #define ViewOptions_bottom_offset 0x18
@@ -2254,9 +2259,6 @@ extern void *MediaArtworkProvider;
 #define Rect_bottom 0x8
 #define Rect_right 0xc
 #define Rect_bytes 0x10
-#define Rect_layout 0x28
-#define Rect_kind 0x2c
-#define Rect_saved_transition 0x80
 #define TemplateView_enter_styles 0xfc
 #define TemplateView_leave_styles 0x107
 #define TemplateView_shared_styles 0x112

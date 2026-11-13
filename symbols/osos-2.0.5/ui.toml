@@ -1033,6 +1033,9 @@ item_blocks = 0x18
 [offsets.LayoutManager]
 screen = 0x20
 template_owner = 0x38
+layout = 0x28
+kind = 0x2c
+saved_transition = 0x80
 
 # The view-options block UI_InitializeViewTemplates passes to UI_CreateTemplateFromResource: zeroed,
 # with the owner's View_bounds (top, left, bottom, right) copied into the four edge offsets.
@@ -1050,9 +1053,6 @@ left = 0x4
 bottom = 0x8
 right = 0xc
 bytes = 0x10
-layout = 0x28
-kind = 0x2c
-saved_transition = 0x80
 
 [offsets.TemplateView]
 enter_styles = 0xfc

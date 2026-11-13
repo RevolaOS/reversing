@@ -10,6 +10,7 @@ StringInputStream_Destroy = { at = 0x0829e81c, c = "void StringInputStream_Destr
 NativeString_InitEmpty = { at = 0x0826de38, c = "struct NativeString *NativeString_InitEmpty(struct NativeString *string)" }
 NativeString_Destroy = { at = 0x0826de7c, c = "struct NativeString *NativeString_Destroy(struct NativeString *string)" }
 NativeString_GetUtf8 = { at = 0x0829bac0, c = "char *NativeString_GetUtf8(struct NativeString *string)" }
+NativeString_InitUtf8 = { at = 0x0826dcfc, c = "struct NativeString *NativeString_InitUtf8(struct NativeString *string, const char *utf8)" }
 NativeString_AssignUtf8 = { at = 0x0826cd94, c = "void NativeString_AssignUtf8(struct NativeString *string, const char *text)" }
 NativeString_AssignUtf16 = { at = 0x0826cfa0, c = "void NativeString_AssignUtf16(struct NativeString *string, const uint16_t *text, int characters)" }
 SongText_CompareUtf16 = { at = 0x0803a574, c = "int SongText_CompareUtf16(void *collation, const uint16_t *left, uint32_t left_units, const uint16_t *right, uint32_t right_units)" }
