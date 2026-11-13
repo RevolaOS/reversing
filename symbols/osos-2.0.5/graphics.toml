@@ -127,3 +127,12 @@ pixels = 0x0
 width = 0x4
 height = 0x6
 bytes = 0x8
+
+# The surface a Bitmap embeds at Bitmap_pixels, as Surface_FillRect receives it.
+[offsets.Surface]
+pixels = 0x0
+stride = 0x4
+bits_per_pixel = 0x8
+bytes_per_pixel = 0xc
+format = 0x10
+bounds = 0x14

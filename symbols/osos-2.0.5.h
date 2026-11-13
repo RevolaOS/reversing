@@ -1573,6 +1573,12 @@ extern void *MediaArtworkProvider;
 #define PixelBuffer_width 0x4
 #define PixelBuffer_height 0x6
 #define PixelBuffer_bytes 0x8
+#define Surface_pixels 0x0
+#define Surface_stride 0x4
+#define Surface_bits_per_pixel 0x8
+#define Surface_bytes_per_pixel 0xc
+#define Surface_format 0x10
+#define Surface_bounds 0x14
 #define WheelState_notify_pending 0x0
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
