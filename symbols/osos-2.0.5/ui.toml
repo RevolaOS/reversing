@@ -167,8 +167,10 @@ UI_EmitControllerEvent = { at = 0x0812a150, c = "int UI_EmitControllerEvent(void
 ScreenController_ShowLayout = { at = 0x08398a94 }
 ControllerLayoutCache_GetOrInsert = { at = 0x0813ca2c, c = "void *ControllerLayoutCache_GetOrInsert(void *definition, uint32_t layout_id)" }
 # Builds one template from a View resource, as UI_InitializeViewTemplates does per id: context is
-# TemplateOwner_context, event_target the owner or NULL, options a zeroed 0x5c view-options block whose
-# four edge offsets are TemplateOwner_bounds, argument 0. Returns the template's parent object.
+# TemplateOwner_context, event_target the owner or NULL, options a zeroed ViewOptions block whose four
+# edge offsets are the View_bounds of the owner's View_parent when set, else of the owner, argument 0.
+# Returns the template's parent object; UI_InitializeViewTemplates then stores TemplateKind_Standard or
+# TemplateKind_List in its TemplateView_kind.
 UI_CreateTemplateFromResource = { at = 0x081df580, c = "void *UI_CreateTemplateFromResource(void *context, void *owner, void *event_target, const void *options, uint32_t view_id, uint32_t argument)" }
 # One SLst entry of a screen definition: a Layout_bytes allocation, then Layout_screen = definition and
 # the pointer stored under the id in ScreenDefinition_layout_cache.
@@ -558,6 +560,10 @@ Transition_Instant = 0x6
 Transition_Hidden = 0x1
 LayoutKind_NowPlaying = 1
 LayoutKind_CoverFlow = 2
+# TemplateView_kind: Standard for the first template owner's templates, List for those of the owner
+# with TemplateOwner_list_kinds set, whose TMLT kind word is 1 to 4.
+TemplateKind_Standard = 1
+TemplateKind_List = 2
 LayoutKind_Menu = 3
 LayoutKind_SplitList = 4
 LayoutKind_List = 5
@@ -1038,7 +1044,8 @@ kind = 0x2c
 saved_transition = 0x80
 
 # The view-options block UI_InitializeViewTemplates passes to UI_CreateTemplateFromResource: zeroed,
-# with the owner's View_bounds (top, left, bottom, right) copied into the four edge offsets.
+# with the View_bounds (top, left, bottom, right) of the owner's View_parent, or of the owner when it
+# has none, copied into the four edge offsets.
 [offsets.ViewOptions]
 left_offset = 0x0
 top_offset = 0xc
@@ -1058,7 +1065,7 @@ bytes = 0x10
 enter_styles = 0xfc
 leave_styles = 0x107
 shared_styles = 0x112
-# 1 or 2 from the TMLT record, set by UI_InitializeViewTemplates after construction.
+# TemplateKind_Standard or TemplateKind_List, set by UI_InitializeViewTemplates after construction.
 kind = 0x11e
 
 # The view that owns the built templates (LayoutManager_template_owner): its children at templates
@@ -1138,10 +1145,12 @@ top_controller = 0x4
 context = 0xa4
 text = 0xf8
 
+# One SLst record, as UI_LoadScreenLayouts passes it to UI_ConstructLayout.
 [offsets.ScreenLayoutEntry]
 layout = 0x0
 kind = 0x4
 refresh = 0x8
+bytes = 0xc
 
 [offsets.PodcastEpisodesController]
 layout_cache = 0xd0

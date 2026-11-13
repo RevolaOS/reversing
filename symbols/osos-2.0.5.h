@@ -2716,6 +2716,7 @@ extern void *MediaArtworkProvider;
 #define ScreenLayoutEntry_layout 0x0
 #define ScreenLayoutEntry_kind 0x4
 #define ScreenLayoutEntry_refresh 0x8
+#define ScreenLayoutEntry_bytes 0xc
 #define PodcastEpisodesController_layout_cache 0xd0
 #define PodcastEpisodesController_layout 0x100
 #define ITunesUEpisodesController_layout_cache 0xd0
@@ -3093,6 +3094,8 @@ extern void *MediaArtworkProvider;
 #define Transition_Hidden 0x1
 #define LayoutKind_NowPlaying 0x1
 #define LayoutKind_CoverFlow 0x2
+#define TemplateKind_Standard 0x1
+#define TemplateKind_List 0x2
 #define LayoutKind_Menu 0x3
 #define LayoutKind_SplitList 0x4
 #define LayoutKind_List 0x5
