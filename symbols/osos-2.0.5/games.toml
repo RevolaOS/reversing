@@ -36,6 +36,9 @@ GamesService_Get = { at = 0x080f5d54, c = "void *GamesService_Get(void)" }
 GamesService_BuildList = { at = 0x080f543c, c = "uint32_t GamesService_BuildList(void *service)" }
 GamesService_ScanRoot = { at = 0x080f5b48, c = "void GamesService_ScanRoot(void *service, void *list, uint32_t volume, const char *root)" }
 GamesService_ClearList = { at = 0x080f5858, c = "void GamesService_ClearList(void *service)" }
+# The service's indexed property slot: GamesProperty_Name, GamesProperty_Artwork (a Bitmap) and
+# GamesProperty_PlayedText (the play-count caption from the three GamesMenu_*Played* strings).
+GamesService_GetIndexedProperty = { at = 0x080f63b8, c = "int GamesService_GetIndexedProperty(void *service, uint32_t type, uint32_t property, uint32_t index, void **out)" }
 GamesService_RequestSelectedGameLaunch = { at = 0x080f6708, c = "void GamesService_RequestSelectedGameLaunch(void *service)" }
 
 [sites]
@@ -46,6 +49,10 @@ GamesService_BuildList_entry = { at = 0x080f543c, kind = "entry" }
 GamesService_ScanBuiltInRoot_call = { at = 0x080f5474, kind = "call", in = "GamesService_BuildList+0x38" }
 GamesService_ScanDiskRoot_call = { at = 0x080f5488, kind = "call", in = "GamesService_BuildList+0x4c" }
 GameFiles_BuildPath_entry = { at = 0x08096f58, kind = "entry" }
+# ResourceService_GetString for GamesMenu_NeverPlayed_String or GamesMenu_PlayedOnce_String, and for
+# GamesMenu_PlayedTimes_String before it is formatted.
+GamesService_PlayedString_call = { at = 0x080f64a0, kind = "call", in = "GamesService_GetIndexedProperty+0xe8" }
+GamesService_PlayedTimesString_call = { at = 0x080f64ec, kind = "call", in = "GamesService_GetIndexedProperty+0x134" }
 
 [constants]
 # The image header GameLoader_ResolveImportsAndEntryPoints accepts: 'eapp', a version no newer

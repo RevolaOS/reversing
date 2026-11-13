@@ -70,6 +70,7 @@ void *GamesService_Get(void);
 uint32_t GamesService_BuildList(void *service);
 void GamesService_ScanRoot(void *service, void *list, uint32_t volume, const char *root);
 void GamesService_ClearList(void *service);
+int GamesService_GetIndexedProperty(void *service, uint32_t type, uint32_t property, uint32_t index, void **out);
 void GamesService_RequestSelectedGameLaunch(void *service);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
@@ -684,6 +685,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_GamesService_BuildList 0x080f543c
 #define ADDR_GamesService_ScanRoot 0x080f5b48
 #define ADDR_GamesService_ClearList 0x080f5858
+#define ADDR_GamesService_GetIndexedProperty 0x080f63b8
 #define ADDR_GamesService_RequestSelectedGameLaunch 0x080f6708
 #define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
@@ -1346,6 +1348,8 @@ extern void *MediaArtworkProvider;
 #define SITE_GamesService_ScanBuiltInRoot_call 0x080f5474
 #define SITE_GamesService_ScanDiskRoot_call 0x080f5488
 #define SITE_GameFiles_BuildPath_entry 0x08096f58
+#define SITE_GamesService_PlayedString_call 0x080f64a0
+#define SITE_GamesService_PlayedTimesString_call 0x080f64ec
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
 #define SITE_GraphicsContext_ClearRect_call 0x0825adb4
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
@@ -2506,6 +2510,9 @@ extern void *MediaArtworkProvider;
 #define Service_Alarms 0x6200
 #define GamesProperty_CountText 0x6613
 #define GamesProperty_SelectedName 0x6612
+#define GamesProperty_Name 0x6604
+#define GamesProperty_Artwork 0x6610
+#define GamesProperty_PlayedText 0x6614
 #define Service_NowPlaying 0x7f00
 #define Service_MediaArtwork 0x7f80
 #define Service_ContextMenu 0x8180
@@ -2731,6 +2738,9 @@ extern void *MediaArtworkProvider;
 #define RES_GamesMenu_NoGames_String 0x0dad063e
 #define RES_GamesMenu_OneGame_String 0x0dad063f
 #define RES_GamesMenu_GameCount_String 0x0dad0640
+#define RES_GamesMenu_NeverPlayed_String 0x0dad0641
+#define RES_GamesMenu_PlayedOnce_String 0x0dad0642
+#define RES_GamesMenu_PlayedTimes_String 0x0dad0643
 #define RES_ExtrasMenu_Games_Layout 0x0dad01dc
 #define RES_ExtrasPreview_Games_Template 0x0dad019c
 #define RES_ExtrasPreview_Games_Image_View 0x0dad019d

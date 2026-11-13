@@ -479,6 +479,10 @@ WorldClockProperty_Date = 0x6185
 Service_Alarms = 0x6200
 GamesProperty_CountText = 0x6613
 GamesProperty_SelectedName = 0x6612
+# Indexed, per list row (GamesService_GetIndexedProperty).
+GamesProperty_Name = 0x6604
+GamesProperty_Artwork = 0x6610
+GamesProperty_PlayedText = 0x6614
 Service_NowPlaying = 0x7f00
 # The media artwork provider (MediaArtworkProvider_Get); feeds the artwork pane of the kind-3 menu layouts.
 Service_MediaArtwork = 0x7f80
@@ -662,6 +666,9 @@ GamesMenu_Title_String = 0x0dad063d
 GamesMenu_NoGames_String = 0x0dad063e
 GamesMenu_OneGame_String = 0x0dad063f
 GamesMenu_GameCount_String = 0x0dad0640
+GamesMenu_NeverPlayed_String = 0x0dad0641
+GamesMenu_PlayedOnce_String = 0x0dad0642
+GamesMenu_PlayedTimes_String = 0x0dad0643
 # The Extras layout shown while the Games row is highlighted and its pane: a template of its own
 # (every Extras row has one), a fixed 142 x 87 picture and a caption bound to GamesProperty_CountText.
 ExtrasMenu_Games_Layout = 0x0dad01dc

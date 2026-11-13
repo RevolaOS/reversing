@@ -69,6 +69,7 @@ GamesService_Get = 0x080f5d54;
 GamesService_BuildList = 0x080f543c;
 GamesService_ScanRoot = 0x080f5b48;
 GamesService_ClearList = 0x080f5858;
+GamesService_GetIndexedProperty = 0x080f63b8;
 GamesService_RequestSelectedGameLaunch = 0x080f6708;
 Bitmap_LoadResource = 0x08103984;
 GraphicsContext_ConstructDefault = 0x0825b008;
