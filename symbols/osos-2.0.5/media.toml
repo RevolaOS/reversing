@@ -88,7 +88,32 @@ NestedPlaylists_MapVisibleRow = { at = 0x0822fa4c, c = "int NestedPlaylists_MapV
 OnTheGo_AddBrowserSelection = { at = 0x081095f8, c = "int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save)" }
 MediaListSelection_SelectArtworkSource = { at = 0x08169c98, c = "uint32_t MediaListSelection_SelectArtworkSource(void *selection, uint32_t category)" }
 MediaListSelection_SetList = { at = 0x08169db4 }
+# The shared selection behind the media lists, created on first use (0x850 bytes).
+MediaListSelection_GetInstance = { at = 0x08169178, c = "void *MediaListSelection_GetInstance(void)" }
+# Status-bar title of the next pushed media list; the Albums list sets the album name before pushing Songs.
+MediaListSelection_SetTitle = { at = 0x08169c7c, c = "void *MediaListSelection_SetTitle(void *selection, const struct NativeString *title)" }
 ArtworkSession_Stop = { at = 0x0820a76c, c = "void ArtworkSession_Stop(void *session)" }
+# Cover Flow's artwork session: a worker loads a window of covers around a centre album from the
+# bound source; PlaybackArtwork_GetImage returns only covers already loaded. Every function returns
+# with pop pc, so Thumb callers need no veneer. Construct needs ArtworkSession_bytes of storage.
+ArtworkSession_Construct = { at = 0x08216a90, c = "void *ArtworkSession_Construct(void *session, const char *name)" }
+ArtworkSession_Destroy = { at = 0x08222298, c = "void *ArtworkSession_Destroy(void *session)" }
+# Registers cover formats 15 and 16 and stores the listener at ArtworkSession_listener; the session
+# tail-calls (pop lr, bx) the listener's ArtworkSessionListener_cover_loaded_method as
+# (listener, item, album_index) once a cover is loaded. Returns nonzero on success.
+ArtworkSession_Attach = { at = 0x0821674c, c = "int ArtworkSession_Attach(void *session, void *listener)" }
+ArtworkSession_SetFormat = { at = 0x08216a24, c = "int ArtworkSession_SetFormat(void *session, int format)" }
+# Binds album source 0x2711, the one MediaListSelection_SelectArtworkSource picks for albums.
+ArtworkSession_BindQuery = { at = 0x082168b0, c = "int ArtworkSession_BindQuery(void *session)" }
+# Dispatches on a flag the constructor sets to 1 and nothing clears, so it always reaches
+# ArtworkWindow_Center on the window at ArtworkSession_window. absolute 0 moves by value.
+ArtworkSession_Center = { at = 0x082221f0, c = "int ArtworkSession_Center(void *session, int absolute, int value)" }
+ArtworkWindow_Center = { at = 0x0820b29c, c = "int ArtworkWindow_Center(void *window, int absolute, int value)" }
+# Centres on the session cursor and starts the worker; returns 1 when already running.
+ArtworkSession_Start = { at = 0x08221d80, c = "int ArtworkSession_Start(void *session)" }
+# format -1 uses the one set by ArtworkSession_SetFormat. out_image[0] holds the pixel pointer
+# when *out_available is set.
+PlaybackArtwork_GetImage = { at = 0x082168f0, c = "int PlaybackArtwork_GetImage(void *session, void *out_image, int index, uint8_t *out_available, int format)" }
 ArtworkSource_CreateProvider = { at = 0x08138b84 }
 AlbumArtworkProvider_Create = { at = 0x08140030, c = "void *AlbumArtworkProvider_Create(uint32_t source_kind, uint32_t selector)" }
 Genius_GetInstance = { at = 0x08121a4c, c = "void *Genius_GetInstance(void)" }
@@ -119,6 +144,10 @@ MediaBrowser_BuildArtists = { at = 0x08048fe8, c = "uint32_t MediaBrowser_BuildA
 MediaBrowser_BuildSongs = { at = 0x0807b858, c = "int MediaBrowser_BuildSongs(void *browser)" }
 MediaBrowser_ReadArtistName = { at = 0x08047b54, c = "int MediaBrowser_ReadArtistName(void *browser, int index, uint16_t *counted_out)" }
 MediaBrowser_ReadArtistJumpLabel = { at = 0x08047bc8, c = "int MediaBrowser_ReadArtistJumpLabel(void *browser, int index, uint16_t *counted_out)" }
+# Album name as counted UTF-16, up to 255 units; the first halfword is the count.
+MediaBrowser_ReadAlbumName = { at = 0x08047a34, c = "int MediaBrowser_ReadAlbumName(void *browser, int index, uint16_t *counted_out)" }
+# Selects an album group for the songs list; -1 clears. Returns 0 or -50.
+MediaBrowser_SelectAlbumIndex = { at = 0x0805b528, c = "int MediaBrowser_SelectAlbumIndex(void *browser, int index)" }
 MediaBrowser_GetOrderMode = { at = 0x0804af48, c = "uint32_t MediaBrowser_GetOrderMode(void *browser)" }
 AlbumGroupVector_Append = { at = 0x083d8b74, c = "void AlbumGroupVector_Append(void *vector, const void *row)" }
 LibraryBrowser_Create = { at = 0x0825012c, c = "void *LibraryBrowser_Create(uint32_t ownership)" }
@@ -184,6 +213,20 @@ artist_jump = 0xe50
 artist_count = 0xe54
 order_flag = 0xe3c
 
+# The browser a LibraryBrowser model forwards to; shared with the music menus.
+[offsets.LibraryBrowser]
+browser = 0x40
+
+# Rows of the MediaBrowser_albums {begin, end} vector, built by MediaBrowser_BuildAlbums.
+[offsets.AlbumGroup]
+token = 0x0
+artist = 0x4
+display_artist = 0x8
+artwork = 0xc
+tracks = 0x10
+flags = 0x14
+bytes = 0x18
+
 [offsets.MediaEntry]
 list = 0x0
 parent = 0x4
@@ -213,6 +256,15 @@ jump_index = 0x544
 
 [offsets.MediaListSelection]
 artwork_category = 0x83f
+
+[offsets.ArtworkSession]
+window = 0x38
+listener = 0x20
+bytes = 0x8ac
+
+# Vtable of the object given to ArtworkSession_Attach; only this slot is called.
+[offsets.ArtworkSessionListener]
+cover_loaded_method = 0x8
 
 [offsets.MediaOrder]
 capacity = 0x4
@@ -350,6 +402,9 @@ MediaKind_MusicVideo = 0x20
 MediaKind_TVShow = 0x40
 MediaKind_Rental = 0x8000
 MediaKind_ITunesU = 0x200000
+# Artwork format index for ArtworkSession_SetFormat and PlaybackArtwork_GetImage: 128x128 RGB565
+# covers, artwork format id 1055.
+ArtworkFormat_Cover128 = 0xf
 
 # The renderer owns embedded Bitmap objects; each surface borrows its BMap payload.
 [offsets.MediaListModel]

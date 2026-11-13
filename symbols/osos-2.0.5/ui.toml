@@ -91,6 +91,10 @@ MarqueeTextView_Draw = { at = 0x081a8dc8 }
 CoverFlowView_UpdateActiveState = { at = 0x0813818c }
 GLAlbumArtView_UpdateActiveState = { at = 0x081641b8 }
 MainMediaMenu_DispatchCommonAction = { at = 0x08223d20, c = "int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument)" }
+# Configures the shared LibraryBrowser: reset selects list 0, include and exclude are MediaKind
+# masks, grouping and sort pick LibraryGrouping and LibrarySort methods, and the result of the
+# grouping method (the group count, 0 for an empty library) is cached at +0xc0 for equal arguments.
+MusicMenu_ConfigureLibraryBrowser = { at = 0x08223ab8, c = "uint32_t MusicMenu_ConfigureLibraryBrowser(void *controller, uint32_t include_kinds, uint32_t exclude_kinds, int reset, uint32_t grouping, uint32_t sort, uint32_t option)" }
 NowPlaying_DispatchAction = { at = 0x08212dbc, c = "int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 NowPlaying_BuildAndShowContextualMenu = { at = 0x0821505c }
 SongList_DispatchAction = { at = 0x08218b24, c = "int SongList_DispatchAction(void *controller, const char *action, uint32_t argument)" }
@@ -506,6 +510,11 @@ LayoutKind_SplitList = 4
 LayoutKind_List = 5
 LayoutKind_MenuPane = 6
 LayoutKind_Clock = 7
+# MusicMenu_ConfigureLibraryBrowser selectors: Artists runs MediaBrowser_BuildArtists, Albums
+# MediaBrowser_BuildAlbums; Artist sorts through LibraryBrowser_SetArtistSort.
+LibraryGrouping_Artists = 4
+LibraryGrouping_Albums = 5
+LibrarySort_Artist = 2
 LayoutKind_FullScreen = 8
 LayoutKind_Page = 9
 LayoutKind_System = 10
@@ -545,6 +554,14 @@ Menu_CheckedSelected_Bitmap = 0x0dad0c09
 Menu_Playing_Bitmap = 0x0dad072c
 Menu_PlayingSelected_Bitmap = 0x0dad072d
 Menu_Chevron_Bitmap = 0x0dad0125
+# Indexed8, 6 px wide.
+System_ScrollbarTop_Image = 0x0dad0122
+System_ScrollbarCenter_Image = 0x0dad0123
+System_ScrollbarBottom_Image = 0x0dad0124
+# 128x128 RGB565 placeholder cover.
+CoverFlow_Proxy_Image = 0x0dad0128
+# 320x24 Indexed8, the Now Playing status bar.
+StatusBarBlack_Background_Image = 0x0dad012c
 About_Capacity_Template = 0x0dad0b4e
 Capacity_View = 0x0dad0b4f
 Capacity_Free_Segment = 0x0dad0aef
@@ -686,6 +703,7 @@ MediaLists_TVEpisodes_Plain_Layout = 0x0dad0803
 MediaLists_MixedVideoTracks_Screen = 0x0dad0812
 MediaLists_MixedVideoTracks_WithSubInfo_Layout = 0x0dad0813
 MediaLists_Songs_Screen = 0x0dad07e9
+MediaLists_Songs_Plain_Layout = 0x0dad07ea
 # Songs list with artwork, pushed for one-album artists and music videos; no press-and-hold binding.
 MediaLists_Songs_WithArtistAndArtwork_Layout = 0x0dad07ec
 MediaLists_NestedPlaylists_Screen = 0x0dad0808
@@ -874,6 +892,12 @@ layout = 0x104
 [offsets.AlbumsController]
 layout_cache = 0xd8
 layout = 0x108
+
+# Main and Music menu controllers. The highlighted row's preview kind, 1 for music artwork, chosen
+# by the Hilited handlers and before MusicMenu_ConfigureLibraryBrowser. ScreenController ends
+# before 0xb0; what follows belongs to each subclass.
+[offsets.MainMediaMenu]
+preview_kind = 0xb0
 
 [offsets.NowPlayingController]
 layout_cache = 0xec

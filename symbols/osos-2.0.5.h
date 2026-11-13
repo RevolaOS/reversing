@@ -161,7 +161,18 @@ int MediaListController_MapVisibleRow(void *controller, int row);
 int NestedPlaylists_MapVisibleRow(void *controller, int row);
 int OnTheGo_AddBrowserSelection(void *otg, int row, void *browser, int save);
 uint32_t MediaListSelection_SelectArtworkSource(void *selection, uint32_t category);
+void *MediaListSelection_GetInstance(void);
+void *MediaListSelection_SetTitle(void *selection, const struct NativeString *title);
 void ArtworkSession_Stop(void *session);
+void *ArtworkSession_Construct(void *session, const char *name);
+void *ArtworkSession_Destroy(void *session);
+int ArtworkSession_Attach(void *session, void *listener);
+int ArtworkSession_SetFormat(void *session, int format);
+int ArtworkSession_BindQuery(void *session);
+int ArtworkSession_Center(void *session, int absolute, int value);
+int ArtworkWindow_Center(void *window, int absolute, int value);
+int ArtworkSession_Start(void *session);
+int PlaybackArtwork_GetImage(void *session, void *out_image, int index, uint8_t *out_available, int format);
 void *AlbumArtworkProvider_Create(uint32_t source_kind, uint32_t selector);
 void *Genius_GetInstance(void);
 int Genius_MapVisibleRow(void *genius, int row);
@@ -189,6 +200,8 @@ uint32_t MediaBrowser_BuildArtists(void *browser);
 int MediaBrowser_BuildSongs(void *browser);
 int MediaBrowser_ReadArtistName(void *browser, int index, uint16_t *counted_out);
 int MediaBrowser_ReadArtistJumpLabel(void *browser, int index, uint16_t *counted_out);
+int MediaBrowser_ReadAlbumName(void *browser, int index, uint16_t *counted_out);
+int MediaBrowser_SelectAlbumIndex(void *browser, int index);
 uint32_t MediaBrowser_GetOrderMode(void *browser);
 void AlbumGroupVector_Append(void *vector, const void *row);
 void *LibraryBrowser_Create(uint32_t ownership);
@@ -425,6 +438,7 @@ int ProgressBar_ComputeFillWidth(void *view, int minimum, int maximum, int value
 void ProgressBar_LoadBitmapCaches(void *view);
 void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor);
 int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument);
+uint32_t MusicMenu_ConfigureLibraryBrowser(void *controller, uint32_t include_kinds, uint32_t exclude_kinds, int reset, uint32_t grouping, uint32_t sort, uint32_t option);
 int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument);
 int SongList_DispatchAction(void *controller, const char *action, uint32_t argument);
 int NestedPlaylists_DispatchAction(void *controller, const char *action, uint32_t argument);
@@ -733,7 +747,18 @@ extern void *MediaArtworkProvider;
 #define ADDR_OnTheGo_AddBrowserSelection 0x081095f8
 #define ADDR_MediaListSelection_SelectArtworkSource 0x08169c98
 #define ADDR_MediaListSelection_SetList 0x08169db4
+#define ADDR_MediaListSelection_GetInstance 0x08169178
+#define ADDR_MediaListSelection_SetTitle 0x08169c7c
 #define ADDR_ArtworkSession_Stop 0x0820a76c
+#define ADDR_ArtworkSession_Construct 0x08216a90
+#define ADDR_ArtworkSession_Destroy 0x08222298
+#define ADDR_ArtworkSession_Attach 0x0821674c
+#define ADDR_ArtworkSession_SetFormat 0x08216a24
+#define ADDR_ArtworkSession_BindQuery 0x082168b0
+#define ADDR_ArtworkSession_Center 0x082221f0
+#define ADDR_ArtworkWindow_Center 0x0820b29c
+#define ADDR_ArtworkSession_Start 0x08221d80
+#define ADDR_PlaybackArtwork_GetImage 0x082168f0
 #define ADDR_ArtworkSource_CreateProvider 0x08138b84
 #define ADDR_AlbumArtworkProvider_Create 0x08140030
 #define ADDR_Genius_GetInstance 0x08121a4c
@@ -764,6 +789,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_MediaBrowser_BuildSongs 0x0807b858
 #define ADDR_MediaBrowser_ReadArtistName 0x08047b54
 #define ADDR_MediaBrowser_ReadArtistJumpLabel 0x08047bc8
+#define ADDR_MediaBrowser_ReadAlbumName 0x08047a34
+#define ADDR_MediaBrowser_SelectAlbumIndex 0x0805b528
 #define ADDR_MediaBrowser_GetOrderMode 0x0804af48
 #define ADDR_AlbumGroupVector_Append 0x083d8b74
 #define ADDR_LibraryBrowser_Create 0x0825012c
@@ -1039,6 +1066,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_CoverFlowView_UpdateActiveState 0x0813818c
 #define ADDR_GLAlbumArtView_UpdateActiveState 0x081641b8
 #define ADDR_MainMediaMenu_DispatchCommonAction 0x08223d20
+#define ADDR_MusicMenu_ConfigureLibraryBrowser 0x08223ab8
 #define ADDR_NowPlaying_DispatchAction 0x08212dbc
 #define ADDR_NowPlaying_BuildAndShowContextualMenu 0x0821505c
 #define ADDR_SongList_DispatchAction 0x08218b24
@@ -1608,6 +1636,14 @@ extern void *MediaArtworkProvider;
 #define MediaBrowser_artist_jump 0xe50
 #define MediaBrowser_artist_count 0xe54
 #define MediaBrowser_order_flag 0xe3c
+#define LibraryBrowser_browser 0x40
+#define AlbumGroup_token 0x0
+#define AlbumGroup_artist 0x4
+#define AlbumGroup_display_artist 0x8
+#define AlbumGroup_artwork 0xc
+#define AlbumGroup_tracks 0x10
+#define AlbumGroup_flags 0x14
+#define AlbumGroup_bytes 0x18
 #define MediaEntry_list 0x0
 #define MediaEntry_parent 0x4
 #define MediaEntry_next 0x8
@@ -1632,6 +1668,10 @@ extern void *MediaArtworkProvider;
 #define MediaList_order_index 0x3ac
 #define MediaList_jump_index 0x544
 #define MediaListSelection_artwork_category 0x83f
+#define ArtworkSession_window 0x38
+#define ArtworkSession_listener 0x20
+#define ArtworkSession_bytes 0x8ac
+#define ArtworkSessionListener_cover_loaded_method 0x8
 #define MediaOrder_capacity 0x4
 #define MediaOrder_bytes 0x8
 #define MediaOrder_count 0xc
@@ -2067,6 +2107,7 @@ extern void *MediaArtworkProvider;
 #define ArtistsController_layout 0x104
 #define AlbumsController_layout_cache 0xd8
 #define AlbumsController_layout 0x108
+#define MainMediaMenu_preview_kind 0xb0
 #define NowPlayingController_layout_cache 0xec
 #define NowPlayingController_layout 0x11c
 #define Navigator_top_controller 0x4
@@ -2182,6 +2223,7 @@ extern void *MediaArtworkProvider;
 #define MediaKind_TVShow 0x40
 #define MediaKind_Rental 0x8000
 #define MediaKind_ITunesU 0x200000
+#define ArtworkFormat_Cover128 0xf
 #define MediaStream_SeekEndMarginMs 0x1388
 #define MP4_SampleSizeWindow 0x8000
 #define MP4_SampleToChunkWindow 0x8000
@@ -2335,6 +2377,9 @@ extern void *MediaArtworkProvider;
 #define LayoutKind_List 0x5
 #define LayoutKind_MenuPane 0x6
 #define LayoutKind_Clock 0x7
+#define LibraryGrouping_Artists 0x4
+#define LibraryGrouping_Albums 0x5
+#define LibrarySort_Artist 0x2
 #define LayoutKind_FullScreen 0x8
 #define LayoutKind_Page 0x9
 #define LayoutKind_System 0xa
@@ -2427,6 +2472,11 @@ extern void *MediaArtworkProvider;
 #define RES_Menu_Playing_Bitmap 0x0dad072c
 #define RES_Menu_PlayingSelected_Bitmap 0x0dad072d
 #define RES_Menu_Chevron_Bitmap 0x0dad0125
+#define RES_System_ScrollbarTop_Image 0x0dad0122
+#define RES_System_ScrollbarCenter_Image 0x0dad0123
+#define RES_System_ScrollbarBottom_Image 0x0dad0124
+#define RES_CoverFlow_Proxy_Image 0x0dad0128
+#define RES_StatusBarBlack_Background_Image 0x0dad012c
 #define RES_About_Capacity_Template 0x0dad0b4e
 #define RES_Capacity_View 0x0dad0b4f
 #define RES_Capacity_Free_Segment 0x0dad0aef
@@ -2567,6 +2617,7 @@ extern void *MediaArtworkProvider;
 #define RES_MediaLists_MixedVideoTracks_Screen 0x0dad0812
 #define RES_MediaLists_MixedVideoTracks_WithSubInfo_Layout 0x0dad0813
 #define RES_MediaLists_Songs_Screen 0x0dad07e9
+#define RES_MediaLists_Songs_Plain_Layout 0x0dad07ea
 #define RES_MediaLists_Songs_WithArtistAndArtwork_Layout 0x0dad07ec
 #define RES_MediaLists_NestedPlaylists_Screen 0x0dad0808
 #define RES_MediaLists_Genius_Screen 0x0dad0844
