@@ -15,3 +15,4 @@ iPod Classic (7th generation) running Apple OSOS 2.0.5. Names refer to `symbols/
 | [display.md](display.md) | Display pipe layers |
 | [audio.md](audio.md) | Effects chain, EQ, post-effects gain |
 | [iap-auth.md](iap-auth.md) | iAP accessory authentication |
+| [games.md](games.md) | eApp host: import modules, files, sound effects, music control |
