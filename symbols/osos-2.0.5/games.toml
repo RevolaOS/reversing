@@ -84,7 +84,7 @@ GameInput_ForwardButtonEvent = { at = 0x082c0e98, c = "void GameInput_ForwardBut
 # frame input list. Directory lists hold at most 500 entries. The GameSaveFile table keeps four
 # in-memory files (GameSave_MaxSlots) capped at GameSave_MaxBytes together; Write replaces the
 # contents, Read copies from memory (whence 0 absolute, 1 from the position; 5 at the end, 6 for
-# a bad offset), and the files reach the disk at System_SaveAll and when the game ends.
+# a bad offset), and the files reach the disk at System_SaveAll and before the next game's init entry.
 GameFile_QueueOpen = { at = 0x082bd3ec, c = "int GameFile_QueueOpen(uint32_t directory_kind, const char *relative_path, int read_only, struct GameFileRequest *request)" } # AsyncFileIO 0
 GameFile_QueueClose = { at = 0x082bd3d0, c = "int GameFile_QueueClose(struct GameFileRequest *request)" } # AsyncFileIO 1
 GameFile_QueueTransfer = { at = 0x082bd44c, c = "int GameFile_QueueTransfer(struct GameFileRequest *request)" } # AsyncFileIO 2
@@ -239,6 +239,19 @@ GameAudio_ReadPlayerFlag93F = { at = 0x0817eb70, c = "uint8_t GameAudio_ReadPlay
 GameAudio_ReadCurrentEntryFlag = { at = 0x0817f054, c = "uint8_t GameAudio_ReadCurrentEntryFlag(void *bridge)" }
 GameAudio_ReadMixerLevel = { at = 0x0817f09c, c = "uint32_t GameAudio_ReadMixerLevel(void)" }
 AudioMixer_GetMusicLevel = { at = 0x081a6b78, c = "uint32_t AudioMixer_GetMusicLevel(void)" }
+# The AsyncFileIO worker (task eAppAsyncIO, GameRuntime_file_service). Append links a queue entry
+# under GameFileService_lock; RunWorker pops entries and calls Perform, which does the operation,
+# fills the request and hands it to GameRuntime_AppendCompletedRequest. Drain queues a
+# GameFileRequest_Complete entry, waits for it and then drops every open handle and list.
+GameFileService_TaskEntry = { at = 0x081e459c, c = "void GameFileService_TaskEntry(void *service)" }
+GameFileService_RunWorker = { at = 0x081e527c, c = "void GameFileService_RunWorker(void *service)" }
+GameFileService_Perform = { at = 0x081e48f4, c = "void GameFileService_Perform(void *service, void *entry)" }
+GameFileService_Append = { at = 0x081e45b0, c = "void GameFileService_Append(void *service, void *entry)" }
+GameFileService_Drain = { at = 0x081e42c8, c = "void GameFileService_Drain(void *service)" }
+# The completed list: Append writes the request into the previous tail's GameFileRequest_next
+# without clearing the new request's own; Take hands the head to the frame input and empties it.
+GameRuntime_AppendCompletedRequest = { at = 0x0828cc60, c = "void GameRuntime_AppendCompletedRequest(void *runtime, struct GameFileRequest *request)" }
+GameRuntime_TakeCompletedRequests = { at = 0x0828ceb0, c = "struct GameFileRequest *GameRuntime_TakeCompletedRequests(void *runtime)" }
 
 [sites]
 GameManifest_InitReader_call = { at = 0x080f9418, kind = "call", in = "GameLoader_LoadVerifiedManifest+0xa4" }
@@ -573,3 +586,23 @@ entries = 0x0
 count = 0x4
 next_id = 0x18
 dirty = 0x1a
+
+# The AsyncFileIO service object. handles and lists are index vectors behind GameFileRequest_handle.
+[offsets.GameFileService]
+storage = 0x8
+handles = 0xc
+lists = 0x10
+lock = 0x14
+queue_head = 0x28
+queue_tail = 0x2c
+
+# A queued GameFileService entry.
+[offsets.GameFileQueueEntry]
+request = 0x0
+path = 0x4
+volume = 0xc
+read_only = 0xd
+create = 0xe
+name = 0x10
+next = 0x18
+bytes = 0x20

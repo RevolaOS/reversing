@@ -228,6 +228,13 @@ uint8_t GameAudio_ReadPlayerFlag93F(void *bridge);
 uint8_t GameAudio_ReadCurrentEntryFlag(void *bridge);
 uint32_t GameAudio_ReadMixerLevel(void);
 uint32_t AudioMixer_GetMusicLevel(void);
+void GameFileService_TaskEntry(void *service);
+void GameFileService_RunWorker(void *service);
+void GameFileService_Perform(void *service, void *entry);
+void GameFileService_Append(void *service, void *entry);
+void GameFileService_Drain(void *service);
+void GameRuntime_AppendCompletedRequest(void *runtime, struct GameFileRequest *request);
+struct GameFileRequest *GameRuntime_TakeCompletedRequests(void *runtime);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
@@ -1016,6 +1023,13 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameAudio_ReadCurrentEntryFlag 0x0817f054
 #define ADDR_GameAudio_ReadMixerLevel 0x0817f09c
 #define ADDR_AudioMixer_GetMusicLevel 0x081a6b78
+#define ADDR_GameFileService_TaskEntry 0x081e459c
+#define ADDR_GameFileService_RunWorker 0x081e527c
+#define ADDR_GameFileService_Perform 0x081e48f4
+#define ADDR_GameFileService_Append 0x081e45b0
+#define ADDR_GameFileService_Drain 0x081e42c8
+#define ADDR_GameRuntime_AppendCompletedRequest 0x0828cc60
+#define ADDR_GameRuntime_TakeCompletedRequests 0x0828ceb0
 #define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
@@ -2110,6 +2124,20 @@ extern void *MediaArtworkProvider;
 #define GameUserList_count 0x4
 #define GameUserList_next_id 0x18
 #define GameUserList_dirty 0x1a
+#define GameFileService_storage 0x8
+#define GameFileService_handles 0xc
+#define GameFileService_lists 0x10
+#define GameFileService_lock 0x14
+#define GameFileService_queue_head 0x28
+#define GameFileService_queue_tail 0x2c
+#define GameFileQueueEntry_request 0x0
+#define GameFileQueueEntry_path 0x4
+#define GameFileQueueEntry_volume 0xc
+#define GameFileQueueEntry_read_only 0xd
+#define GameFileQueueEntry_create 0xe
+#define GameFileQueueEntry_name 0x10
+#define GameFileQueueEntry_next 0x18
+#define GameFileQueueEntry_bytes 0x20
 #define BitmapCache_service 0x0
 #define BitmapCache_resource_id 0x4
 #define BitmapCache_loaded 0x8
