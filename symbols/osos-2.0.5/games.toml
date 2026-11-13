@@ -252,6 +252,22 @@ GameFileService_Drain = { at = 0x081e42c8, c = "void GameFileService_Drain(void 
 # without clearing the new request's own; Take hands the head to the frame input and empties it.
 GameRuntime_AppendCompletedRequest = { at = 0x0828cc60, c = "void GameRuntime_AppendCompletedRequest(void *runtime, struct GameFileRequest *request)" }
 GameRuntime_TakeCompletedRequests = { at = 0x0828ceb0, c = "struct GameFileRequest *GameRuntime_TakeCompletedRequests(void *runtime)" }
+# The GameSaveFile store: a GameSaveTable of GameSave_MaxSlots GameSaveSlot records. Open binds
+# a free slot or retains the slot already bound to the path; Release frees a slot only when its
+# references reach zero and it is clean, so a closed dirty slot keeps its data until FlushAll
+# writes it (System_SaveAll, GameRuntime_LoadManifestAndLaunch). Nothing loads slots from disk.
+GameSaveTable_Get = { at = 0x0813ecb4, c = "void *GameSaveTable_Get(void)" }
+GameSaveTable_Open = { at = 0x0813ed94, c = "int GameSaveTable_Open(void *table, uint32_t directory_kind, const char *relative_path, int *out_slot)" }
+GameSaveTable_Retain = { at = 0x0813ef30, c = "int GameSaveTable_Retain(void *table, uint32_t slot)" }
+GameSaveTable_Read = { at = 0x0813ed24, c = "int GameSaveTable_Read(void *table, uint32_t slot, void *buffer, int *byte_count, int whence, uint32_t offset)" }
+GameSaveTable_Write = { at = 0x0813ef80, c = "int GameSaveTable_Write(void *table, uint32_t slot, const void *buffer, int byte_count)" }
+GameSaveTable_FlushAll = { at = 0x0813e9a8, c = "void GameSaveTable_FlushAll(void *table)" }
+GameSaveSlot_IsBound = { at = 0x08292428, c = "int GameSaveSlot_IsBound(void *slot)" }
+GameSaveSlot_Read = { at = 0x0813ea34, c = "int GameSaveSlot_Read(void *slot, void *buffer, int *byte_count, int whence, uint32_t offset)" }
+GameSaveSlot_Store = { at = 0x0813eabc, c = "int GameSaveSlot_Store(void *slot, const void *buffer, uint32_t byte_count)" }
+GameSaveSlot_Release = { at = 0x0813ec20, c = "void GameSaveSlot_Release(void *slot)" }
+GameSaveSlot_Flush = { at = 0x0813eb34, c = "void GameSaveSlot_Flush(void *slot)" }
+GameSaveSlot_Free = { at = 0x0813ebc8, c = "void GameSaveSlot_Free(void *slot)" }
 
 [sites]
 GameManifest_InitReader_call = { at = 0x080f9418, kind = "call", in = "GameLoader_LoadVerifiedManifest+0xa4" }
@@ -606,3 +622,8 @@ create = 0xe
 name = 0x10
 next = 0x18
 bytes = 0x20
+
+# GameSaveTable_Get's table: the slots, then the bytes held by all slots together.
+[offsets.GameSaveTable]
+slots = 0x0
+total_bytes = 0x90

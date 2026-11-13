@@ -235,6 +235,18 @@ void GameFileService_Append(void *service, void *entry);
 void GameFileService_Drain(void *service);
 void GameRuntime_AppendCompletedRequest(void *runtime, struct GameFileRequest *request);
 struct GameFileRequest *GameRuntime_TakeCompletedRequests(void *runtime);
+void *GameSaveTable_Get(void);
+int GameSaveTable_Open(void *table, uint32_t directory_kind, const char *relative_path, int *out_slot);
+int GameSaveTable_Retain(void *table, uint32_t slot);
+int GameSaveTable_Read(void *table, uint32_t slot, void *buffer, int *byte_count, int whence, uint32_t offset);
+int GameSaveTable_Write(void *table, uint32_t slot, const void *buffer, int byte_count);
+void GameSaveTable_FlushAll(void *table);
+int GameSaveSlot_IsBound(void *slot);
+int GameSaveSlot_Read(void *slot, void *buffer, int *byte_count, int whence, uint32_t offset);
+int GameSaveSlot_Store(void *slot, const void *buffer, uint32_t byte_count);
+void GameSaveSlot_Release(void *slot);
+void GameSaveSlot_Flush(void *slot);
+void GameSaveSlot_Free(void *slot);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
@@ -1030,6 +1042,18 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameFileService_Drain 0x081e42c8
 #define ADDR_GameRuntime_AppendCompletedRequest 0x0828cc60
 #define ADDR_GameRuntime_TakeCompletedRequests 0x0828ceb0
+#define ADDR_GameSaveTable_Get 0x0813ecb4
+#define ADDR_GameSaveTable_Open 0x0813ed94
+#define ADDR_GameSaveTable_Retain 0x0813ef30
+#define ADDR_GameSaveTable_Read 0x0813ed24
+#define ADDR_GameSaveTable_Write 0x0813ef80
+#define ADDR_GameSaveTable_FlushAll 0x0813e9a8
+#define ADDR_GameSaveSlot_IsBound 0x08292428
+#define ADDR_GameSaveSlot_Read 0x0813ea34
+#define ADDR_GameSaveSlot_Store 0x0813eabc
+#define ADDR_GameSaveSlot_Release 0x0813ec20
+#define ADDR_GameSaveSlot_Flush 0x0813eb34
+#define ADDR_GameSaveSlot_Free 0x0813ebc8
 #define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
@@ -2138,6 +2162,8 @@ extern void *MediaArtworkProvider;
 #define GameFileQueueEntry_name 0x10
 #define GameFileQueueEntry_next 0x18
 #define GameFileQueueEntry_bytes 0x20
+#define GameSaveTable_slots 0x0
+#define GameSaveTable_total_bytes 0x90
 #define BitmapCache_service 0x0
 #define BitmapCache_resource_id 0x4
 #define BitmapCache_loaded 0x8
