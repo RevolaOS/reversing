@@ -45,7 +45,32 @@ void *AudioOutputQueue_Get(void);
 int AudioOutputQueue_Write(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags);
 void *AudioOutputQueue_Get_thunk(void);
 int AudioOutputQueue_Write_thunk(void *queue, uint32_t unused, const int16_t *pcm, uint32_t frames, uint32_t unused2, uint32_t tag, uint32_t flags);
-void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path);
+void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t volume, const char *signature_path);
+int GameManifest_ReadWithOptionalSignature(void *reader, void *out_manifest);
+int GameLoader_LoadVerifiedManifest(void *loader);
+int GameLoader_ReadVerifyAndDecryptExecutable(void *loader, const char *identifier, uint32_t capacity, void *buffer, uint32_t *out_bytes);
+int GameLoader_ResolveImportsAndEntryPoints(void *image, uint32_t image_bytes, uint32_t *out_entries);
+void *GameMemory_Allocate(uint32_t byte_count);
+void *GameMemory_Reallocate(void *block, uint32_t byte_count);
+void GameMemory_Free(void *block);
+void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags);
+int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size);
+void *GameGraphics_GetCurrentSurface(uint32_t selector);
+int GameGraphics_SwapBuffers(void *display, void *surface);
+int GameRuntime_RequestLaunch(void *runtime, struct NativeString *identifier, uint8_t storage, uint32_t notification);
+int GameRuntime_LoadManifestAndLaunch(void *runtime);
+void GameRuntime_InvokeFrameCallback(void *runtime);
+int GameRuntime_ShouldContinueFrames(void *runtime);
+void GameRuntime_AppendInputEvent(void *runtime, uint8_t button, uint8_t type, uint32_t timestamp);
+void GameFiles_BuildPath(struct NativeString *out, uint32_t directory_kind, struct NativeString *identifier, uint32_t storage, const char *relative_path);
+const char *GameFiles_GetStorageDirectoryName(uint32_t directory_kind);
+int GameCatalog_ReadManifestMetadata(struct NativeString *identifier, uint32_t storage, struct NativeString *out_name, struct NativeString *out_version, struct NativeString *out_user_data_path, struct NativePath *out_artwork_path, void *out_localized_names);
+void *GameDirectory_BuildList(void *out_result, void *request);
+void *GamesService_Get(void);
+uint32_t GamesService_BuildList(void *service);
+void GamesService_ScanRoot(void *service, void *list, uint32_t volume, const char *root);
+void GamesService_ClearList(void *service);
+void GamesService_RequestSelectedGameLaunch(void *service);
 void Bitmap_LoadResource(void *bitmap, const void *resource, uint32_t argument, uint32_t flags);
 void *GraphicsContext_ConstructDefault(void *context);
 void GraphicsContext_FillRect(void *context, const int32_t *rect);
@@ -307,6 +332,8 @@ int File_ReadLegacyHandle(void *handle, void *buffer, uint32_t bytes, uint32_t f
 int File_WriteLegacyHandle(void *handle, const void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_written);
 int File_CloseLegacyHandle(void *handle);
 int File_SeekLegacyHandle(void *handle, uint64_t offset);
+int File_SeekLegacyHandle64(void *handle, int64_t offset, int whence);
+int File_GetLegacyHandleSize(void *handle, uint32_t *out_bytes);
 int BufferedFile_GetPosition(void *file, uint64_t *position);
 void Preferences_LoadFile(void *preferences);
 void Preferences_FlushIfDirty(void *preferences);
@@ -324,6 +351,7 @@ int Directory_CreateWithParents(const char *path, uint32_t volume);
 struct NativePath *NativePath_InitEmpty(struct NativePath *path);
 struct NativePath *NativePath_Destroy(struct NativePath *path);
 void *Thread_GetCurrentRecord(void);
+void Scheduler_YieldOrDelay(uint32_t delay);
 void *IRQ_Dispatch(uint32_t *frame);
 uint32_t Clock_GetMicroseconds(void);
 char *SetWarmBootModeTag(uint32_t mode);
@@ -365,6 +393,7 @@ void StringInputStream_Destroy(void *stream, uint32_t flags, void *storage);
 struct NativeString *NativeString_InitEmpty(struct NativeString *string);
 struct NativeString *NativeString_Destroy(struct NativeString *string);
 char *NativeString_GetUtf8(struct NativeString *string);
+void NativeString_AssignUtf8(struct NativeString *string, const char *text);
 void NativeString_AssignUtf16(struct NativeString *string, const uint16_t *text, int characters);
 int SongText_CompareUtf16(void *collation, const uint16_t *left, uint32_t left_units, const uint16_t *right, uint32_t right_units);
 int StringCache_ReadToken(void *cache, uint32_t token, void *destination, uint32_t *bytes, uint32_t maximum_bytes);
@@ -442,6 +471,7 @@ int ProgressBar_FillWidthForValue(void *view, int value, const int32_t *bar);
 int ProgressBar_ComputeFillWidth(void *view, int minimum, int maximum, int value, const int32_t *bar);
 void ProgressBar_LoadBitmapCaches(void *view);
 void *TextView_CreateFromDescriptor(void *owner, void *parent, void *event_target, const void *descriptor);
+int MainMediaMenu_DispatchAction(void *controller, const char *action, uint32_t argument);
 int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument);
 uint32_t MusicMenu_ConfigureLibraryBrowser(void *controller, uint32_t include_kinds, uint32_t exclude_kinds, int reset, uint32_t grouping, uint32_t sort, uint32_t option);
 int NowPlaying_DispatchAction(void *controller, const char *action, uint32_t argument);
@@ -460,6 +490,7 @@ int ExtrasMenu_DispatchAction(void *controller, const char *action, uint32_t arg
 void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts);
 void UI_LoadScreenLayouts(void *definition);
 uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving);
+uint32_t GamesMenuController_Deactivate(void *controller, uint32_t leaving);
 int ResourceScreen_HandleEvent(void *controller, void *event);
 int ScreenController_DispatchNamedEvent(void *controller, void *event);
 int BrightnessController_HandleEvent(void *controller, void *event);
@@ -562,6 +593,7 @@ extern void *const ProgressBarStyle8_vtable[];
 extern void *const SportTimerChosenDispatcher_vtable[];
 extern void *const SettingsMenuListController_vtable[];
 extern void *const ExtrasMenuController_vtable[];
+extern void *const GamesMenuController_vtable[];
 extern void *const ArtistsController_vtable[];
 extern void *const AlbumsController_vtable[];
 extern void *const NestedPlaylistsController_vtable[];
@@ -628,7 +660,31 @@ extern void *MediaArtworkProvider;
 #define ADDR_DisplayPipe_SetWindowAlpha 0x08144410
 #define ADDR_DisplayPipe_SetOrder 0x0814482c
 #define ADDR_GameManifest_InitReader 0x0825e510
+#define ADDR_GameManifest_ReadWithOptionalSignature 0x0825e428
 #define ADDR_GameLoader_LoadVerifiedManifest 0x080f9374
+#define ADDR_GameLoader_ReadVerifyAndDecryptExecutable 0x080f971c
+#define ADDR_GameLoader_ResolveImportsAndEntryPoints 0x080e91f8
+#define ADDR_GameMemory_Allocate 0x082c0e38
+#define ADDR_GameMemory_Reallocate 0x082c0e64
+#define ADDR_GameMemory_Free 0x082bdcb8
+#define ADDR_GameInput_ReadWheel 0x082bda94
+#define ADDR_GameSettings_GetValue 0x082bdf20
+#define ADDR_GameGraphics_GetCurrentSurface 0x082c19fc
+#define ADDR_GameGraphics_SwapBuffers 0x082c1b80
+#define ADDR_GameRuntime_RequestLaunch 0x0828c3e4
+#define ADDR_GameRuntime_LoadManifestAndLaunch 0x0828d2a0
+#define ADDR_GameRuntime_InvokeFrameCallback 0x0828c72c
+#define ADDR_GameRuntime_ShouldContinueFrames 0x0828d610
+#define ADDR_GameRuntime_AppendInputEvent 0x0828c644
+#define ADDR_GameFiles_BuildPath 0x08096f58
+#define ADDR_GameFiles_GetStorageDirectoryName 0x0808cfc8
+#define ADDR_GameCatalog_ReadManifestMetadata 0x0806f564
+#define ADDR_GameDirectory_BuildList 0x081e46a0
+#define ADDR_GamesService_Get 0x080f5d54
+#define ADDR_GamesService_BuildList 0x080f543c
+#define ADDR_GamesService_ScanRoot 0x080f5b48
+#define ADDR_GamesService_ClearList 0x080f5858
+#define ADDR_GamesService_RequestSelectedGameLaunch 0x080f6708
 #define ADDR_Bitmap_LoadResource 0x08103984
 #define ADDR_GraphicsContext_ConstructDefault 0x0825b008
 #define ADDR_GraphicsContext_FillRect 0x0825ae34
@@ -916,6 +972,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_File_WriteLegacyHandle 0x0804ff68
 #define ADDR_File_CloseLegacyHandle 0x0804f6e4
 #define ADDR_File_SeekLegacyHandle 0x0804f88c
+#define ADDR_File_SeekLegacyHandle64 0x0826f1b0
+#define ADDR_File_GetLegacyHandleSize 0x0829be28
 #define ADDR_BufferedFile_GetPosition 0x08037f98
 #define ADDR_Preferences_LoadFile 0x0809c69c
 #define ADDR_Preferences_LoadAndMigrate 0x080587f4
@@ -941,6 +999,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_NativePath_Destroy 0x0826fcf4
 #define ADDR_Thread_Create 0x0804b4f4
 #define ADDR_Thread_GetCurrentRecord 0x0804b744
+#define ADDR_Scheduler_YieldOrDelay 0x0804ba3c
 #define ADDR_IRQ_Entry 0x22003080
 #define ADDR_IRQ_Dispatch 0x22008150
 #define ADDR_Clock_GetMicroseconds 0x0804b7ac
@@ -989,6 +1048,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_NativeString_InitEmpty 0x0826de38
 #define ADDR_NativeString_Destroy 0x0826de7c
 #define ADDR_NativeString_GetUtf8 0x0829bac0
+#define ADDR_NativeString_AssignUtf8 0x0826cd94
 #define ADDR_NativeString_AssignUtf16 0x0826cfa0
 #define ADDR_SongText_CompareUtf16 0x0803a574
 #define ADDR_StringCache_ReadToken 0x080a94ec
@@ -1075,6 +1135,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_MarqueeTextView_Draw 0x081a8dc8
 #define ADDR_CoverFlowView_UpdateActiveState 0x0813818c
 #define ADDR_GLAlbumArtView_UpdateActiveState 0x081641b8
+#define ADDR_VideosMenu_InitController 0x0822a8ec
+#define ADDR_MainMediaMenu_DispatchAction 0x0822a780
 #define ADDR_MainMediaMenu_DispatchCommonAction 0x08223d20
 #define ADDR_MusicMenu_ConfigureLibraryBrowser 0x08223ab8
 #define ADDR_NowPlaying_DispatchAction 0x08212dbc
@@ -1100,6 +1162,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_UI_ConstructScreenDefinition 0x0813ca44
 #define ADDR_UI_LoadScreenLayouts 0x0813c91c
 #define ADDR_SettingsMenuListController_Deactivate 0x083a4a90
+#define ADDR_GamesMenuController_Deactivate 0x0839736c
 #define ADDR_ResourceScreen_HandleEvent 0x08398bdc
 #define ADDR_ScreenController_DispatchNamedEvent 0x0812a070
 #define ADDR_BrightnessController_HandleEvent 0x081ec9d4
@@ -1227,6 +1290,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_SportTimerChosenDispatcher_vtable 0x089a72dc
 #define ADDR_SettingsMenuListController_vtable 0x089a3ae0
 #define ADDR_ExtrasMenuController_vtable 0x0899cb30
+#define ADDR_GamesMenuController_vtable 0x0899c798
 #define ADDR_ArtistsController_vtable 0x089a40e4
 #define ADDR_AlbumsController_vtable 0x089a3514
 #define ADDR_NestedPlaylistsController_vtable 0x089a6380
@@ -1278,6 +1342,10 @@ extern void *MediaArtworkProvider;
 #define SITE_VolumeExposure_TrackFinishTest_word 0x081732dc
 #define SITE_MediaPlayer_PostVolumeExposureLimitEvent_word 0x080cfe74
 #define SITE_GameManifest_InitReader_call 0x080f9418
+#define SITE_GamesService_BuildList_entry 0x080f543c
+#define SITE_GamesService_ScanBuiltInRoot_call 0x080f5474
+#define SITE_GamesService_ScanDiskRoot_call 0x080f5488
+#define SITE_GameFiles_BuildPath_entry 0x08096f58
 #define SITE_GraphicsContext_FillRect_call 0x0825ae9c
 #define SITE_GraphicsContext_ClearRect_call 0x0825adb4
 #define SITE_ArtworkReflection_Blend_call 0x0826a890
@@ -1443,10 +1511,13 @@ extern void *MediaArtworkProvider;
 #define SITE_UI_ControllerEventsGet_call 0x081d634c
 #define SITE_ScreenController_Deactivate_slot 0x0899d4ec
 #define SITE_SettingsMenuListController_Deactivate_slot 0x089a3bd0
+#define SITE_GamesMenuController_Deactivate_slot 0x0899c888
 #define SITE_NowPlaying_Action_slot 0x0899be50
 #define SITE_NowPlaying_SecondaryAction_slot 0x089a2e00
 #define SITE_Music_Action_slot 0x089a940c
 #define SITE_Music_SecondaryAction_slot 0x089a507c
+#define SITE_Videos_Action_slot 0x089a9da8
+#define SITE_Videos_SecondaryAction_slot 0x089a59b4
 #define SITE_Main_Action_slot 0x089a4c9c
 #define SITE_Main_SecondaryAction_slot 0x089a8fa4
 #define SITE_TextView_DrawColor_call 0x082872a8
@@ -1570,6 +1641,49 @@ extern void *MediaArtworkProvider;
 #define BootDescriptor_flags 0x10
 #define BootDescriptor_sysinfo_magic 0x18
 #define BootDescriptor_sysinfo 0x1c
+#define GameImageHeader_magic 0x0
+#define GameImageHeader_version 0x4
+#define GameImageHeader_entry_count 0x8
+#define GameImageHeader_imports 0x10
+#define GameImageHeader_entries 0x14
+#define GameImageHeader_bytes 0x28
+#define GameFrameInput_state 0x0
+#define GameFrameInput_events 0x30
+#define GameFrameInput_pixels 0x38
+#define GameFrameInput_bytes 0x100
+#define GameFrameOutput_state 0x0
+#define GameFrameOutput_bytes 0xf8
+#define GameInputEvent_button 0x0
+#define GameInputEvent_type 0x1
+#define GameInputEvent_timestamp 0x4
+#define GameInputEvent_next 0x8
+#define GameInputEvent_bytes 0xc
+#define GameSurface_color_mode 0x64
+#define GameSurface_pixels 0x68
+#define GameSurface_width 0x94
+#define GameSurface_height 0x98
+#define GameRuntime_frame_input 0x0
+#define GameRuntime_frame_output 0x100
+#define GameRuntime_identifier 0x24c
+#define GameRuntime_storage 0x254
+#define GameRuntime_entry_count 0x268
+#define GameRuntime_init_entry 0x26c
+#define GameRuntime_shutdown_entry 0x270
+#define GameRuntime_frame_entry 0x27c
+#define GameManifestReader_manifest_path 0x0
+#define GameManifestReader_signature_path 0x4
+#define GameManifestReader_volume 0x8
+#define GameManifestReader_bytes 0xc
+#define GameListEntry_name 0x4
+#define GameListEntry_identifier 0x14
+#define GameListEntry_artwork_path 0x20
+#define GameListEntry_storage 0x28
+#define GameListEntry_version 0x2c
+#define GameListEntry_user_data_path 0x34
+#define GameListEntry_bytes 0x50
+#define GamesService_list 0x28
+#define GamesService_selected_index 0x8c
+#define GamesService_list_built 0x90
 #define BitmapCache_service 0x0
 #define BitmapCache_resource_id 0x4
 #define BitmapCache_loaded 0x8
@@ -2054,15 +2168,27 @@ extern void *MediaArtworkProvider;
 #define SsinInstance_leave_style 0xe
 #define SsinInstance_shared_style 0x10
 #define ViewDescriptor_frame 0x0
+#define ViewDescriptor_left_offset 0x0
+#define ViewDescriptor_left_reference_view 0x4
+#define ViewDescriptor_left_anchor_mode 0x8
 #define ViewDescriptor_top_offset 0xc
 #define ViewDescriptor_top_reference_view 0x10
 #define ViewDescriptor_top_anchor_mode 0x14
+#define ViewDescriptor_bottom_offset 0x18
+#define ViewDescriptor_bottom_reference_view 0x1c
+#define ViewDescriptor_bottom_anchor_mode 0x20
+#define ViewDescriptor_right_offset 0x24
+#define ViewDescriptor_right_reference_view 0x28
+#define ViewDescriptor_right_anchor_mode 0x2c
 #define ViewDescriptor_id 0x30
 #define ViewDescriptor_type 0x4c
 #define ViewDescriptor_options_bytes 0x5c
 #define TextViewDescriptor_source 0x64
 #define TextViewDescriptor_font 0x68
 #define TextViewDescriptor_color 0x70
+#define ImageViewDescriptor_source 0x74
+#define AnalogClockDescriptor_source 0x5c
+#define AnalogClockDescriptor_style 0x60
 #define ProgressDescriptor_maximum 0x5c
 #define ProgressDescriptor_minimum 0x60
 #define ProgressDescriptor_source 0x64
@@ -2198,6 +2324,31 @@ extern void *MediaArtworkProvider;
 #define MMU_UNMAPPED_ADDRESS 0x10000000
 #define IRAM_END 0x22040000
 #define IRQ_STACK_TOP 0x8b3b1b0
+#define GameImage_Magic 0x70706165
+#define GameImage_MaxVersion 0x10001000
+#define GameImage_MaxEntries 0x5
+#define GameImage_LoadAddress 0x18000000
+#define GameImage_MaxBytes 0x100000
+#define GameSurface_Draw 0x3059
+#define GameSurface_Read 0x305a
+#define GameSurfaceColorMode_RGB565 0x5
+#define GameButton_Menu 0x1
+#define GameButton_Center 0x2
+#define GameButton_Next 0x3
+#define GameButton_Previous 0x4
+#define GameButton_Play 0x5
+#define GameButtonEvent_Release 0x1
+#define GameButtonEvent_Press 0x2
+#define GameFrameState_Running 0x0
+#define GameFrameState_ShuttingDown 0x4
+#define GameFrameState_ShutDown 0x5
+#define GameFrameState_Done 0x6
+#define GameStorage_Disk 0x0
+#define GameStorage_BuiltIn 0x1
+#define GameDirectory_Package 0x0
+#define GameDirectory_UserData 0x1
+#define GameDirectory_Stats 0x2
+#define GameDirectory_SharedData 0x3
 #define GraphicsDrawMode_Copy 0x0
 #define GraphicsDrawMode_Text 0x21
 #define GraphicsDrawMode_Blend 0x22
@@ -2300,6 +2451,11 @@ extern void *MediaArtworkProvider;
 #define ResourceRomImage_bytes 0x431924
 #define BMapPayloads_address 0x841b158
 #define BMapPayloads_bytes 0x314506
+#define FileVolume_Disk 0x0
+#define FileVolume_BuiltIn 0x4
+#define FileSeek_Start 0x0
+#define FileSeek_Current 0x1
+#define FileSeek_End 0x2
 #define FileError_NotFound 0xffffffd5
 #define FileError_EndOfFile 0xffffffd9
 #define ClockRegister_Microseconds 0x3c7000b4
@@ -2342,7 +2498,16 @@ extern void *MediaArtworkProvider;
 #define Notify_None 0x4e6f6e65
 #define Notify_All 0x2a2a2a2a
 #define Service_Settings 0x8900
+#define Service_Games 0x6600
+#define Service_ScreenLock 0x5780
+#define Service_WorldClock 0x6180
+#define WorldClockProperty_Time 0x6181
+#define WorldClockProperty_Date 0x6185
+#define Service_Alarms 0x6200
+#define GamesProperty_CountText 0x6613
+#define GamesProperty_SelectedName 0x6612
 #define Service_NowPlaying 0x7f00
+#define Service_MediaArtwork 0x7f80
 #define Service_ContextMenu 0x8180
 #define ActionSupportQuery 0xdeadbeef
 #define Event_Timer 0xf
@@ -2412,6 +2577,8 @@ extern void *MediaArtworkProvider;
 #define ViewFlags_Highlighted 0x8
 #define ViewFlags_BackgroundStyle 0x38000
 #define ViewType_Image 0x696d6167
+#define ViewType_AnalogClock 0x61636c6b
+#define Property_DateTime 0x4474546d
 #define ViewType_Keyboard 0x6b627264
 #define ViewType_OptionBar 0x6f706272
 #define ViewType_Calendar 0x63616c76
@@ -2555,6 +2722,77 @@ extern void *MediaArtworkProvider;
 #define RES_Stopwatch_Screen 0x0dad0d46
 #define RES_Stopwatch_Screen_Stopped 0x0dad0d47
 #define RES_Stopwatch_Menu_Screen 0x0dad0d49
+#define RES_Games_Menu_Screen 0x0dad065c
+#define RES_Games_Menu_Layout 0x0dad065d
+#define RES_Game_Screen 0x0dad065e
+#define RES_Game_Screen_Layout 0x0dad065f
+#define RES_Game_Running_Layout 0x0dad0664
+#define RES_GamesMenu_Title_String 0x0dad063d
+#define RES_GamesMenu_NoGames_String 0x0dad063e
+#define RES_GamesMenu_OneGame_String 0x0dad063f
+#define RES_GamesMenu_GameCount_String 0x0dad0640
+#define RES_ExtrasMenu_Games_Layout 0x0dad01dc
+#define RES_ExtrasPreview_Games_Template 0x0dad019c
+#define RES_ExtrasPreview_Games_Image_View 0x0dad019d
+#define RES_ExtrasPreview_Games_Caption_Text 0x0dad019e
+#define RES_ExtrasPreview_Games_Image 0x0dad019a
+#define RES_ExtrasMenu_Alarms_Layout 0x0dad01d7
+#define RES_ExtrasPreview_Alarms_Template 0x0dad01da
+#define RES_ExtrasPreview_Alarms_Image 0x0dad02fb
+#define RES_ExtrasMenu_Contacts_Layout 0x0dad01dd
+#define RES_ExtrasPreview_Contacts_Template 0x0dad01de
+#define RES_ExtrasPreview_Contacts_Image 0x0dad026c
+#define RES_ExtrasMenu_Calendars_Layout 0x0dad01e0
+#define RES_ExtrasPreview_Calendars_Template 0x0dad01e1
+#define RES_ExtrasPreview_Calendars_Lines_Template 0x0dad01e3
+#define RES_ExtrasPreview_Calendars_Image 0x0dad030b
+#define RES_ExtrasMenu_Notes_Layout 0x0dad01e5
+#define RES_ExtrasPreview_Notes_Template 0x0dad01e6
+#define RES_ExtrasPreview_Notes_Image 0x0dad09d7
+#define RES_ExtrasMenu_Lock_Layout 0x0dad01e8
+#define RES_ExtrasMenu_Clocks_Layout 0x0dad01f0
+#define RES_ExtrasPreview_Clocks_Backdrop_Template 0x0dad01f1
+#define RES_ExtrasPreview_Clocks_Overlay_Image 0x0dad048a
+#define RES_ExtrasPreview_Clocks_Template 0x0dad01f3
+#define RES_ExtrasPreview_Clocks_City_Text 0x0dad04d5
+#define RES_ExtrasPreview_Clocks_Region_Text 0x0dad04d6
+#define RES_ExtrasPreview_Clocks_Date_Text 0x0dad04d7
+#define RES_ExtrasPreview_Clocks_Clock_View 0x0dad04d8
+#define RES_ExtrasPreview_Lock_Template 0x0dad01e9
+#define RES_ExtrasPreview_Lock_Caption_Template 0x0dad01eb
+#define RES_ExtrasPreview_Background_Template 0x0dad01d8
+#define RES_ExtrasPreview_Background_View 0x0dad04ce
+#define RES_ExtrasPreview_Background_Image 0x0dad012d
+#define RES_ExtrasPreview_Background_Bindings 0x0dad01d9
+#define RES_VideosMenu_Screen 0x0dad0816
+#define RES_VideosMenu_Items 0x00000033
+#define RES_VideosMenu_Movies_Item 0x0dad0817
+#define RES_VideosMenu_Rentals_Item 0x0dad0818
+#define RES_VideosMenu_TVShows_Item 0x0dad0819
+#define RES_VideosMenu_MusicVideos_Item 0x0dad081a
+#define RES_VideosMenu_VideoPlaylists_Item 0x0dad081b
+#define RES_VideosMenu_Settings_Item 0x0dad081c
+#define RES_VideosMenu_Layout 0x0dad081d
+#define RES_VideosMenu_Movies_Layout 0x0dad0820
+#define RES_MusicMenu_Layout 0x0dad07d5
+#define RES_MusicMenu_Songs_Layout 0x0dad07dc
+#define RES_MediaMenuPreview_Template 0x0dad01b9
+#define RES_MediaMenuPreview_Image_View 0x0dad01ba
+#define RES_MediaMenuPreview_Caption_Text 0x0dad01bb
+#define RES_MediaMenuPreview_Detail_Text 0x0dad01bc
+#define RES_MediaMenuPreview_Detail2_Text 0x0dad01bd
+#define RES_MediaMenuPreview_Bindings 0x0dad01be
+#define RES_MainMenus_Main_Radio_Layout 0x0dad0799
+#define RES_MainMenuPreview_Radio_Template 0x0dad079a
+#define RES_MainMenuPreview_Radio_Image_View 0x0dad0aa6
+#define RES_MainMenuPreview_Radio_Image 0x0dad0aa2
+#define RES_MainMenuPreview_Radio_Frequency_Text 0x0dad0aa7
+#define RES_MainMenuPreview_Radio_Badge_View 0x0dad0aa8
+#define RES_MainMenuPreview_Radio_Badge_Image 0x0dad0aa1
+#define RES_MenuPreview_Artwork_Template 0x0dad01c1
+#define RES_MenuPreview_Artwork_View 0x0dad01c2
+#define RES_MenuPreview_Artwork_Bindings 0x0dad01c3
+#define RES_PhotosMenu_Screen 0x0dad0a3f
 #define RES_MainMenu_Items 0x0000001a
 #define RES_MusicMenu_Items 0x0000001b
 #define RES_MainMenus_Main_Screen 0x0dad076e

@@ -1,8 +1,156 @@
-# Games: manifests and loader.
+# Games: the eApp runtime and its host services, the loader, manifests and the Games menu.
 
 [functions]
-GameManifest_InitReader = { at = 0x0825e510, c = "void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t storage_mode, const char *signature_path)" }
-GameLoader_LoadVerifiedManifest = { at = 0x080f9374 }
+GameManifest_InitReader = { at = 0x0825e510, c = "void GameManifest_InitReader(void *reader, const char *manifest_path, uint8_t volume, const char *signature_path)" }
+GameManifest_ReadWithOptionalSignature = { at = 0x0825e428, c = "int GameManifest_ReadWithOptionalSignature(void *reader, void *out_manifest)" }
+GameLoader_LoadVerifiedManifest = { at = 0x080f9374, c = "int GameLoader_LoadVerifiedManifest(void *loader)" }
+GameLoader_ReadVerifyAndDecryptExecutable = { at = 0x080f971c, c = "int GameLoader_ReadVerifyAndDecryptExecutable(void *loader, const char *identifier, uint32_t capacity, void *buffer, uint32_t *out_bytes)" }
+GameLoader_ResolveImportsAndEntryPoints = { at = 0x080e91f8, c = "int GameLoader_ResolveImportsAndEntryPoints(void *image, uint32_t image_bytes, uint32_t *out_entries)" }
+# The host services an image imports. The heap entries work on the current game heap.
+GameMemory_Allocate = { at = 0x082c0e38, c = "void *GameMemory_Allocate(uint32_t byte_count)" }
+GameMemory_Reallocate = { at = 0x082c0e64, c = "void *GameMemory_Reallocate(void *block, uint32_t byte_count)" }
+GameMemory_Free = { at = 0x082bdcb8, c = "void GameMemory_Free(void *block)" }
+# out_flags: low byte is the wheel position (right 0, up 64), WheelTouch_Down when touched.
+GameInput_ReadWheel = { at = 0x082bda94, c = "void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags)" }
+GameSettings_GetValue = { at = 0x082bdf20, c = "int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size)" }
+GameGraphics_GetCurrentSurface = { at = 0x082c19fc, c = "void *GameGraphics_GetCurrentSurface(uint32_t selector)" }
+GameGraphics_SwapBuffers = { at = 0x082c1b80, c = "int GameGraphics_SwapBuffers(void *display, void *surface)" }
+# The runtime task. Frame callbacks get the runtime as the input and runtime + GameRuntime_frame_output.
+GameRuntime_RequestLaunch = { at = 0x0828c3e4, c = "int GameRuntime_RequestLaunch(void *runtime, struct NativeString *identifier, uint8_t storage, uint32_t notification)" }
+GameRuntime_LoadManifestAndLaunch = { at = 0x0828d2a0, c = "int GameRuntime_LoadManifestAndLaunch(void *runtime)" }
+GameRuntime_InvokeFrameCallback = { at = 0x0828c72c, c = "void GameRuntime_InvokeFrameCallback(void *runtime)" }
+GameRuntime_ShouldContinueFrames = { at = 0x0828d610, c = "int GameRuntime_ShouldContinueFrames(void *runtime)" }
+GameRuntime_AppendInputEvent = { at = 0x0828c644, c = "void GameRuntime_AppendInputEvent(void *runtime, uint8_t button, uint8_t type, uint32_t timestamp)" }
+# Paths. directory_kind 0 is the package: storage 0 gives iPod_Control/games_RO/<identifier>/<relative>,
+# nonzero Resources/Games/games_RO/...; the other kinds give iPod_Control/<directory>/<identifier>/<relative>.
+GameFiles_BuildPath = { at = 0x08096f58, c = "void GameFiles_BuildPath(struct NativeString *out, uint32_t directory_kind, struct NativeString *identifier, uint32_t storage, const char *relative_path)" }
+GameFiles_GetStorageDirectoryName = { at = 0x0808cfc8, c = "const char *GameFiles_GetStorageDirectoryName(uint32_t directory_kind)" }
+GameCatalog_ReadManifestMetadata = { at = 0x0806f564, c = "int GameCatalog_ReadManifestMetadata(struct NativeString *identifier, uint32_t storage, struct NativeString *out_name, struct NativeString *out_version, struct NativeString *out_user_data_path, struct NativePath *out_artwork_path, void *out_localized_names)" }
+# The directory listing an image requests through the AsyncFileIO service, not the Games menu.
+GameDirectory_BuildList = { at = 0x081e46a0, c = "void *GameDirectory_BuildList(void *out_result, void *request)" }
+# The games service (UI service 0x6600), one per boot: the model behind TCGamesMenu lists, the
+# Extras pane count and the game launch. BuildList scans the built-in root and then the disk root
+# once (GamesService_list_built) and returns the entry count; ScanRoot reads every manifest under
+# root on volume and appends a GameListEntry per game.
+GamesService_Get = { at = 0x080f5d54, c = "void *GamesService_Get(void)" }
+GamesService_BuildList = { at = 0x080f543c, c = "uint32_t GamesService_BuildList(void *service)" }
+GamesService_ScanRoot = { at = 0x080f5b48, c = "void GamesService_ScanRoot(void *service, void *list, uint32_t volume, const char *root)" }
+GamesService_ClearList = { at = 0x080f5858, c = "void GamesService_ClearList(void *service)" }
+GamesService_RequestSelectedGameLaunch = { at = 0x080f6708, c = "void GamesService_RequestSelectedGameLaunch(void *service)" }
 
 [sites]
 GameManifest_InitReader_call = { at = 0x080f9418, kind = "call", in = "GameLoader_LoadVerifiedManifest+0xa4" }
+# The two scans of GamesService_BuildList: GamesService_ScanRoot(service, list,
+# FileVolume_BuiltIn, "Resources/Games/games_RO/"), then (..., FileVolume_Disk, "iPod_Control/games_RO/").
+GamesService_BuildList_entry = { at = 0x080f543c, kind = "entry" }
+GamesService_ScanBuiltInRoot_call = { at = 0x080f5474, kind = "call", in = "GamesService_BuildList+0x38" }
+GamesService_ScanDiskRoot_call = { at = 0x080f5488, kind = "call", in = "GamesService_BuildList+0x4c" }
+GameFiles_BuildPath_entry = { at = 0x08096f58, kind = "entry" }
+
+[constants]
+# The image header GameLoader_ResolveImportsAndEntryPoints accepts: 'eapp', a version no newer
+# than MaxVersion and at most MaxEntries entry points; the image is read to LoadAddress, at most MaxBytes.
+GameImage_Magic = 0x70706165
+GameImage_MaxVersion = 0x10001000
+GameImage_MaxEntries = 5
+GameImage_LoadAddress = 0x18000000
+GameImage_MaxBytes = 0x100000
+# GameGraphics_GetCurrentSurface selectors, the EGL draw and read surfaces.
+GameSurface_Draw = 0x3059
+GameSurface_Read = 0x305a
+# GameSurface_color_mode of a 16-bit surface; GameGraphics_ConstructWindowSurface then points
+# GameSurface_pixels at the 5:6:5 buffer.
+GameSurfaceColorMode_RGB565 = 5
+# GameInputEvent_button and GameInputEvent_type, from GameRuntime_DispatchInputMessages.
+GameButton_Menu = 1
+GameButton_Center = 2
+GameButton_Next = 3
+GameButton_Previous = 4
+GameButton_Play = 5
+GameButtonEvent_Release = 1
+GameButtonEvent_Press = 2
+# GameFrameInput_state and GameFrameOutput_state. Both are Running when the image starts. The host
+# writes ShutDown or ShuttingDown to the input while it ends the game; the image ends the frame
+# loop by answering ShutDown or Done (GameRuntime_ShouldContinueFrames).
+GameFrameState_Running = 0
+GameFrameState_ShuttingDown = 4
+GameFrameState_ShutDown = 5
+GameFrameState_Done = 6
+# GameListEntry_storage, GameRuntime_storage and the storage argument of GameFiles_BuildPath: which
+# package root holds the game. BuiltIn games are read from FileVolume_BuiltIn.
+GameStorage_Disk = 0
+GameStorage_BuiltIn = 1
+# GameFiles_BuildPath directory kinds.
+GameDirectory_Package = 0
+GameDirectory_UserData = 1
+GameDirectory_Stats = 2
+GameDirectory_SharedData = 3
+
+[offsets.GameImageHeader]
+magic = 0x0
+version = 0x4
+entry_count = 0x8
+imports = 0x10
+# Up to GameImage_MaxEntries pointers: init, shutdown, two unused, frame.
+entries = 0x14
+bytes = 0x28
+
+# The first frame-callback argument: the start of the runtime object.
+[offsets.GameFrameInput]
+state = 0x0
+# The GameInputEvent list of this frame, freed after the callback.
+events = 0x30
+pixels = 0x38
+bytes = 0x100
+
+# The second frame-callback argument.
+[offsets.GameFrameOutput]
+state = 0x0
+bytes = 0xf8
+
+[offsets.GameInputEvent]
+button = 0x0
+type = 0x1
+# Milliseconds.
+timestamp = 0x4
+next = 0x8
+bytes = 0xc
+
+# The EGL window surface GameGraphics_GetCurrentSurface returns.
+[offsets.GameSurface]
+color_mode = 0x64
+pixels = 0x68
+width = 0x94
+height = 0x98
+
+[offsets.GameRuntime]
+frame_input = 0x0
+frame_output = 0x100
+identifier = 0x24c
+storage = 0x254
+entry_count = 0x268
+init_entry = 0x26c
+shutdown_entry = 0x270
+frame_entry = 0x27c
+
+# What GameManifest_InitReader fills; a null signature_path skips verification.
+[offsets.GameManifestReader]
+manifest_path = 0x0
+signature_path = 0x4
+volume = 0x8
+bytes = 0xc
+
+# An entry of the Games menu list: NativeStrings except artwork_path, a NativePath.
+[offsets.GameListEntry]
+name = 0x4
+identifier = 0x14
+artwork_path = 0x20
+storage = 0x28
+version = 0x2c
+user_data_path = 0x34
+bytes = 0x50
+
+[offsets.GamesService]
+list = 0x28
+selected_index = 0x8c
+list_built = 0x90

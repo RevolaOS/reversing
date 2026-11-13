@@ -17,6 +17,9 @@ File_ReadLegacyHandle = { at = 0x0804f838, c = "int File_ReadLegacyHandle(void *
 File_WriteLegacyHandle = { at = 0x0804ff68, c = "int File_WriteLegacyHandle(void *handle, const void *buffer, uint32_t bytes, uint32_t flags, uint32_t *out_written)" }
 File_CloseLegacyHandle = { at = 0x0804f6e4, c = "int File_CloseLegacyHandle(void *handle)" }
 File_SeekLegacyHandle = { at = 0x0804f88c, c = "int File_SeekLegacyHandle(void *handle, uint64_t offset)" }
+# What File_SeekLegacyHandle wraps: returns a native status, 0 on success.
+File_SeekLegacyHandle64 = { at = 0x0826f1b0, c = "int File_SeekLegacyHandle64(void *handle, int64_t offset, int whence)" }
+File_GetLegacyHandleSize = { at = 0x0829be28, c = "int File_GetLegacyHandleSize(void *handle, uint32_t *out_bytes)" }
 BufferedFile_GetPosition = { at = 0x08037f98, c = "int BufferedFile_GetPosition(void *file, uint64_t *position)" }
 Preferences_LoadFile = { at = 0x0809c69c, c = "void Preferences_LoadFile(void *preferences)" }
 Preferences_LoadAndMigrate = { at = 0x080587f4 }
@@ -42,6 +45,8 @@ NativePath_InitEmpty = { at = 0x0826fcc4, c = "struct NativePath *NativePath_Ini
 NativePath_Destroy = { at = 0x0826fcf4, c = "struct NativePath *NativePath_Destroy(struct NativePath *path)" }
 Thread_Create = { at = 0x0804b4f4 }
 Thread_GetCurrentRecord = { at = 0x0804b744, c = "void *Thread_GetCurrentRecord(void)" }
+# 0 yields the task; any other value sleeps it, in units not yet measured.
+Scheduler_YieldOrDelay = { at = 0x0804ba3c, c = "void Scheduler_YieldOrDelay(uint32_t delay)" }
 IRQ_Entry = { at = 0x22003080 }
 IRQ_Dispatch = { at = 0x22008150, c = "void *IRQ_Dispatch(uint32_t *frame)" }
 Clock_GetMicroseconds = { at = 0x0804b7ac, c = "uint32_t Clock_GetMicroseconds(void)" }
@@ -105,6 +110,13 @@ pc = 0x3c
 bytes = 0x40
 
 [constants]
+# LegacyPath_volume and the volume arguments of DirectoryIterator_Init and the game readers.
+FileVolume_Disk = 0
+FileVolume_BuiltIn = 4
+# File_SeekLegacyHandle64 whence.
+FileSeek_Start = 0
+FileSeek_Current = 1
+FileSeek_End = 2
 # Legacy statuses from File_OpenLegacyPath and File_ReadLegacyHandle, as uint32_t.
 FileError_NotFound = 0xffffffd5
 FileError_EndOfFile = 0xffffffd9

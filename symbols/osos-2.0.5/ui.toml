@@ -99,6 +99,9 @@ TextView_DrawTextWithColor = { at = 0x08287218 }
 MarqueeTextView_Draw = { at = 0x081a8dc8 }
 CoverFlowView_UpdateActiveState = { at = 0x0813818c }
 GLAlbumArtView_UpdateActiveState = { at = 0x081641b8 }
+VideosMenu_InitController = { at = 0x0822a8ec }
+# Videos: answers HandleRemotePlayPauseForVideo and the *Hilited handlers, forwards the rest.
+MainMediaMenu_DispatchAction = { at = 0x0822a780, c = "int MainMediaMenu_DispatchAction(void *controller, const char *action, uint32_t argument)" }
 MainMediaMenu_DispatchCommonAction = { at = 0x08223d20, c = "int MainMediaMenu_DispatchCommonAction(void *controller, const char *action, uint32_t argument)" }
 # Configures the shared LibraryBrowser: reset selects list 0, include and exclude are MediaKind
 # masks, grouping and sort pick LibraryGrouping and LibrarySort methods, and the result of the
@@ -127,6 +130,7 @@ ExtrasMenu_DispatchAction = { at = 0x0811a664, c = "int ExtrasMenu_DispatchActio
 UI_ConstructScreenDefinition = { at = 0x0813ca44, c = "void *UI_ConstructScreenDefinition(void *definition, uint32_t screen_id, int load_layouts)" }
 UI_LoadScreenLayouts = { at = 0x0813c91c, c = "void UI_LoadScreenLayouts(void *definition)" }
 SettingsMenuListController_Deactivate = { at = 0x083a4a90, c = "uint32_t SettingsMenuListController_Deactivate(void *controller, uint32_t leaving)" }
+GamesMenuController_Deactivate = { at = 0x0839736c, c = "uint32_t GamesMenuController_Deactivate(void *controller, uint32_t leaving)" }
 ResourceScreen_HandleEvent = { at = 0x08398bdc, c = "int ResourceScreen_HandleEvent(void *controller, void *event)" }
 ScreenController_DispatchNamedEvent = { at = 0x0812a070, c = "int ScreenController_DispatchNamedEvent(void *controller, void *event)" }
 BrightnessController_HandleEvent = { at = 0x081ec9d4, c = "int BrightnessController_HandleEvent(void *controller, void *event)" }
@@ -238,6 +242,7 @@ ProgressBarStyle8_vtable = { at = 0x0899ab84, c = "void *const ProgressBarStyle8
 SportTimerChosenDispatcher_vtable = { at = 0x089a72dc, c = "void *const SportTimerChosenDispatcher_vtable[]" }
 SettingsMenuListController_vtable = { at = 0x089a3ae0, c = "void *const SettingsMenuListController_vtable[]" }
 ExtrasMenuController_vtable = { at = 0x0899cb30, c = "void *const ExtrasMenuController_vtable[]" }
+GamesMenuController_vtable = { at = 0x0899c798, c = "void *const GamesMenuController_vtable[]" }
 ArtistsController_vtable = { at = 0x089a40e4, c = "void *const ArtistsController_vtable[]" }
 AlbumsController_vtable = { at = 0x089a3514, c = "void *const AlbumsController_vtable[]" }
 NestedPlaylistsController_vtable = { at = 0x089a6380, c = "void *const NestedPlaylistsController_vtable[]" }
@@ -284,10 +289,15 @@ UI_LayoutEventsGet_call = { at = 0x081d62b4, kind = "call", in = "UI_LoadLayoutE
 UI_ControllerEventsGet_call = { at = 0x081d634c, kind = "call", in = "UI_LoadLayoutEventTables+0x19c" }
 ScreenController_Deactivate_slot = { at = 0x0899d4ec, kind = "slot" }
 SettingsMenuListController_Deactivate_slot = { at = 0x089a3bd0, kind = "slot" }
+GamesMenuController_Deactivate_slot = { at = 0x0899c888, kind = "slot" }
 NowPlaying_Action_slot = { at = 0x0899be50, kind = "slot" }
 NowPlaying_SecondaryAction_slot = { at = 0x089a2e00, kind = "slot" }
 Music_Action_slot = { at = 0x089a940c, kind = "slot" }
 Music_SecondaryAction_slot = { at = 0x089a507c, kind = "slot" }
+# TSilverMainMediaListCntlr_Videos: the controller-factory vtable (VideosMenu_InitController) and the
+# screen-factory vtable; both slots hold MainMediaMenu_DispatchAction.
+Videos_Action_slot = { at = 0x089a9da8, kind = "slot" }
+Videos_SecondaryAction_slot = { at = 0x089a59b4, kind = "slot" }
 Main_Action_slot = { at = 0x089a4c9c, kind = "slot" }
 Main_SecondaryAction_slot = { at = 0x089a8fa4, kind = "slot" }
 TextView_DrawColor_call = { at = 0x082872a8, kind = "call", in = "TextView_DrawTextWithColor+0x90" }
@@ -457,7 +467,21 @@ Property_Count = 0x564d6178
 Notify_None = 0x4e6f6e65
 Notify_All = 0x2a2a2a2a
 Service_Settings = 0x8900
+# The games service (GamesService_Get) and the properties its getter answers.
+Service_Games = 0x6600
+# Held by the Extras controller; HandleLock reads it to pick the lock dialog or the combination setup.
+Service_ScreenLock = 0x5780
+# The world-clock service: Time feeds the analog clock views as a Property_DateTime record, Date the
+# date line of the Clocks pane. The Alarms pane's texts come from Service_Alarms.
+Service_WorldClock = 0x6180
+WorldClockProperty_Time = 0x6181
+WorldClockProperty_Date = 0x6185
+Service_Alarms = 0x6200
+GamesProperty_CountText = 0x6613
+GamesProperty_SelectedName = 0x6612
 Service_NowPlaying = 0x7f00
+# The media artwork provider (MediaArtworkProvider_Get); feeds the artwork pane of the kind-3 menu layouts.
+Service_MediaArtwork = 0x7f80
 Service_ContextMenu = 0x8180
 ActionSupportQuery = 0xdeadbeef
 Event_Timer = 0xf
@@ -535,6 +559,10 @@ ViewFlags_Highlighted = 0x8
 # Palette grey, or the view's own or model colour.
 ViewFlags_BackgroundStyle = 0x38000
 ViewType_Image = 0x696d6167
+# 'aclk', TAnalogClockView: asks its source service for Property_DateTime with the SORC's property
+# and redraws when the 10-byte record changes.
+ViewType_AnalogClock = 0x61636c6b
+Property_DateTime = 0x4474546d
 ViewType_Keyboard = 0x6b627264
 ViewType_OptionBar = 0x6f706272
 ViewType_Calendar = 0x63616c76
@@ -624,6 +652,96 @@ Stopwatch_Template = 0x0dad0d1d
 Stopwatch_Screen = 0x0dad0d46
 Stopwatch_Screen_Stopped = 0x0dad0d47
 Stopwatch_Menu_Screen = 0x0dad0d49
+# Extras > Games: the TCGamesMenu list and the TCGameScreen it pushes for a chosen game.
+Games_Menu_Screen = 0x0dad065c
+Games_Menu_Layout = 0x0dad065d
+Game_Screen = 0x0dad065e
+Game_Screen_Layout = 0x0dad065f
+Game_Running_Layout = 0x0dad0664
+GamesMenu_Title_String = 0x0dad063d
+GamesMenu_NoGames_String = 0x0dad063e
+GamesMenu_OneGame_String = 0x0dad063f
+GamesMenu_GameCount_String = 0x0dad0640
+# The Extras layout shown while the Games row is highlighted and its pane: a template of its own
+# (every Extras row has one), a fixed 142 x 87 picture and a caption bound to GamesProperty_CountText.
+ExtrasMenu_Games_Layout = 0x0dad01dc
+ExtrasPreview_Games_Template = 0x0dad019c
+ExtrasPreview_Games_Image_View = 0x0dad019d
+ExtrasPreview_Games_Caption_Text = 0x0dad019e
+ExtrasPreview_Games_Image = 0x0dad019a
+# The other Extras row layouts with their own pane templates and pictures (identified by the art):
+# Alarms, an alarm clock with three hidden time texts; Contacts, a book with a caption; Calendars,
+# a calendar page with the day and month over it plus a second template for the title line and
+# caption; Notes, a notepad with a caption.
+ExtrasMenu_Alarms_Layout = 0x0dad01d7
+ExtrasPreview_Alarms_Template = 0x0dad01da
+ExtrasPreview_Alarms_Image = 0x0dad02fb
+ExtrasMenu_Contacts_Layout = 0x0dad01dd
+ExtrasPreview_Contacts_Template = 0x0dad01de
+ExtrasPreview_Contacts_Image = 0x0dad026c
+ExtrasMenu_Calendars_Layout = 0x0dad01e0
+ExtrasPreview_Calendars_Template = 0x0dad01e1
+ExtrasPreview_Calendars_Lines_Template = 0x0dad01e3
+ExtrasPreview_Calendars_Image = 0x0dad030b
+ExtrasMenu_Notes_Layout = 0x0dad01e5
+ExtrasPreview_Notes_Template = 0x0dad01e6
+ExtrasPreview_Notes_Image = 0x0dad09d7
+# Lock: the picture is drawn by the screen-lock service (Service_ScreenLock property 0x579e), the
+# caption is its property 0x579d, each in a template of its own.
+ExtrasMenu_Lock_Layout = 0x0dad01e8
+# Clocks: a live analog clock over a 4-bit overlay on the backdrop, the city and region strings and
+# the date line from the world-clock service.
+ExtrasMenu_Clocks_Layout = 0x0dad01f0
+ExtrasPreview_Clocks_Backdrop_Template = 0x0dad01f1
+ExtrasPreview_Clocks_Overlay_Image = 0x0dad048a
+ExtrasPreview_Clocks_Template = 0x0dad01f3
+ExtrasPreview_Clocks_City_Text = 0x0dad04d5
+ExtrasPreview_Clocks_Region_Text = 0x0dad04d6
+ExtrasPreview_Clocks_Date_Text = 0x0dad04d7
+ExtrasPreview_Clocks_Clock_View = 0x0dad04d8
+ExtrasPreview_Lock_Template = 0x0dad01e9
+ExtrasPreview_Lock_Caption_Template = 0x0dad01eb
+# The full-screen backdrop instance most Extras row layouts share, shown through its VLyt.
+ExtrasPreview_Background_Template = 0x0dad01d8
+ExtrasPreview_Background_View = 0x0dad04ce
+ExtrasPreview_Background_Image = 0x0dad012d
+ExtrasPreview_Background_Bindings = 0x0dad01d9
+# Main > Videos (TSilverMainMediaListCntlr_Videos): rows, the default layout and the Movies row
+# layout. Music and Videos rows share one pane template, a 119 x 119 picture with a caption and two
+# hidden detail lines; each row layout's VCvs rebinds the picture and caption.
+VideosMenu_Screen = 0x0dad0816
+VideosMenu_Items = 0x00000033
+VideosMenu_Movies_Item = 0x0dad0817
+VideosMenu_Rentals_Item = 0x0dad0818
+VideosMenu_TVShows_Item = 0x0dad0819
+VideosMenu_MusicVideos_Item = 0x0dad081a
+VideosMenu_VideoPlaylists_Item = 0x0dad081b
+VideosMenu_Settings_Item = 0x0dad081c
+VideosMenu_Layout = 0x0dad081d
+VideosMenu_Movies_Layout = 0x0dad0820
+MusicMenu_Layout = 0x0dad07d5
+MusicMenu_Songs_Layout = 0x0dad07dc
+MediaMenuPreview_Template = 0x0dad01b9
+MediaMenuPreview_Image_View = 0x0dad01ba
+MediaMenuPreview_Caption_Text = 0x0dad01bb
+MediaMenuPreview_Detail_Text = 0x0dad01bc
+MediaMenuPreview_Detail2_Text = 0x0dad01bd
+MediaMenuPreview_Bindings = 0x0dad01be
+# The Main menu's Radio row layout and its own pane template (Main rows do not share one): a radio
+# picture, the frequency text from the radio service and a small badge left of it.
+MainMenus_Main_Radio_Layout = 0x0dad0799
+MainMenuPreview_Radio_Template = 0x0dad079a
+MainMenuPreview_Radio_Image_View = 0x0dad0aa6
+MainMenuPreview_Radio_Image = 0x0dad0aa2
+MainMenuPreview_Radio_Frequency_Text = 0x0dad0aa7
+MainMenuPreview_Radio_Badge_View = 0x0dad0aa8
+MainMenuPreview_Radio_Badge_Image = 0x0dad0aa1
+# The artwork pane the kind-3 default layouts of Main, Music, Videos, Photos and Extras share: one
+# 'imgc' view bound by its VLyt to Service_MediaArtwork; Photos rebinds it through a VCvs.
+MenuPreview_Artwork_Template = 0x0dad01c1
+MenuPreview_Artwork_View = 0x0dad01c2
+MenuPreview_Artwork_Bindings = 0x0dad01c3
+PhotosMenu_Screen = 0x0dad0a3f
 MainMenu_Items = 0x0000001a
 MusicMenu_Items = 0x0000001b
 MainMenus_Main_Screen = 0x0dad076e
@@ -788,9 +906,19 @@ shared_style = 0x10
 
 [offsets.ViewDescriptor]
 frame = 0x0
+# Four edge constraints of three words, in the order left, top, bottom, right.
+left_offset = 0x0
+left_reference_view = 0x4
+left_anchor_mode = 0x8
 top_offset = 0xc
 top_reference_view = 0x10
 top_anchor_mode = 0x14
+bottom_offset = 0x18
+bottom_reference_view = 0x1c
+bottom_anchor_mode = 0x20
+right_offset = 0x24
+right_reference_view = 0x28
+right_anchor_mode = 0x2c
 id = 0x30
 type = 0x4c
 options_bytes = 0x5c
@@ -799,6 +927,16 @@ options_bytes = 0x5c
 source = 0x64
 font = 0x68
 color = 0x70
+
+# An 'imag' view's SORC id; its entry names the BMap (Service_String, the bitmap id).
+[offsets.ImageViewDescriptor]
+source = 0x74
+
+# An 'aclk' view: the SORC id naming the service and time property, and a style (2 = the
+# Stopwatch face, otherwise the World Clock face).
+[offsets.AnalogClockDescriptor]
+source = 0x5c
+style = 0x60
 
 # style selects the class (6, 8, 9) and is also stored as ProgressBar_marker_resource.
 [offsets.ProgressDescriptor]
