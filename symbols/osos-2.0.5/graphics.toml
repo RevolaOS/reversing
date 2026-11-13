@@ -92,6 +92,10 @@ BMapFormat_Indexed8 = 0x64
 BMapFormat_Indexed16 = 0x65
 BMapFormat_RGB565 = 0x565
 BMapFormat_BGRA8888 = 0x1888
+# Flag bit above the format value in Surface_format: the pixels are stored byte-swapped (the
+# colour converter reverses the bytes of each RGB565 or BGRA8888 pixel and the blitter picks the
+# swapped inner loop). Mask it off before comparing with the values above.
+BMapFormat_ByteSwapped = 0x2000
 
 [offsets.FontResource]
 family = 0x0

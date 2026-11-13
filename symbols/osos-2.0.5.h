@@ -2141,6 +2141,7 @@ extern void *MediaArtworkProvider;
 #define BMapFormat_Indexed16 0x65
 #define BMapFormat_RGB565 0x565
 #define BMapFormat_BGRA8888 0x1888
+#define BMapFormat_ByteSwapped 0x2000
 #define WheelController_Ready 0x1
 #define WheelController_Acknowledge 0x7
 #define WheelPacket_Mask 0xbc0000ff
