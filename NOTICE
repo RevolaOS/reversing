@@ -20,5 +20,9 @@ Third-party work included or built upon:
   BootROM DFU exploit, DFU protocol and payload assembler, ported from Go to
   Rust. GPL-2.0-or-later.
 - Cupertino Icons: settings glyphs. MIT.
+- Khronos OpenGL ES 1.1 and KHR platform headers
+  (https://github.com/KhronosGroup/OpenGL-Registry,
+  https://github.com/KhronosGroup/EGL-Registry): the GL headers of the app SDK.
+  MIT and Apache-2.0.
 
 Apple firmware is never included. Builds read it from the user's own IPSW.
