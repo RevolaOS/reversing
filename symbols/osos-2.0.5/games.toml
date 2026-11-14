@@ -51,7 +51,8 @@ GamesService_RequestSelectedGameLaunch = { at = 0x080f6708, c = "void GamesServi
 # 1..31, month 1..12 and the full year from the RTC in local time (checked in the emulator), or
 # 1 January of DateTime_DefaultYear when the RTC has never been set.
 # GetHostStatusValue reads App member +0x430 through vtable +0xd0 and negates values above 22;
-# its meaning is unverified. IsExternalPowerConnected is the check the sleep timer uses. GetPath
+# its meaning is unverified. IsExternalPowerConnected is the check the sleep timer uses; a USB host
+# counts (checked on hardware; the emulator answers 0). GetPath
 # and GetGameName copy into the caller's buffer and return the length, or -1 for a null buffer or
 # one that is too small; GetGameName with localized nonzero takes the manifest name for the
 # language GameSettings_LanguageTable maps the current preference to. GetGamesPlatformId is the
@@ -242,9 +243,10 @@ GameUser_SetName = { at = 0x082c1128, c = "void GameUser_SetName(struct GameUser
 # Preference_LanguageFirst as a 4-byte int. Both answer GameSettingsStatus_*.
 GameSettings_ReadMappedString = { at = 0x08073f5c, c = "int32_t GameSettings_ReadMappedString(int32_t preference, void *out_value, uint32_t *size, const void *table)" }
 GameSettings_ReadLanguageIndex = { at = 0x0807c04c, c = "int32_t GameSettings_ReadLanguageIndex(int32_t preference, void *out_value, uint32_t *size, const void *argument)" }
-# The GameBacklight record (GameBacklight_Get): what the game set, restored by GameBacklight_Teardown
-# at game end, which reapplies the level when dimmed and posts the record to the games service as
-# event 0x66000023 (App_StoreBrightness) when the game set a level.
+# The GameBacklight record (GameBacklight_Get): what the game set. GameBacklight_Teardown runs at
+# game end: it undoes dimming and, when the game set a level, posts the record to the games service
+# as event 0x66000023, whose handler App_StoreBrightness adopts that level as the user's brightness
+# setting; nothing restores the previous setting (checked on hardware).
 GameBacklight_Get = { at = 0x081b1894, c = "void *GameBacklight_Get(void)" }
 GameBacklight_Teardown = { at = 0x081b1998, c = "void GameBacklight_Teardown(void)" }
 GameBacklight_SetLevel = { at = 0x081b1928, c = "int GameBacklight_SetLevel(void *backlight, int percent)" }
