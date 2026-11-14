@@ -43,14 +43,18 @@ GamesService_RequestSelectedGameLaunch = { at = 0x080f6708, c = "void GamesServi
 
 # The import modules of GameAPI_FindModuleByName. Each block is one module's function table in
 # table order; the trailing comment gives the module and index the loader fills a stub from.
-# miscTBD: backlight, sleep, clock, paths and device identity. SetBacklightLevel takes 0..100 and
-# answers 0; SetBacklightEnabled answers 0 or 0xb when the PMU path is unavailable. SetBacklightDimmed
-# caps the level at 20 while dimmed. GetDateTime fills second, minute, hour, day, month, year.
+# miscTBD: backlight, sleep, clock, paths and device identity. The backlight calls work on the
+# GameBacklight record: SetBacklightLevel takes 0..GameBacklight_LevelMax and answers 0,
+# SetBacklightEnabled answers 0 or 0xb when the PMU path is unavailable, SetBacklightDimmed caps
+# the level at GameBacklight_DimmedLevel while dimmed. Sleep blocks the game task for milliseconds
+# (0 yields) through Scheduler_YieldOrDelay. GetDateTime fills second, minute, hour, day, month,
+# year from the RTC, or 1 January of DateTime_DefaultYear when the RTC has never been set.
 # GetHostStatusValue reads App member +0x430 through vtable +0xd0 and negates values above 22;
 # its meaning is unverified. IsExternalPowerConnected is the check the sleep timer uses. GetPath
-# and GetGameName copy into the caller's buffer and return the length, or -1 when it does not fit;
-# GetGameName with localized nonzero prefers the manifest name for the current language.
-# GetDeviceFamily maps the SysInfo board id: 0xb to 1, 0x14 to 2, 0x13 to 3, else 0.
+# and GetGameName copy into the caller's buffer and return the length, or -1 for a null buffer or
+# one that is too small; GetGameName with localized nonzero takes the manifest name for the
+# language GameSettings_LanguageTable maps the current preference to. GetGamesPlatformId is the
+# GamesPlatformID that SysInfo_BuildExtendedXml also reports (GamesPlatform_*).
 # IsModelCode1 is true when the SysInfo model code is 1.
 GameSystem_SetBacklightEnabled = { at = 0x082c0f90, c = "int GameSystem_SetBacklightEnabled(int enabled)" } # miscTBD 0
 GameSystem_SetBacklightLevel = { at = 0x082c0fa8, c = "int GameSystem_SetBacklightLevel(int percent)" } # miscTBD 1
@@ -62,7 +66,7 @@ GameSystem_GetHostStatusValue = { at = 0x082bdd28, c = "int GameSystem_GetHostSt
 GameSystem_IsExternalPowerConnected = { at = 0x082c0e24, c = "int GameSystem_IsExternalPowerConnected(void)" } # miscTBD 7
 GameSystem_GetPath = { at = 0x082bde10, c = "int GameSystem_GetPath(uint32_t directory_kind, char *out_path, int *size, const char *relative_path)" } # miscTBD 8
 GameSystem_GetGameName = { at = 0x082bdd4c, c = "int GameSystem_GetGameName(char *out_name, int capacity, int localized)" } # miscTBD 9
-GameSystem_GetDeviceFamily = { at = 0x082bdce0, c = "uint32_t GameSystem_GetDeviceFamily(void)" } # miscTBD 10
+GameSystem_GetGamesPlatformId = { at = 0x082bdce0, c = "uint32_t GameSystem_GetGamesPlatformId(void)" } # miscTBD 10
 GameSystem_IsModelCode1 = { at = 0x082bdf04, c = "int GameSystem_IsModelCode1(void)" } # miscTBD 11
 # A firmware helper, not a game-only entry: stores Clock_GetMicroseconds.
 Clock_ReadMicroseconds = { at = 0x0807bffc, c = "void Clock_ReadMicroseconds(uint32_t *out_microseconds)" } # miscTBD 12
@@ -231,9 +235,17 @@ GameUser_CopyDateA = { at = 0x082c10a8, c = "void GameUser_CopyDateA(void *out_d
 GameUser_CopyDateB = { at = 0x082c10d8, c = "void GameUser_CopyDateB(void *out_date, struct GameUser *user)" } # Users 7
 GameUser_GetId = { at = 0x082c1108, c = "uint16_t GameUser_GetId(struct GameUser *user)" } # Users 8
 GameUser_SetName = { at = 0x082c1128, c = "void GameUser_SetName(struct GameUser *user, const char *name)" } # Users 9
-# Bodies the module shims tail-call. GameSettings_ReadMappedString is the TimeFormat and Language
-# reader: argument is a table of { preference value, string, uint16 length } records, 0xc apart.
+# Bodies the module shims tail-call. GameSettings_ReadMappedString is the TimeFormat reader:
+# argument is GameSettings_TimeFormatTable, { preference value, string, uint16 length } records
+# 0xc apart; ReadLanguageIndex writes the current language preference minus
+# Preference_LanguageFirst as a 4-byte int. Both answer GameSettingsStatus_*.
 GameSettings_ReadMappedString = { at = 0x08073f5c, c = "int32_t GameSettings_ReadMappedString(int32_t preference, void *out_value, uint32_t *size, const void *table)" }
+GameSettings_ReadLanguageIndex = { at = 0x0807c04c, c = "int32_t GameSettings_ReadLanguageIndex(int32_t preference, void *out_value, uint32_t *size, const void *argument)" }
+# The GameBacklight record (GameBacklight_Get): what the game set, restored by GameBacklight_Teardown
+# at game end, which reapplies the level when dimmed and posts the record to the games service as
+# event 0x66000023 (App_StoreBrightness) when the game set a level.
+GameBacklight_Get = { at = 0x081b1894, c = "void *GameBacklight_Get(void)" }
+GameBacklight_Teardown = { at = 0x081b1998, c = "void GameBacklight_Teardown(void)" }
 GameBacklight_SetLevel = { at = 0x081b1928, c = "int GameBacklight_SetLevel(void *backlight, int percent)" }
 GameBacklight_SetDimmed = { at = 0x081b18ec, c = "void GameBacklight_SetDimmed(void *backlight, int dimmed)" }
 GameSaveTable_Close = { at = 0x0813eee0, c = "int GameSaveTable_Close(void *table, uint32_t slot)" }
@@ -306,6 +318,11 @@ GameAPI_ModuleRegistry = { at = 0x08a182e0, c = "const uint8_t GameAPI_ModuleReg
 GameImport_EndOfListName = { at = 0x089b10a0, c = "const char GameImport_EndOfListName[]" }
 # Three GameSetting records: TimeFormat (0x60a8), Language (0x6066) and HoldSwitch (0x60f6).
 GameSettings_Table = { at = 0x089d29a0, c = "const uint8_t GameSettings_Table[]" }
+# TimeFormat records { preference, string, uint16 length }: Preference_TimeFormat12 "12", Preference_TimeFormat24 "24".
+GameSettings_TimeFormatTable = { at = 0x089d297c, c = "const uint8_t GameSettings_TimeFormatTable[]" }
+# 25 records { language preference, locale string }, Preference_LanguageFirst (en_US) first.
+GameSettings_LanguageTable = { at = 0x089d2d24, c = "const uint8_t GameSettings_LanguageTable[]" }
+GameBacklight = { at = 0x089d2970, c = "uint8_t GameBacklight[]" }
 GameAPI_MiscTBD_Module = { at = 0x08a182e0, c = "const uint8_t GameAPI_MiscTBD_Module[]" }
 GameAPI_DebugUtil_Module = { at = 0x08a18358, c = "const uint8_t GameAPI_DebugUtil_Module[]" }
 GameAPI_MemoryAlloc_Module = { at = 0x08a183b0, c = "const uint8_t GameAPI_MemoryAlloc_Module[]" }
@@ -461,6 +478,19 @@ GamePlaybackOrder_Songs = 1
 GamePlaybackOrder_Albums = 2
 GameAudio_VolumeMax = 0xff
 GameSettings_Count = 3
+# GameSettings_GetValue and its readers.
+GameSettingsStatus_NoMapping = 0xffffffd2
+GameSettingsStatus_NoPreference = 0xffffffd1
+GameSettingsStatus_BufferTooSmall = 0xffffffd0
+GameSettingsStatus_NullBuffer = 0xffffffcf
+GameSettingsStatus_UnknownName = 0xffffffce
+# GameSystem_GetGamesPlatformId: SysInfo board id 0xb, 0x14 and 0x13. The names follow the
+# SysInfoExtended dumps of real devices (classic 3, nano 3G 2) and the 5G board id 0xb.
+GamesPlatform_IPodVideo = 1
+GamesPlatform_Nano3G = 2
+GamesPlatform_Classic = 3
+GameBacklight_LevelMax = 100
+GameBacklight_DimmedLevel = 20
 # GameDirectory_GetStatus and GameDirectory_ReadEntry when the list is healthy; otherwise a
 # FileStatus_* value.
 GameDirectoryStatus_More = 0
@@ -673,3 +703,9 @@ bytes = 0x20
 [offsets.GameSaveTable]
 slots = 0x0
 total_bytes = 0x90
+
+# The per-game backlight record: level -1 until the game sets one.
+[offsets.GameBacklight]
+level = 0x0
+dimmed = 0x4
+set = 0x5

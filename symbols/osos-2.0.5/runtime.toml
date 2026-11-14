@@ -46,6 +46,7 @@ NativePath_Destroy = { at = 0x0826fcf4, c = "struct NativePath *NativePath_Destr
 Thread_Create = { at = 0x0804b4f4 }
 Thread_GetCurrentRecord = { at = 0x0804b744, c = "void *Thread_GetCurrentRecord(void)" }
 # 0 yields the task; any other value sleeps it, in units not yet measured.
+# delay in milliseconds blocks the calling task; 0 yields once.
 Scheduler_YieldOrDelay = { at = 0x0804ba3c, c = "void Scheduler_YieldOrDelay(uint32_t delay)" }
 IRQ_Entry = { at = 0x22003080 }
 IRQ_Dispatch = { at = 0x22008150, c = "void *IRQ_Dispatch(uint32_t *frame)" }
@@ -68,6 +69,9 @@ FileHandle_IsOpen = { at = 0x0829be9c, c = "int FileHandle_IsOpen(void *handle)"
 FileHandle_Read = { at = 0x0826eecc, c = "int FileHandle_Read(void *handle, uint32_t byte_count, void *buffer, uint32_t *out_count, uint32_t flags)" }
 FileHandle_Write = { at = 0x0826f3b0, c = "int FileHandle_Write(void *handle, uint32_t byte_count, const void *buffer, uint32_t *out_count, uint32_t flags)" }
 File_StoreLegacyHandleSize = { at = 0x0806d198, c = "void File_StoreLegacyHandleSize(void *handle, uint32_t *out_bytes)" }
+Preferences_GetLanguage = { at = 0x0816748c, c = "uint32_t Preferences_GetLanguage(void)" }
+# Stores a brightness value in the App and the preference file; the games service calls it with the GameBacklight record.
+App_StoreBrightness = { at = 0x081069b0, c = "void App_StoreBrightness(void *app, int value)" }
 
 [sites]
 Preferences_LoadFile_call = { at = 0x08058808, kind = "call", in = "Preferences_LoadAndMigrate+0x14" }
@@ -155,6 +159,13 @@ Preference_Toggle = 0x60bf
 Preference_Clicker = 0x608c
 # Read and written as a menu index into EQ_PresetIds through the typed methods.
 Preference_EQMenuIndex = 0x6063
+Preference_Language = 0x6066
+# The 25 language preferences start here; GameSettings_LanguageTable maps them to locales.
+Preference_LanguageFirst = 0x6067
+Preference_TimeFormat12 = 0x60a9
+Preference_TimeFormat24 = 0x60aa
+# The year the RTC reader substitutes while the clock has never been set (1 January).
+DateTime_DefaultYear = 0x7d2
 PreferenceType_Uint32 = 0x55693332
 Clicker_Both = 0x608d
 Clicker_Off = 0x608e

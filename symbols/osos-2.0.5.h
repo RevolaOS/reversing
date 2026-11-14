@@ -85,7 +85,7 @@ int GameSystem_GetHostStatusValue(void);
 int GameSystem_IsExternalPowerConnected(void);
 int GameSystem_GetPath(uint32_t directory_kind, char *out_path, int *size, const char *relative_path);
 int GameSystem_GetGameName(char *out_name, int capacity, int localized);
-uint32_t GameSystem_GetDeviceFamily(void);
+uint32_t GameSystem_GetGamesPlatformId(void);
 int GameSystem_IsModelCode1(void);
 void Clock_ReadMicroseconds(uint32_t *out_microseconds);
 int GameDebug_OpenFile(uint32_t directory_kind, const char *relative_path, int read_only, void **out_handle);
@@ -218,6 +218,9 @@ void GameUser_CopyDateB(void *out_date, struct GameUser *user);
 uint16_t GameUser_GetId(struct GameUser *user);
 void GameUser_SetName(struct GameUser *user, const char *name);
 int32_t GameSettings_ReadMappedString(int32_t preference, void *out_value, uint32_t *size, const void *table);
+int32_t GameSettings_ReadLanguageIndex(int32_t preference, void *out_value, uint32_t *size, const void *argument);
+void *GameBacklight_Get(void);
+void GameBacklight_Teardown(void);
 int GameBacklight_SetLevel(void *backlight, int percent);
 void GameBacklight_SetDimmed(void *backlight, int dimmed);
 int GameSaveTable_Close(void *table, uint32_t slot);
@@ -558,6 +561,8 @@ int FileHandle_IsOpen(void *handle);
 int FileHandle_Read(void *handle, uint32_t byte_count, void *buffer, uint32_t *out_count, uint32_t flags);
 int FileHandle_Write(void *handle, uint32_t byte_count, const void *buffer, uint32_t *out_count, uint32_t flags);
 void File_StoreLegacyHandleSize(void *handle, uint32_t *out_bytes);
+uint32_t Preferences_GetLanguage(void);
+void App_StoreBrightness(void *app, int value);
 int Settings_HandleAction(void *controller, const char *action, uint32_t argument);
 void *SettingsModel_GetInstance(void);
 void SettingsModel_ToggleClicker(void *model);
@@ -765,6 +770,9 @@ extern const uint32_t DisplayBlendRegisters[];
 extern const uint8_t GameAPI_ModuleRegistry[];
 extern const char GameImport_EndOfListName[];
 extern const uint8_t GameSettings_Table[];
+extern const uint8_t GameSettings_TimeFormatTable[];
+extern const uint8_t GameSettings_LanguageTable[];
+extern uint8_t GameBacklight[];
 extern const uint8_t GameAPI_MiscTBD_Module[];
 extern const uint8_t GameAPI_DebugUtil_Module[];
 extern const uint8_t GameAPI_MemoryAlloc_Module[];
@@ -924,7 +932,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameSystem_IsExternalPowerConnected 0x082c0e24
 #define ADDR_GameSystem_GetPath 0x082bde10
 #define ADDR_GameSystem_GetGameName 0x082bdd4c
-#define ADDR_GameSystem_GetDeviceFamily 0x082bdce0
+#define ADDR_GameSystem_GetGamesPlatformId 0x082bdce0
 #define ADDR_GameSystem_IsModelCode1 0x082bdf04
 #define ADDR_Clock_ReadMicroseconds 0x0807bffc
 #define ADDR_GameDebug_OpenFile 0x082bdaf8
@@ -1057,6 +1065,9 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameUser_GetId 0x082c1108
 #define ADDR_GameUser_SetName 0x082c1128
 #define ADDR_GameSettings_ReadMappedString 0x08073f5c
+#define ADDR_GameSettings_ReadLanguageIndex 0x0807c04c
+#define ADDR_GameBacklight_Get 0x081b1894
+#define ADDR_GameBacklight_Teardown 0x081b1998
 #define ADDR_GameBacklight_SetLevel 0x081b1928
 #define ADDR_GameBacklight_SetDimmed 0x081b18ec
 #define ADDR_GameSaveTable_Close 0x0813eee0
@@ -1433,6 +1444,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_FileHandle_Read 0x0826eecc
 #define ADDR_FileHandle_Write 0x0826f3b0
 #define ADDR_File_StoreLegacyHandleSize 0x0806d198
+#define ADDR_Preferences_GetLanguage 0x0816748c
+#define ADDR_App_StoreBrightness 0x081069b0
 #define ADDR_Settings_HandleAction 0x0821daf4
 #define ADDR_Settings_CollectPropertyResources 0x08295174
 #define ADDR_SettingsModel_GetInstance 0x081e0ff4
@@ -1687,6 +1700,9 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameAPI_ModuleRegistry 0x08a182e0
 #define ADDR_GameImport_EndOfListName 0x089b10a0
 #define ADDR_GameSettings_Table 0x089d29a0
+#define ADDR_GameSettings_TimeFormatTable 0x089d297c
+#define ADDR_GameSettings_LanguageTable 0x089d2d24
+#define ADDR_GameBacklight 0x089d2970
 #define ADDR_GameAPI_MiscTBD_Module 0x08a182e0
 #define ADDR_GameAPI_DebugUtil_Module 0x08a18358
 #define ADDR_GameAPI_MemoryAlloc_Module 0x08a183b0
@@ -2229,6 +2245,9 @@ extern void *MediaArtworkProvider;
 #define GameFileQueueEntry_bytes 0x20
 #define GameSaveTable_slots 0x0
 #define GameSaveTable_total_bytes 0x90
+#define GameBacklight_level 0x0
+#define GameBacklight_dimmed 0x4
+#define GameBacklight_set 0x5
 #define BitmapCache_service 0x0
 #define BitmapCache_resource_id 0x4
 #define BitmapCache_loaded 0x8
@@ -3030,6 +3049,16 @@ extern void *MediaArtworkProvider;
 #define GamePlaybackOrder_Albums 0x2
 #define GameAudio_VolumeMax 0xff
 #define GameSettings_Count 0x3
+#define GameSettingsStatus_NoMapping 0xffffffd2
+#define GameSettingsStatus_NoPreference 0xffffffd1
+#define GameSettingsStatus_BufferTooSmall 0xffffffd0
+#define GameSettingsStatus_NullBuffer 0xffffffcf
+#define GameSettingsStatus_UnknownName 0xffffffce
+#define GamesPlatform_IPodVideo 0x1
+#define GamesPlatform_Nano3G 0x2
+#define GamesPlatform_Classic 0x3
+#define GameBacklight_LevelMax 0x64
+#define GameBacklight_DimmedLevel 0x14
 #define GameDirectoryStatus_More 0x0
 #define GameDirectoryStatus_Last 0x1
 #define GameSaveStatus_EndOfData 0x5
@@ -3246,6 +3275,11 @@ extern void *MediaArtworkProvider;
 #define Preference_Toggle 0x60bf
 #define Preference_Clicker 0x608c
 #define Preference_EQMenuIndex 0x6063
+#define Preference_Language 0x6066
+#define Preference_LanguageFirst 0x6067
+#define Preference_TimeFormat12 0x60a9
+#define Preference_TimeFormat24 0x60aa
+#define DateTime_DefaultYear 0x7d2
 #define PreferenceType_Uint32 0x55693332
 #define Clicker_Both 0x608d
 #define Clicker_Off 0x608e
