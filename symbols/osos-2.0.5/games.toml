@@ -13,8 +13,6 @@ GameMemory_Free = { at = 0x082bdcb8, c = "void GameMemory_Free(void *block)" } #
 # out_flags: low byte is the wheel position (right 0, up 64), WheelTouch_Down when touched.
 GameInput_ReadWheel = { at = 0x082bda94, c = "void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags)" } # InputEvents 0
 GameSettings_GetValue = { at = 0x082bdf20, c = "int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size)" } # Settings 0
-GameGraphics_GetCurrentSurface = { at = 0x082c19fc, c = "void *GameGraphics_GetCurrentSurface(uint32_t selector)" } # OpenGLES 160
-GameGraphics_SwapBuffers = { at = 0x082c1b80, c = "int GameGraphics_SwapBuffers(void *display, void *surface)" } # OpenGLES 165
 # The runtime task. Frame callbacks get the runtime as the input and runtime + GameRuntime_frame_output.
 GameRuntime_RequestLaunch = { at = 0x0828c3e4, c = "int GameRuntime_RequestLaunch(void *runtime, struct NativeString *identifier, uint8_t storage, uint32_t notification)" }
 GameRuntime_LoadManifestAndLaunch = { at = 0x0828d2a0, c = "int GameRuntime_LoadManifestAndLaunch(void *runtime)" }
@@ -156,6 +154,191 @@ GameSound_GetLeadInMilliseconds = { at = 0x082c0790, c = "uint32_t GameSound_Get
 GameSound_GetVoicePosition = { at = 0x082c0508, c = "uint32_t GameSound_GetVoicePosition(int sound)" } # SoundEffect 39
 GameSound_GetNext = { at = 0x082c068c, c = "int GameSound_GetNext(int sound)" } # SoundEffect 40
 GameSound_IsPlaying = { at = 0x082c082c, c = "int GameSound_IsPlaying(int sound)" } # SoundEffect 41
+# OpenGLES: Apple's software OpenGL ES-CM 1.1 (GL_RENDERER "Software", vendor Hans-Martin Will, the
+# Vincent rasteriser) and an EGL 1.1 whose eglQueryString version is "1.1.0 APPLE Software JIT". The
+# GL entries follow the Khronos Common-Lite gl.h order with each float variant inserted next to its
+# fixed twin (hence GetTexEnv iv, fv, xv; TexParameter i, f, x; ClipPlane x before f), without
+# glColor4ub, glTexEnvi, glTexEnviv, glTexParameterfv, glTexParameteriv and glTexParameterxv.
+# glCompressedTexSubImage2D and glGetTexParameterfv/xv only raise an error. glTexEnvx passes its
+# scale values through unconverted, which fits the fixed variant; glTexParameteri and
+# glTexParameterx share one body shape, so that split follows the table order. Each entry fetches
+# the current context (eglGetCurrentContext) and does nothing without one. The EGL entries follow
+# the egl.h 1.1 order: eglSurfaceAttrib, eglBindTexImage, eglReleaseTexImage and eglSwapInterval
+# answer EGL_FALSE, eglGetCurrentDisplay answers 0, eglGetDisplay returns its argument,
+# eglInitialize reports 1.0, eglChooseConfig picks from eight configs, eglCopyBuffers returns
+# EGL_BAD_NATIVE_PIXMAP for a null target instead of setting the error. The last two GL entries
+# carry the names EGL_ProcedureTable gives them. EGL_StoreSurfaceWord sits where egl.h puts
+# eglGetProcAddress but stores its second argument at surface +0xa4; its purpose is unverified.
+glActiveTexture = { at = 0x082c767c, c = "void glActiveTexture(uint32_t texture)" } # OpenGLES 0
+glAlphaFunc = { at = 0x082c769c, c = "void glAlphaFunc(uint32_t func, float ref)" } # OpenGLES 1
+glAlphaFuncx = { at = 0x082c76c4, c = "void glAlphaFuncx(uint32_t func, int32_t ref)" } # OpenGLES 2
+glBindBuffer = { at = 0x082c76ec, c = "void glBindBuffer(uint32_t target, uint32_t buffer)" } # OpenGLES 3
+glBindTexture = { at = 0x082c7714, c = "void glBindTexture(uint32_t target, uint32_t texture)" } # OpenGLES 4
+glBlendFunc = { at = 0x082c773c, c = "void glBlendFunc(uint32_t sfactor, uint32_t dfactor)" } # OpenGLES 5
+glBufferData = { at = 0x082c7764, c = "void glBufferData(uint32_t target, int32_t size, const void *data, uint32_t usage)" } # OpenGLES 6
+glBufferSubData = { at = 0x082c7798, c = "void glBufferSubData(uint32_t target, int32_t offset, int32_t size, const void *data)" } # OpenGLES 7
+glClear = { at = 0x082c77cc, c = "void glClear(uint32_t mask)" } # OpenGLES 8
+glClearColor = { at = 0x082c77ec, c = "void glClearColor(float red, float green, float blue, float alpha)" } # OpenGLES 9
+glClearColorx = { at = 0x082c7820, c = "void glClearColorx(int32_t red, int32_t green, int32_t blue, int32_t alpha)" } # OpenGLES 10
+glClearDepthf = { at = 0x082c7854, c = "void glClearDepthf(float depth)" } # OpenGLES 11
+glClearDepthx = { at = 0x082c7874, c = "void glClearDepthx(int32_t depth)" } # OpenGLES 12
+glClearStencil = { at = 0x082c7894, c = "void glClearStencil(int32_t s)" } # OpenGLES 13
+glClientActiveTexture = { at = 0x082c78b4, c = "void glClientActiveTexture(uint32_t texture)" } # OpenGLES 14
+glClipPlanex = { at = 0x082c78fc, c = "void glClipPlanex(uint32_t plane, const int32_t *equation)" } # OpenGLES 15
+glClipPlanef = { at = 0x082c78d4, c = "void glClipPlanef(uint32_t plane, const float *equation)" } # OpenGLES 16
+glColor4f = { at = 0x082c7924, c = "void glColor4f(float red, float green, float blue, float alpha)" } # OpenGLES 17
+glColor4x = { at = 0x082c7958, c = "void glColor4x(int32_t red, int32_t green, int32_t blue, int32_t alpha)" } # OpenGLES 18
+glColorMask = { at = 0x082c798c, c = "void glColorMask(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)" } # OpenGLES 19
+glColorPointer = { at = 0x082c79c0, c = "void glColorPointer(int32_t size, uint32_t type, int32_t stride, const void *pointer)" } # OpenGLES 20
+glCompressedTexImage2D = { at = 0x082c79f4, c = "void glCompressedTexImage2D(uint32_t target, int32_t level, uint32_t internalformat, int32_t width, int32_t height, int32_t border, int32_t image_size, const void *data)" } # OpenGLES 21
+glCompressedTexSubImage2D = { at = 0x082c7a40, c = "void glCompressedTexSubImage2D(uint32_t target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t width, int32_t height, uint32_t format, int32_t image_size, const void *data)" } # OpenGLES 22
+glCopyTexImage2D = { at = 0x082c7a88, c = "void glCopyTexImage2D(uint32_t target, int32_t level, uint32_t internalformat, int32_t x, int32_t y, int32_t width, int32_t height, int32_t border)" } # OpenGLES 23
+glCopyTexSubImage2D = { at = 0x082c7ad4, c = "void glCopyTexSubImage2D(uint32_t target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, int32_t width, int32_t height)" } # OpenGLES 24
+glCullFace = { at = 0x082c7b20, c = "void glCullFace(uint32_t mode)" } # OpenGLES 25
+glDeleteBuffers = { at = 0x082c7b40, c = "void glDeleteBuffers(int32_t n, const uint32_t *buffers)" } # OpenGLES 26
+glDeleteTextures = { at = 0x082c7b68, c = "void glDeleteTextures(int32_t n, const uint32_t *textures)" } # OpenGLES 27
+glDepthFunc = { at = 0x082c7b90, c = "void glDepthFunc(uint32_t func)" } # OpenGLES 28
+glDepthMask = { at = 0x082c7bb0, c = "void glDepthMask(uint8_t flag)" } # OpenGLES 29
+glDepthRangef = { at = 0x082c7bd0, c = "void glDepthRangef(float near, float far)" } # OpenGLES 30
+glDepthRangex = { at = 0x082c7bf8, c = "void glDepthRangex(int32_t near, int32_t far)" } # OpenGLES 31
+glDisable = { at = 0x082c7c20, c = "void glDisable(uint32_t cap)" } # OpenGLES 32
+glDisableClientState = { at = 0x082c7c40, c = "void glDisableClientState(uint32_t array)" } # OpenGLES 33
+glDrawArrays = { at = 0x082c7c60, c = "void glDrawArrays(uint32_t mode, int32_t first, int32_t count)" } # OpenGLES 34
+glDrawElements = { at = 0x082c7c90, c = "void glDrawElements(uint32_t mode, int32_t count, uint32_t type, const void *indices)" } # OpenGLES 35
+glEnable = { at = 0x082c7cc4, c = "void glEnable(uint32_t cap)" } # OpenGLES 36
+glEnableClientState = { at = 0x082c7ce4, c = "void glEnableClientState(uint32_t array)" } # OpenGLES 37
+glFinish = { at = 0x082c7d04, c = "void glFinish(void)" } # OpenGLES 38
+glFlush = { at = 0x082c7d1c, c = "void glFlush(void)" } # OpenGLES 39
+glFogf = { at = 0x082c7d34, c = "void glFogf(uint32_t pname, float param)" } # OpenGLES 40
+glFogfv = { at = 0x082c7d5c, c = "void glFogfv(uint32_t pname, const float *params)" } # OpenGLES 41
+glFogx = { at = 0x082c7d84, c = "void glFogx(uint32_t pname, int32_t param)" } # OpenGLES 42
+glFogxv = { at = 0x082c7dac, c = "void glFogxv(uint32_t pname, const int32_t *params)" } # OpenGLES 43
+glFrontFace = { at = 0x082c7dd4, c = "void glFrontFace(uint32_t mode)" } # OpenGLES 44
+glFrustumf = { at = 0x082c7df4, c = "void glFrustumf(float left, float right, float bottom, float top, float near, float far)" } # OpenGLES 45
+glFrustumx = { at = 0x082c7e30, c = "void glFrustumx(int32_t left, int32_t right, int32_t bottom, int32_t top, int32_t near, int32_t far)" } # OpenGLES 46
+glGetBooleanv = { at = 0x082c7ebc, c = "void glGetBooleanv(uint32_t pname, uint8_t *params)" } # OpenGLES 47
+glGetBufferParameteriv = { at = 0x082c7ee4, c = "void glGetBufferParameteriv(uint32_t target, uint32_t pname, int32_t *params)" } # OpenGLES 48
+glGetClipPlanef = { at = 0x082c7f34, c = "void glGetClipPlanef(uint32_t plane, float *equation)" } # OpenGLES 49
+glGetClipPlanex = { at = 0x082c7f5c, c = "void glGetClipPlanex(uint32_t plane, int32_t *equation)" } # OpenGLES 50
+glGenBuffers = { at = 0x082c7e6c, c = "void glGenBuffers(int32_t n, uint32_t *buffers)" } # OpenGLES 51
+glGenTextures = { at = 0x082c7e94, c = "void glGenTextures(int32_t n, uint32_t *textures)" } # OpenGLES 52
+glGetError = { at = 0x082c7f84, c = "uint32_t glGetError(void)" } # OpenGLES 53
+glGetFixedv = { at = 0x082c7f9c, c = "void glGetFixedv(uint32_t pname, int32_t *params)" } # OpenGLES 54
+glGetFloatv = { at = 0x082c7fc4, c = "void glGetFloatv(uint32_t pname, float *params)" } # OpenGLES 55
+glGetIntegerv = { at = 0x082c7fec, c = "void glGetIntegerv(uint32_t pname, int32_t *params)" } # OpenGLES 56
+glGetLightfv = { at = 0x082c8014, c = "void glGetLightfv(uint32_t light, uint32_t pname, float *params)" } # OpenGLES 57
+glGetLightxv = { at = 0x082c8044, c = "void glGetLightxv(uint32_t light, uint32_t pname, int32_t *params)" } # OpenGLES 58
+glGetMaterialfv = { at = 0x082c8074, c = "void glGetMaterialfv(uint32_t face, uint32_t pname, float *params)" } # OpenGLES 59
+glGetMaterialxv = { at = 0x082c80a4, c = "void glGetMaterialxv(uint32_t face, uint32_t pname, int32_t *params)" } # OpenGLES 60
+glGetPointerv = { at = 0x082c80d4, c = "void glGetPointerv(uint32_t pname, void **params)" } # OpenGLES 61
+glGetString = { at = 0x082c80fc, c = "const uint8_t *glGetString(uint32_t name)" } # OpenGLES 62
+glGetTexEnviv = { at = 0x082c814c, c = "void glGetTexEnviv(uint32_t env, uint32_t pname, int32_t *params)" } # OpenGLES 63
+glGetTexEnvfv = { at = 0x082c811c, c = "void glGetTexEnvfv(uint32_t env, uint32_t pname, float *params)" } # OpenGLES 64
+glGetTexEnvxv = { at = 0x082c817c, c = "void glGetTexEnvxv(uint32_t env, uint32_t pname, int32_t *params)" } # OpenGLES 65
+glGetTexParameteriv = { at = 0x082c81dc, c = "void glGetTexParameteriv(uint32_t target, uint32_t pname, int32_t *params)" } # OpenGLES 66
+glGetTexParameterfv = { at = 0x082c81ac, c = "void glGetTexParameterfv(uint32_t target, uint32_t pname, float *params)" } # OpenGLES 67
+glGetTexParameterxv = { at = 0x082c820c, c = "void glGetTexParameterxv(uint32_t target, uint32_t pname, int32_t *params)" } # OpenGLES 68
+glHint = { at = 0x082c823c, c = "void glHint(uint32_t target, uint32_t mode)" } # OpenGLES 69
+glIsBuffer = { at = 0x082c8264, c = "uint8_t glIsBuffer(uint32_t buffer)" } # OpenGLES 70
+glIsEnabled = { at = 0x082c8284, c = "uint8_t glIsEnabled(uint32_t cap)" } # OpenGLES 71
+glIsTexture = { at = 0x082c82a4, c = "uint8_t glIsTexture(uint32_t texture)" } # OpenGLES 72
+glLightModelf = { at = 0x082c82c4, c = "void glLightModelf(uint32_t pname, float param)" } # OpenGLES 73
+glLightModelfv = { at = 0x082c82ec, c = "void glLightModelfv(uint32_t pname, const float *params)" } # OpenGLES 74
+glLightModelx = { at = 0x082c8314, c = "void glLightModelx(uint32_t pname, int32_t param)" } # OpenGLES 75
+glLightModelxv = { at = 0x082c833c, c = "void glLightModelxv(uint32_t pname, const int32_t *params)" } # OpenGLES 76
+glLightf = { at = 0x082c8364, c = "void glLightf(uint32_t light, uint32_t pname, float param)" } # OpenGLES 77
+glLightfv = { at = 0x082c8394, c = "void glLightfv(uint32_t light, uint32_t pname, const float *params)" } # OpenGLES 78
+glLightx = { at = 0x082c83c4, c = "void glLightx(uint32_t light, uint32_t pname, int32_t param)" } # OpenGLES 79
+glLightxv = { at = 0x082c83f4, c = "void glLightxv(uint32_t light, uint32_t pname, const int32_t *params)" } # OpenGLES 80
+glLineWidth = { at = 0x082c8424, c = "void glLineWidth(float width)" } # OpenGLES 81
+glLineWidthx = { at = 0x082c8444, c = "void glLineWidthx(int32_t width)" } # OpenGLES 82
+glLoadIdentity = { at = 0x082c8464, c = "void glLoadIdentity(void)" } # OpenGLES 83
+glLoadMatrixf = { at = 0x082c847c, c = "void glLoadMatrixf(const float *m)" } # OpenGLES 84
+glLoadMatrixx = { at = 0x082c849c, c = "void glLoadMatrixx(const int32_t *m)" } # OpenGLES 85
+glLogicOp = { at = 0x082c84bc, c = "void glLogicOp(uint32_t opcode)" } # OpenGLES 86
+glMaterialf = { at = 0x082c84dc, c = "void glMaterialf(uint32_t face, uint32_t pname, float param)" } # OpenGLES 87
+glMaterialfv = { at = 0x082c850c, c = "void glMaterialfv(uint32_t face, uint32_t pname, const float *params)" } # OpenGLES 88
+glMaterialx = { at = 0x082c853c, c = "void glMaterialx(uint32_t face, uint32_t pname, int32_t param)" } # OpenGLES 89
+glMaterialxv = { at = 0x082c856c, c = "void glMaterialxv(uint32_t face, uint32_t pname, const int32_t *params)" } # OpenGLES 90
+glMatrixMode = { at = 0x082c859c, c = "void glMatrixMode(uint32_t mode)" } # OpenGLES 91
+glMultMatrixf = { at = 0x082c85bc, c = "void glMultMatrixf(const float *m)" } # OpenGLES 92
+glMultMatrixx = { at = 0x082c85dc, c = "void glMultMatrixx(const int32_t *m)" } # OpenGLES 93
+glMultiTexCoord4f = { at = 0x082c85fc, c = "void glMultiTexCoord4f(uint32_t target, float s, float t, float r, float q)" } # OpenGLES 94
+glMultiTexCoord4x = { at = 0x082c8638, c = "void glMultiTexCoord4x(uint32_t target, int32_t s, int32_t t, int32_t r, int32_t q)" } # OpenGLES 95
+glNormal3f = { at = 0x082c8674, c = "void glNormal3f(float nx, float ny, float nz)" } # OpenGLES 96
+glNormal3x = { at = 0x082c86a4, c = "void glNormal3x(int32_t nx, int32_t ny, int32_t nz)" } # OpenGLES 97
+glNormalPointer = { at = 0x082c86d4, c = "void glNormalPointer(uint32_t type, int32_t stride, const void *pointer)" } # OpenGLES 98
+glOrthof = { at = 0x082c8704, c = "void glOrthof(float left, float right, float bottom, float top, float near, float far)" } # OpenGLES 99
+glOrthox = { at = 0x082c8740, c = "void glOrthox(int32_t left, int32_t right, int32_t bottom, int32_t top, int32_t near, int32_t far)" } # OpenGLES 100
+glPixelStorei = { at = 0x082c877c, c = "void glPixelStorei(uint32_t pname, int32_t param)" } # OpenGLES 101
+glPointParameterf = { at = 0x082c87a4, c = "void glPointParameterf(uint32_t pname, float param)" } # OpenGLES 102
+glPointParameterfv = { at = 0x082c87cc, c = "void glPointParameterfv(uint32_t pname, const float *params)" } # OpenGLES 103
+glPointParameterx = { at = 0x082c87f4, c = "void glPointParameterx(uint32_t pname, int32_t param)" } # OpenGLES 104
+glPointParameterxv = { at = 0x082c881c, c = "void glPointParameterxv(uint32_t pname, const int32_t *params)" } # OpenGLES 105
+glPointSize = { at = 0x082c8844, c = "void glPointSize(float size)" } # OpenGLES 106
+glPointSizex = { at = 0x082c8894, c = "void glPointSizex(int32_t size)" } # OpenGLES 107
+glPolygonOffset = { at = 0x082c88b4, c = "void glPolygonOffset(float factor, float units)" } # OpenGLES 108
+glPolygonOffsetx = { at = 0x082c88dc, c = "void glPolygonOffsetx(int32_t factor, int32_t units)" } # OpenGLES 109
+glPopMatrix = { at = 0x082c8904, c = "void glPopMatrix(void)" } # OpenGLES 110
+glPushMatrix = { at = 0x082c891c, c = "void glPushMatrix(void)" } # OpenGLES 111
+glReadPixels = { at = 0x082c895c, c = "void glReadPixels(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t format, uint32_t type, void *pixels)" } # OpenGLES 112
+glRotatef = { at = 0x082c89c8, c = "void glRotatef(float angle, float x, float y, float z)" } # OpenGLES 113
+glRotatex = { at = 0x082c89fc, c = "void glRotatex(int32_t angle, int32_t x, int32_t y, int32_t z)" } # OpenGLES 114
+glSampleCoverage = { at = 0x082c8a30, c = "void glSampleCoverage(float value, uint8_t invert)" } # OpenGLES 115
+glSampleCoveragex = { at = 0x082c8a58, c = "void glSampleCoveragex(int32_t value, uint8_t invert)" } # OpenGLES 116
+glScalef = { at = 0x082c8a80, c = "void glScalef(float x, float y, float z)" } # OpenGLES 117
+glScalex = { at = 0x082c8ab0, c = "void glScalex(int32_t x, int32_t y, int32_t z)" } # OpenGLES 118
+glScissor = { at = 0x082c8ae0, c = "void glScissor(int32_t x, int32_t y, int32_t width, int32_t height)" } # OpenGLES 119
+glShadeModel = { at = 0x082c8b3c, c = "void glShadeModel(uint32_t mode)" } # OpenGLES 120
+glStencilFunc = { at = 0x082c8b5c, c = "void glStencilFunc(uint32_t func, int32_t ref, uint32_t mask)" } # OpenGLES 121
+glStencilMask = { at = 0x082c8b8c, c = "void glStencilMask(uint32_t mask)" } # OpenGLES 122
+glStencilOp = { at = 0x082c8bac, c = "void glStencilOp(uint32_t fail, uint32_t zfail, uint32_t zpass)" } # OpenGLES 123
+glTexCoordPointer = { at = 0x082c8bdc, c = "void glTexCoordPointer(int32_t size, uint32_t type, int32_t stride, const void *pointer)" } # OpenGLES 124
+glTexEnvf = { at = 0x082c8c10, c = "void glTexEnvf(uint32_t target, uint32_t pname, float param)" } # OpenGLES 125
+glTexEnvfv = { at = 0x082c8c40, c = "void glTexEnvfv(uint32_t target, uint32_t pname, const float *params)" } # OpenGLES 126
+glTexEnvx = { at = 0x082c8c70, c = "void glTexEnvx(uint32_t target, uint32_t pname, int32_t param)" } # OpenGLES 127
+glTexEnvxv = { at = 0x082c8ca0, c = "void glTexEnvxv(uint32_t target, uint32_t pname, const int32_t *params)" } # OpenGLES 128
+glTexImage2D = { at = 0x082c8cd0, c = "void glTexImage2D(uint32_t target, int32_t level, int32_t internalformat, int32_t width, int32_t height, int32_t border, uint32_t format, uint32_t type, const void *pixels)" } # OpenGLES 129
+glTexParameteri = { at = 0x082c8d48, c = "void glTexParameteri(uint32_t target, uint32_t pname, int32_t param)" } # OpenGLES 130
+glTexParameterf = { at = 0x082c8d18, c = "void glTexParameterf(uint32_t target, uint32_t pname, float param)" } # OpenGLES 131
+glTexParameterx = { at = 0x082c8d78, c = "void glTexParameterx(uint32_t target, uint32_t pname, int32_t param)" } # OpenGLES 132
+glTexSubImage2D = { at = 0x082c8da8, c = "void glTexSubImage2D(uint32_t target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t width, int32_t height, uint32_t format, uint32_t type, const void *pixels)" } # OpenGLES 133
+glTranslatef = { at = 0x082c8df0, c = "void glTranslatef(float x, float y, float z)" } # OpenGLES 134
+glTranslatex = { at = 0x082c8e20, c = "void glTranslatex(int32_t x, int32_t y, int32_t z)" } # OpenGLES 135
+glVertexPointer = { at = 0x082c8e70, c = "void glVertexPointer(int32_t size, uint32_t type, int32_t stride, const void *pointer)" } # OpenGLES 136
+glViewport = { at = 0x082c8ea4, c = "void glViewport(int32_t x, int32_t y, int32_t width, int32_t height)" } # OpenGLES 137
+glQueryMatrixxOES = { at = 0x082c8934, c = "uint32_t glQueryMatrixxOES(int32_t *mantissa, int32_t *exponent)" } # OpenGLES 138
+eglGetError = { at = 0x082c1a3c, c = "uint32_t eglGetError(void)" } # OpenGLES 139
+eglGetDisplay = { at = 0x082c1a38, c = "void *eglGetDisplay(void *display_id)" } # OpenGLES 140
+eglInitialize = { at = 0x082c1a4c, c = "uint32_t eglInitialize(void *display, int32_t *major, int32_t *minor)" } # OpenGLES 141
+eglTerminate = { at = 0x082c1ba8, c = "uint32_t eglTerminate(void *display)" } # OpenGLES 142
+eglQueryString = { at = 0x082c1ad0, c = "const char *eglQueryString(void *display, int32_t name)" } # OpenGLES 143
+eglGetConfigs = { at = 0x082c19e0, c = "uint32_t eglGetConfigs(void *display, void **configs, int32_t config_size, int32_t *num_config)" } # OpenGLES 144
+eglChooseConfig = { at = 0x082c17b0, c = "uint32_t eglChooseConfig(void *display, const int32_t *attrib_list, void **configs, int32_t config_size, int32_t *num_config)" } # OpenGLES 145
+eglGetConfigAttrib = { at = 0x082c19c0, c = "uint32_t eglGetConfigAttrib(void *display, void *config, int32_t attribute, int32_t *value)" } # OpenGLES 146
+eglCreateWindowSurface = { at = 0x082c18f4, c = "void *eglCreateWindowSurface(void *display, void *config, const struct EGLNativeWindow *window, const int32_t *attrib_list)" } # OpenGLES 147
+eglCreatePixmapSurface = { at = 0x082c1850, c = "void *eglCreatePixmapSurface(void *display, void *config, const struct EGLNativeWindow *pixmap, const int32_t *attrib_list)" } # OpenGLES 148
+eglCreatePbufferSurface = { at = 0x082c1808, c = "void *eglCreatePbufferSurface(void *display, void *config, const int32_t *attrib_list)" } # OpenGLES 149
+eglDestroySurface = { at = 0x082c19ac, c = "uint32_t eglDestroySurface(void *display, void *surface)" } # OpenGLES 150
+eglQuerySurface = { at = 0x082c1b4c, c = "uint32_t eglQuerySurface(void *display, void *surface, int32_t attribute, int32_t *value)" } # OpenGLES 151
+eglSurfaceAttrib = { at = 0x082c1b78, c = "uint32_t eglSurfaceAttrib(void *display, void *surface, int32_t attribute, int32_t value)" } # OpenGLES 152
+eglBindTexImage = { at = 0x082c17a8, c = "uint32_t eglBindTexImage(void *display, void *surface, int32_t buffer)" } # OpenGLES 153
+eglReleaseTexImage = { at = 0x082c1b6c, c = "uint32_t eglReleaseTexImage(void *display, void *surface, int32_t buffer)" } # OpenGLES 154
+eglSwapInterval = { at = 0x082c1ba0, c = "uint32_t eglSwapInterval(void *display, int32_t interval)" } # OpenGLES 155
+eglCreateContext = { at = 0x082c17e8, c = "void *eglCreateContext(void *display, void *config, void *share_context, const int32_t *attrib_list)" } # OpenGLES 156
+eglDestroyContext = { at = 0x082c1998, c = "uint32_t eglDestroyContext(void *display, void *context)" } # OpenGLES 157
+eglMakeCurrent = { at = 0x082c1a6c, c = "uint32_t eglMakeCurrent(void *display, void *draw, void *read, void *context)" } # OpenGLES 158
+eglGetCurrentContext = { at = 0x082c19f0, c = "void *eglGetCurrentContext(void)" } # OpenGLES 159
+eglGetCurrentSurface = { at = 0x082c19fc, c = "void *eglGetCurrentSurface(int32_t readdraw)" } # OpenGLES 160
+eglGetCurrentDisplay = { at = 0x082c19f4, c = "void *eglGetCurrentDisplay(void)" } # OpenGLES 161
+eglQueryContext = { at = 0x082c1aac, c = "uint32_t eglQueryContext(void *display, void *context, int32_t attribute, int32_t *value)" } # OpenGLES 162
+eglWaitGL = { at = 0x082c1bb0, c = "uint32_t eglWaitGL(void)" } # OpenGLES 163
+eglWaitNative = { at = 0x082c1bb8, c = "uint32_t eglWaitNative(int32_t engine)" } # OpenGLES 164
+eglSwapBuffers = { at = 0x082c1b80, c = "uint32_t eglSwapBuffers(void *display, void *surface)" } # OpenGLES 165
+eglCopyBuffers = { at = 0x082c17c4, c = "uint32_t eglCopyBuffers(void *display, void *surface, void *target)" } # OpenGLES 166
+EGL_StoreSurfaceWord = { at = 0x082c1b74, c = "void EGL_StoreSurfaceWord(void *surface, uint32_t value)" } # OpenGLES 167
+glRegisterBinaryShaderAPPLE = { at = 0x082c89a0, c = "void glRegisterBinaryShaderAPPLE(uint32_t kind, const void *shader)" } # OpenGLES 168
+glUnregisterBinaryShaderAPPLE = { at = 0x082c8e50, c = "void glUnregisterBinaryShaderAPPLE(uint32_t kind)" } # OpenGLES 169
 # Audio: the music player. Setters post a games-service event that the dispatcher applies on the
 # UI task; while events are queued the bridge predicts the playback state (GamePlaybackState_*),
 # the entry count and the last volume payload, and GetPlaybackState and GetEntryCount read that
@@ -237,6 +420,9 @@ GameUser_CopyDateA = { at = 0x082c10a8, c = "void GameUser_CopyDateA(void *out_d
 GameUser_CopyDateB = { at = 0x082c10d8, c = "void GameUser_CopyDateB(void *out_date, struct GameUser *user)" } # Users 7
 GameUser_GetId = { at = 0x082c1108, c = "uint16_t GameUser_GetId(struct GameUser *user)" } # Users 8
 GameUser_SetName = { at = 0x082c1128, c = "void GameUser_SetName(struct GameUser *user, const char *name)" } # Users 9
+# Reached only through EGL_ProcedureTable, not the module; eglSaveSurfaceHM only returns 1.
+eglSaveSurfaceHM = { at = 0x0808fa08, c = "uint32_t eglSaveSurfaceHM(void *surface)" }
+glPointSizePointerOES = { at = 0x082c8864, c = "void glPointSizePointerOES(uint32_t type, int32_t stride, const void *pointer)" }
 # Bodies the module shims tail-call. GameSettings_ReadMappedString is the TimeFormat reader:
 # argument is GameSettings_TimeFormatTable, { preference value, string, uint16 length } records
 # 0xc apart; ReadLanguageIndex writes the current language preference minus
@@ -326,6 +512,8 @@ GameSettings_TimeFormatTable = { at = 0x089d297c, c = "const uint8_t GameSetting
 # 25 records { language preference, locale string }, Preference_LanguageFirst (en_US) first.
 GameSettings_LanguageTable = { at = 0x089d2d24, c = "const uint8_t GameSettings_LanguageTable[]" }
 GameBacklight = { at = 0x089d2970, c = "uint8_t GameBacklight[]" }
+# Five { name, function } pairs: the OES and APPLE GL extensions and eglSaveSurfaceHM.
+EGL_ProcedureTable = { at = 0x083e3ed0, c = "const uint8_t EGL_ProcedureTable[]" }
 GameAPI_MiscTBD_Module = { at = 0x08a182e0, c = "const uint8_t GameAPI_MiscTBD_Module[]" }
 GameAPI_DebugUtil_Module = { at = 0x08a18358, c = "const uint8_t GameAPI_DebugUtil_Module[]" }
 GameAPI_MemoryAlloc_Module = { at = 0x08a183b0, c = "const uint8_t GameAPI_MemoryAlloc_Module[]" }
@@ -346,7 +534,7 @@ GameImage_MaxVersion = 0x10001000
 GameImage_MaxEntries = 5
 GameImage_LoadAddress = 0x18000000
 GameImage_MaxBytes = 0x100000
-# GameGraphics_GetCurrentSurface selectors, the EGL draw and read surfaces.
+# eglGetCurrentSurface selectors, the EGL draw and read surfaces.
 GameSurface_Draw = 0x3059
 GameSurface_Read = 0x305a
 # GameSurface_color_mode of a 16-bit surface; GameGraphics_ConstructWindowSurface then points
@@ -536,7 +724,7 @@ timestamp = 0x4
 next = 0x8
 bytes = 0xc
 
-# The EGL window surface GameGraphics_GetCurrentSurface returns.
+# The EGL window surface eglGetCurrentSurface returns.
 [offsets.GameSurface]
 color_mode = 0x64
 pixels = 0x68
@@ -712,3 +900,12 @@ total_bytes = 0x90
 level = 0x0
 dimmed = 0x4
 set = 0x5
+
+# The native window eglCreateWindowSurface takes. The game runtime passes mode 0;
+# GameGraphics_ConstructWindowSurface stores 1 - mode (0 above 1) at surface +0xa1, purpose
+# unverified. The colour mode comes from the chosen EGL config, not from the window.
+[offsets.EGLNativeWindow]
+mode = 0x0
+width = 0x4
+height = 0x6
+bytes = 0x8

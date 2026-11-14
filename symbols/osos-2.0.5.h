@@ -13,6 +13,7 @@
 struct AudioEffectsContext;
 struct DateTime;
 struct DirectoryIterator;
+struct EGLNativeWindow;
 struct GameFileRequest;
 struct GameInputEvent;
 struct GameUser;
@@ -58,8 +59,6 @@ void *GameMemory_Reallocate(void *block, uint32_t byte_count);
 void GameMemory_Free(void *block);
 void GameInput_ReadWheel(int32_t *out_delta, uint32_t *out_flags);
 int32_t GameSettings_GetValue(const char *name, void *out_value, uint32_t *size);
-void *GameGraphics_GetCurrentSurface(uint32_t selector);
-int GameGraphics_SwapBuffers(void *display, void *surface);
 int GameRuntime_RequestLaunch(void *runtime, struct NativeString *identifier, uint8_t storage, uint32_t notification);
 int GameRuntime_LoadManifestAndLaunch(void *runtime);
 void GameRuntime_InvokeFrameCallback(void *runtime);
@@ -153,6 +152,176 @@ uint32_t GameSound_GetLeadInMilliseconds(int sound);
 uint32_t GameSound_GetVoicePosition(int sound);
 int GameSound_GetNext(int sound);
 int GameSound_IsPlaying(int sound);
+void glActiveTexture(uint32_t texture);
+void glAlphaFunc(uint32_t func, float ref);
+void glAlphaFuncx(uint32_t func, int32_t ref);
+void glBindBuffer(uint32_t target, uint32_t buffer);
+void glBindTexture(uint32_t target, uint32_t texture);
+void glBlendFunc(uint32_t sfactor, uint32_t dfactor);
+void glBufferData(uint32_t target, int32_t size, const void *data, uint32_t usage);
+void glBufferSubData(uint32_t target, int32_t offset, int32_t size, const void *data);
+void glClear(uint32_t mask);
+void glClearColor(float red, float green, float blue, float alpha);
+void glClearColorx(int32_t red, int32_t green, int32_t blue, int32_t alpha);
+void glClearDepthf(float depth);
+void glClearDepthx(int32_t depth);
+void glClearStencil(int32_t s);
+void glClientActiveTexture(uint32_t texture);
+void glClipPlanex(uint32_t plane, const int32_t *equation);
+void glClipPlanef(uint32_t plane, const float *equation);
+void glColor4f(float red, float green, float blue, float alpha);
+void glColor4x(int32_t red, int32_t green, int32_t blue, int32_t alpha);
+void glColorMask(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
+void glColorPointer(int32_t size, uint32_t type, int32_t stride, const void *pointer);
+void glCompressedTexImage2D(uint32_t target, int32_t level, uint32_t internalformat, int32_t width, int32_t height, int32_t border, int32_t image_size, const void *data);
+void glCompressedTexSubImage2D(uint32_t target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t width, int32_t height, uint32_t format, int32_t image_size, const void *data);
+void glCopyTexImage2D(uint32_t target, int32_t level, uint32_t internalformat, int32_t x, int32_t y, int32_t width, int32_t height, int32_t border);
+void glCopyTexSubImage2D(uint32_t target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t x, int32_t y, int32_t width, int32_t height);
+void glCullFace(uint32_t mode);
+void glDeleteBuffers(int32_t n, const uint32_t *buffers);
+void glDeleteTextures(int32_t n, const uint32_t *textures);
+void glDepthFunc(uint32_t func);
+void glDepthMask(uint8_t flag);
+void glDepthRangef(float near, float far);
+void glDepthRangex(int32_t near, int32_t far);
+void glDisable(uint32_t cap);
+void glDisableClientState(uint32_t array);
+void glDrawArrays(uint32_t mode, int32_t first, int32_t count);
+void glDrawElements(uint32_t mode, int32_t count, uint32_t type, const void *indices);
+void glEnable(uint32_t cap);
+void glEnableClientState(uint32_t array);
+void glFinish(void);
+void glFlush(void);
+void glFogf(uint32_t pname, float param);
+void glFogfv(uint32_t pname, const float *params);
+void glFogx(uint32_t pname, int32_t param);
+void glFogxv(uint32_t pname, const int32_t *params);
+void glFrontFace(uint32_t mode);
+void glFrustumf(float left, float right, float bottom, float top, float near, float far);
+void glFrustumx(int32_t left, int32_t right, int32_t bottom, int32_t top, int32_t near, int32_t far);
+void glGetBooleanv(uint32_t pname, uint8_t *params);
+void glGetBufferParameteriv(uint32_t target, uint32_t pname, int32_t *params);
+void glGetClipPlanef(uint32_t plane, float *equation);
+void glGetClipPlanex(uint32_t plane, int32_t *equation);
+void glGenBuffers(int32_t n, uint32_t *buffers);
+void glGenTextures(int32_t n, uint32_t *textures);
+uint32_t glGetError(void);
+void glGetFixedv(uint32_t pname, int32_t *params);
+void glGetFloatv(uint32_t pname, float *params);
+void glGetIntegerv(uint32_t pname, int32_t *params);
+void glGetLightfv(uint32_t light, uint32_t pname, float *params);
+void glGetLightxv(uint32_t light, uint32_t pname, int32_t *params);
+void glGetMaterialfv(uint32_t face, uint32_t pname, float *params);
+void glGetMaterialxv(uint32_t face, uint32_t pname, int32_t *params);
+void glGetPointerv(uint32_t pname, void **params);
+const uint8_t *glGetString(uint32_t name);
+void glGetTexEnviv(uint32_t env, uint32_t pname, int32_t *params);
+void glGetTexEnvfv(uint32_t env, uint32_t pname, float *params);
+void glGetTexEnvxv(uint32_t env, uint32_t pname, int32_t *params);
+void glGetTexParameteriv(uint32_t target, uint32_t pname, int32_t *params);
+void glGetTexParameterfv(uint32_t target, uint32_t pname, float *params);
+void glGetTexParameterxv(uint32_t target, uint32_t pname, int32_t *params);
+void glHint(uint32_t target, uint32_t mode);
+uint8_t glIsBuffer(uint32_t buffer);
+uint8_t glIsEnabled(uint32_t cap);
+uint8_t glIsTexture(uint32_t texture);
+void glLightModelf(uint32_t pname, float param);
+void glLightModelfv(uint32_t pname, const float *params);
+void glLightModelx(uint32_t pname, int32_t param);
+void glLightModelxv(uint32_t pname, const int32_t *params);
+void glLightf(uint32_t light, uint32_t pname, float param);
+void glLightfv(uint32_t light, uint32_t pname, const float *params);
+void glLightx(uint32_t light, uint32_t pname, int32_t param);
+void glLightxv(uint32_t light, uint32_t pname, const int32_t *params);
+void glLineWidth(float width);
+void glLineWidthx(int32_t width);
+void glLoadIdentity(void);
+void glLoadMatrixf(const float *m);
+void glLoadMatrixx(const int32_t *m);
+void glLogicOp(uint32_t opcode);
+void glMaterialf(uint32_t face, uint32_t pname, float param);
+void glMaterialfv(uint32_t face, uint32_t pname, const float *params);
+void glMaterialx(uint32_t face, uint32_t pname, int32_t param);
+void glMaterialxv(uint32_t face, uint32_t pname, const int32_t *params);
+void glMatrixMode(uint32_t mode);
+void glMultMatrixf(const float *m);
+void glMultMatrixx(const int32_t *m);
+void glMultiTexCoord4f(uint32_t target, float s, float t, float r, float q);
+void glMultiTexCoord4x(uint32_t target, int32_t s, int32_t t, int32_t r, int32_t q);
+void glNormal3f(float nx, float ny, float nz);
+void glNormal3x(int32_t nx, int32_t ny, int32_t nz);
+void glNormalPointer(uint32_t type, int32_t stride, const void *pointer);
+void glOrthof(float left, float right, float bottom, float top, float near, float far);
+void glOrthox(int32_t left, int32_t right, int32_t bottom, int32_t top, int32_t near, int32_t far);
+void glPixelStorei(uint32_t pname, int32_t param);
+void glPointParameterf(uint32_t pname, float param);
+void glPointParameterfv(uint32_t pname, const float *params);
+void glPointParameterx(uint32_t pname, int32_t param);
+void glPointParameterxv(uint32_t pname, const int32_t *params);
+void glPointSize(float size);
+void glPointSizex(int32_t size);
+void glPolygonOffset(float factor, float units);
+void glPolygonOffsetx(int32_t factor, int32_t units);
+void glPopMatrix(void);
+void glPushMatrix(void);
+void glReadPixels(int32_t x, int32_t y, int32_t width, int32_t height, uint32_t format, uint32_t type, void *pixels);
+void glRotatef(float angle, float x, float y, float z);
+void glRotatex(int32_t angle, int32_t x, int32_t y, int32_t z);
+void glSampleCoverage(float value, uint8_t invert);
+void glSampleCoveragex(int32_t value, uint8_t invert);
+void glScalef(float x, float y, float z);
+void glScalex(int32_t x, int32_t y, int32_t z);
+void glScissor(int32_t x, int32_t y, int32_t width, int32_t height);
+void glShadeModel(uint32_t mode);
+void glStencilFunc(uint32_t func, int32_t ref, uint32_t mask);
+void glStencilMask(uint32_t mask);
+void glStencilOp(uint32_t fail, uint32_t zfail, uint32_t zpass);
+void glTexCoordPointer(int32_t size, uint32_t type, int32_t stride, const void *pointer);
+void glTexEnvf(uint32_t target, uint32_t pname, float param);
+void glTexEnvfv(uint32_t target, uint32_t pname, const float *params);
+void glTexEnvx(uint32_t target, uint32_t pname, int32_t param);
+void glTexEnvxv(uint32_t target, uint32_t pname, const int32_t *params);
+void glTexImage2D(uint32_t target, int32_t level, int32_t internalformat, int32_t width, int32_t height, int32_t border, uint32_t format, uint32_t type, const void *pixels);
+void glTexParameteri(uint32_t target, uint32_t pname, int32_t param);
+void glTexParameterf(uint32_t target, uint32_t pname, float param);
+void glTexParameterx(uint32_t target, uint32_t pname, int32_t param);
+void glTexSubImage2D(uint32_t target, int32_t level, int32_t xoffset, int32_t yoffset, int32_t width, int32_t height, uint32_t format, uint32_t type, const void *pixels);
+void glTranslatef(float x, float y, float z);
+void glTranslatex(int32_t x, int32_t y, int32_t z);
+void glVertexPointer(int32_t size, uint32_t type, int32_t stride, const void *pointer);
+void glViewport(int32_t x, int32_t y, int32_t width, int32_t height);
+uint32_t glQueryMatrixxOES(int32_t *mantissa, int32_t *exponent);
+uint32_t eglGetError(void);
+void *eglGetDisplay(void *display_id);
+uint32_t eglInitialize(void *display, int32_t *major, int32_t *minor);
+uint32_t eglTerminate(void *display);
+const char *eglQueryString(void *display, int32_t name);
+uint32_t eglGetConfigs(void *display, void **configs, int32_t config_size, int32_t *num_config);
+uint32_t eglChooseConfig(void *display, const int32_t *attrib_list, void **configs, int32_t config_size, int32_t *num_config);
+uint32_t eglGetConfigAttrib(void *display, void *config, int32_t attribute, int32_t *value);
+void *eglCreateWindowSurface(void *display, void *config, const struct EGLNativeWindow *window, const int32_t *attrib_list);
+void *eglCreatePixmapSurface(void *display, void *config, const struct EGLNativeWindow *pixmap, const int32_t *attrib_list);
+void *eglCreatePbufferSurface(void *display, void *config, const int32_t *attrib_list);
+uint32_t eglDestroySurface(void *display, void *surface);
+uint32_t eglQuerySurface(void *display, void *surface, int32_t attribute, int32_t *value);
+uint32_t eglSurfaceAttrib(void *display, void *surface, int32_t attribute, int32_t value);
+uint32_t eglBindTexImage(void *display, void *surface, int32_t buffer);
+uint32_t eglReleaseTexImage(void *display, void *surface, int32_t buffer);
+uint32_t eglSwapInterval(void *display, int32_t interval);
+void *eglCreateContext(void *display, void *config, void *share_context, const int32_t *attrib_list);
+uint32_t eglDestroyContext(void *display, void *context);
+uint32_t eglMakeCurrent(void *display, void *draw, void *read, void *context);
+void *eglGetCurrentContext(void);
+void *eglGetCurrentSurface(int32_t readdraw);
+void *eglGetCurrentDisplay(void);
+uint32_t eglQueryContext(void *display, void *context, int32_t attribute, int32_t *value);
+uint32_t eglWaitGL(void);
+uint32_t eglWaitNative(int32_t engine);
+uint32_t eglSwapBuffers(void *display, void *surface);
+uint32_t eglCopyBuffers(void *display, void *surface, void *target);
+void EGL_StoreSurfaceWord(void *surface, uint32_t value);
+void glRegisterBinaryShaderAPPLE(uint32_t kind, const void *shader);
+void glUnregisterBinaryShaderAPPLE(uint32_t kind);
 uint32_t GameAudio_GetRepeatMode(void);
 void GameAudio_SetRepeatMode(uint8_t mode);
 uint32_t GameAudio_GetPlaybackOrder(void);
@@ -217,6 +386,8 @@ void GameUser_CopyDateA(void *out_date, struct GameUser *user);
 void GameUser_CopyDateB(void *out_date, struct GameUser *user);
 uint16_t GameUser_GetId(struct GameUser *user);
 void GameUser_SetName(struct GameUser *user, const char *name);
+uint32_t eglSaveSurfaceHM(void *surface);
+void glPointSizePointerOES(uint32_t type, int32_t stride, const void *pointer);
 int32_t GameSettings_ReadMappedString(int32_t preference, void *out_value, uint32_t *size, const void *table);
 int32_t GameSettings_ReadLanguageIndex(int32_t preference, void *out_value, uint32_t *size, const void *argument);
 void *GameBacklight_Get(void);
@@ -283,7 +454,6 @@ void Font_Construct(uint32_t *font, const char *family, uint32_t size, uint8_t s
 int GraphicsContext_GetFontAscent(void *context);
 int GraphicsContext_GetFontDescent(void *context);
 void Surface_FillRect(void *surface, const int32_t *rect, const uint8_t *rgba, uint32_t mode, void *clip);
-void GLES_ClearColorx(int red, int green, int blue, int alpha);
 uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight);
 void *BitmapCache_Init(void *cache, void *service, uint32_t resource_id);
 void BitmapCache_Load(void *cache);
@@ -773,6 +943,7 @@ extern const uint8_t GameSettings_Table[];
 extern const uint8_t GameSettings_TimeFormatTable[];
 extern const uint8_t GameSettings_LanguageTable[];
 extern uint8_t GameBacklight[];
+extern const uint8_t EGL_ProcedureTable[];
 extern const uint8_t GameAPI_MiscTBD_Module[];
 extern const uint8_t GameAPI_DebugUtil_Module[];
 extern const uint8_t GameAPI_MemoryAlloc_Module[];
@@ -905,8 +1076,6 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameMemory_Free 0x082bdcb8
 #define ADDR_GameInput_ReadWheel 0x082bda94
 #define ADDR_GameSettings_GetValue 0x082bdf20
-#define ADDR_GameGraphics_GetCurrentSurface 0x082c19fc
-#define ADDR_GameGraphics_SwapBuffers 0x082c1b80
 #define ADDR_GameRuntime_RequestLaunch 0x0828c3e4
 #define ADDR_GameRuntime_LoadManifestAndLaunch 0x0828d2a0
 #define ADDR_GameRuntime_InvokeFrameCallback 0x0828c72c
@@ -1000,6 +1169,176 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameSound_GetVoicePosition 0x082c0508
 #define ADDR_GameSound_GetNext 0x082c068c
 #define ADDR_GameSound_IsPlaying 0x082c082c
+#define ADDR_glActiveTexture 0x082c767c
+#define ADDR_glAlphaFunc 0x082c769c
+#define ADDR_glAlphaFuncx 0x082c76c4
+#define ADDR_glBindBuffer 0x082c76ec
+#define ADDR_glBindTexture 0x082c7714
+#define ADDR_glBlendFunc 0x082c773c
+#define ADDR_glBufferData 0x082c7764
+#define ADDR_glBufferSubData 0x082c7798
+#define ADDR_glClear 0x082c77cc
+#define ADDR_glClearColor 0x082c77ec
+#define ADDR_glClearColorx 0x082c7820
+#define ADDR_glClearDepthf 0x082c7854
+#define ADDR_glClearDepthx 0x082c7874
+#define ADDR_glClearStencil 0x082c7894
+#define ADDR_glClientActiveTexture 0x082c78b4
+#define ADDR_glClipPlanex 0x082c78fc
+#define ADDR_glClipPlanef 0x082c78d4
+#define ADDR_glColor4f 0x082c7924
+#define ADDR_glColor4x 0x082c7958
+#define ADDR_glColorMask 0x082c798c
+#define ADDR_glColorPointer 0x082c79c0
+#define ADDR_glCompressedTexImage2D 0x082c79f4
+#define ADDR_glCompressedTexSubImage2D 0x082c7a40
+#define ADDR_glCopyTexImage2D 0x082c7a88
+#define ADDR_glCopyTexSubImage2D 0x082c7ad4
+#define ADDR_glCullFace 0x082c7b20
+#define ADDR_glDeleteBuffers 0x082c7b40
+#define ADDR_glDeleteTextures 0x082c7b68
+#define ADDR_glDepthFunc 0x082c7b90
+#define ADDR_glDepthMask 0x082c7bb0
+#define ADDR_glDepthRangef 0x082c7bd0
+#define ADDR_glDepthRangex 0x082c7bf8
+#define ADDR_glDisable 0x082c7c20
+#define ADDR_glDisableClientState 0x082c7c40
+#define ADDR_glDrawArrays 0x082c7c60
+#define ADDR_glDrawElements 0x082c7c90
+#define ADDR_glEnable 0x082c7cc4
+#define ADDR_glEnableClientState 0x082c7ce4
+#define ADDR_glFinish 0x082c7d04
+#define ADDR_glFlush 0x082c7d1c
+#define ADDR_glFogf 0x082c7d34
+#define ADDR_glFogfv 0x082c7d5c
+#define ADDR_glFogx 0x082c7d84
+#define ADDR_glFogxv 0x082c7dac
+#define ADDR_glFrontFace 0x082c7dd4
+#define ADDR_glFrustumf 0x082c7df4
+#define ADDR_glFrustumx 0x082c7e30
+#define ADDR_glGetBooleanv 0x082c7ebc
+#define ADDR_glGetBufferParameteriv 0x082c7ee4
+#define ADDR_glGetClipPlanef 0x082c7f34
+#define ADDR_glGetClipPlanex 0x082c7f5c
+#define ADDR_glGenBuffers 0x082c7e6c
+#define ADDR_glGenTextures 0x082c7e94
+#define ADDR_glGetError 0x082c7f84
+#define ADDR_glGetFixedv 0x082c7f9c
+#define ADDR_glGetFloatv 0x082c7fc4
+#define ADDR_glGetIntegerv 0x082c7fec
+#define ADDR_glGetLightfv 0x082c8014
+#define ADDR_glGetLightxv 0x082c8044
+#define ADDR_glGetMaterialfv 0x082c8074
+#define ADDR_glGetMaterialxv 0x082c80a4
+#define ADDR_glGetPointerv 0x082c80d4
+#define ADDR_glGetString 0x082c80fc
+#define ADDR_glGetTexEnviv 0x082c814c
+#define ADDR_glGetTexEnvfv 0x082c811c
+#define ADDR_glGetTexEnvxv 0x082c817c
+#define ADDR_glGetTexParameteriv 0x082c81dc
+#define ADDR_glGetTexParameterfv 0x082c81ac
+#define ADDR_glGetTexParameterxv 0x082c820c
+#define ADDR_glHint 0x082c823c
+#define ADDR_glIsBuffer 0x082c8264
+#define ADDR_glIsEnabled 0x082c8284
+#define ADDR_glIsTexture 0x082c82a4
+#define ADDR_glLightModelf 0x082c82c4
+#define ADDR_glLightModelfv 0x082c82ec
+#define ADDR_glLightModelx 0x082c8314
+#define ADDR_glLightModelxv 0x082c833c
+#define ADDR_glLightf 0x082c8364
+#define ADDR_glLightfv 0x082c8394
+#define ADDR_glLightx 0x082c83c4
+#define ADDR_glLightxv 0x082c83f4
+#define ADDR_glLineWidth 0x082c8424
+#define ADDR_glLineWidthx 0x082c8444
+#define ADDR_glLoadIdentity 0x082c8464
+#define ADDR_glLoadMatrixf 0x082c847c
+#define ADDR_glLoadMatrixx 0x082c849c
+#define ADDR_glLogicOp 0x082c84bc
+#define ADDR_glMaterialf 0x082c84dc
+#define ADDR_glMaterialfv 0x082c850c
+#define ADDR_glMaterialx 0x082c853c
+#define ADDR_glMaterialxv 0x082c856c
+#define ADDR_glMatrixMode 0x082c859c
+#define ADDR_glMultMatrixf 0x082c85bc
+#define ADDR_glMultMatrixx 0x082c85dc
+#define ADDR_glMultiTexCoord4f 0x082c85fc
+#define ADDR_glMultiTexCoord4x 0x082c8638
+#define ADDR_glNormal3f 0x082c8674
+#define ADDR_glNormal3x 0x082c86a4
+#define ADDR_glNormalPointer 0x082c86d4
+#define ADDR_glOrthof 0x082c8704
+#define ADDR_glOrthox 0x082c8740
+#define ADDR_glPixelStorei 0x082c877c
+#define ADDR_glPointParameterf 0x082c87a4
+#define ADDR_glPointParameterfv 0x082c87cc
+#define ADDR_glPointParameterx 0x082c87f4
+#define ADDR_glPointParameterxv 0x082c881c
+#define ADDR_glPointSize 0x082c8844
+#define ADDR_glPointSizex 0x082c8894
+#define ADDR_glPolygonOffset 0x082c88b4
+#define ADDR_glPolygonOffsetx 0x082c88dc
+#define ADDR_glPopMatrix 0x082c8904
+#define ADDR_glPushMatrix 0x082c891c
+#define ADDR_glReadPixels 0x082c895c
+#define ADDR_glRotatef 0x082c89c8
+#define ADDR_glRotatex 0x082c89fc
+#define ADDR_glSampleCoverage 0x082c8a30
+#define ADDR_glSampleCoveragex 0x082c8a58
+#define ADDR_glScalef 0x082c8a80
+#define ADDR_glScalex 0x082c8ab0
+#define ADDR_glScissor 0x082c8ae0
+#define ADDR_glShadeModel 0x082c8b3c
+#define ADDR_glStencilFunc 0x082c8b5c
+#define ADDR_glStencilMask 0x082c8b8c
+#define ADDR_glStencilOp 0x082c8bac
+#define ADDR_glTexCoordPointer 0x082c8bdc
+#define ADDR_glTexEnvf 0x082c8c10
+#define ADDR_glTexEnvfv 0x082c8c40
+#define ADDR_glTexEnvx 0x082c8c70
+#define ADDR_glTexEnvxv 0x082c8ca0
+#define ADDR_glTexImage2D 0x082c8cd0
+#define ADDR_glTexParameteri 0x082c8d48
+#define ADDR_glTexParameterf 0x082c8d18
+#define ADDR_glTexParameterx 0x082c8d78
+#define ADDR_glTexSubImage2D 0x082c8da8
+#define ADDR_glTranslatef 0x082c8df0
+#define ADDR_glTranslatex 0x082c8e20
+#define ADDR_glVertexPointer 0x082c8e70
+#define ADDR_glViewport 0x082c8ea4
+#define ADDR_glQueryMatrixxOES 0x082c8934
+#define ADDR_eglGetError 0x082c1a3c
+#define ADDR_eglGetDisplay 0x082c1a38
+#define ADDR_eglInitialize 0x082c1a4c
+#define ADDR_eglTerminate 0x082c1ba8
+#define ADDR_eglQueryString 0x082c1ad0
+#define ADDR_eglGetConfigs 0x082c19e0
+#define ADDR_eglChooseConfig 0x082c17b0
+#define ADDR_eglGetConfigAttrib 0x082c19c0
+#define ADDR_eglCreateWindowSurface 0x082c18f4
+#define ADDR_eglCreatePixmapSurface 0x082c1850
+#define ADDR_eglCreatePbufferSurface 0x082c1808
+#define ADDR_eglDestroySurface 0x082c19ac
+#define ADDR_eglQuerySurface 0x082c1b4c
+#define ADDR_eglSurfaceAttrib 0x082c1b78
+#define ADDR_eglBindTexImage 0x082c17a8
+#define ADDR_eglReleaseTexImage 0x082c1b6c
+#define ADDR_eglSwapInterval 0x082c1ba0
+#define ADDR_eglCreateContext 0x082c17e8
+#define ADDR_eglDestroyContext 0x082c1998
+#define ADDR_eglMakeCurrent 0x082c1a6c
+#define ADDR_eglGetCurrentContext 0x082c19f0
+#define ADDR_eglGetCurrentSurface 0x082c19fc
+#define ADDR_eglGetCurrentDisplay 0x082c19f4
+#define ADDR_eglQueryContext 0x082c1aac
+#define ADDR_eglWaitGL 0x082c1bb0
+#define ADDR_eglWaitNative 0x082c1bb8
+#define ADDR_eglSwapBuffers 0x082c1b80
+#define ADDR_eglCopyBuffers 0x082c17c4
+#define ADDR_EGL_StoreSurfaceWord 0x082c1b74
+#define ADDR_glRegisterBinaryShaderAPPLE 0x082c89a0
+#define ADDR_glUnregisterBinaryShaderAPPLE 0x082c8e50
 #define ADDR_GameAudio_GetRepeatMode 0x082bd5b4
 #define ADDR_GameAudio_SetRepeatMode 0x082bd828
 #define ADDR_GameAudio_GetPlaybackOrder 0x082bd5c4
@@ -1064,6 +1403,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameUser_CopyDateB 0x082c10d8
 #define ADDR_GameUser_GetId 0x082c1108
 #define ADDR_GameUser_SetName 0x082c1128
+#define ADDR_eglSaveSurfaceHM 0x0808fa08
+#define ADDR_glPointSizePointerOES 0x082c8864
 #define ADDR_GameSettings_ReadMappedString 0x08073f5c
 #define ADDR_GameSettings_ReadLanguageIndex 0x0807c04c
 #define ADDR_GameBacklight_Get 0x081b1894
@@ -1130,7 +1471,6 @@ extern void *MediaArtworkProvider;
 #define ADDR_GraphicsContext_GetFontAscent 0x08298784
 #define ADDR_GraphicsContext_GetFontDescent 0x082987b8
 #define ADDR_Surface_FillRect 0x08069a5c
-#define ADDR_GLES_ClearColorx 0x082c7820
 #define ADDR_RGB565_BlendFixed 0x0826a9a8
 #define ADDR_ArtworkReflection_GenerateRGB565 0x0826a7c0
 #define ADDR_BitmapCache_Init 0x08119d54
@@ -1703,6 +2043,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameSettings_TimeFormatTable 0x089d297c
 #define ADDR_GameSettings_LanguageTable 0x089d2d24
 #define ADDR_GameBacklight 0x089d2970
+#define ADDR_EGL_ProcedureTable 0x083e3ed0
 #define ADDR_GameAPI_MiscTBD_Module 0x08a182e0
 #define ADDR_GameAPI_DebugUtil_Module 0x08a18358
 #define ADDR_GameAPI_MemoryAlloc_Module 0x08a183b0
@@ -2248,6 +2589,10 @@ extern void *MediaArtworkProvider;
 #define GameBacklight_level 0x0
 #define GameBacklight_dimmed 0x4
 #define GameBacklight_set 0x5
+#define EGLNativeWindow_mode 0x0
+#define EGLNativeWindow_width 0x4
+#define EGLNativeWindow_height 0x6
+#define EGLNativeWindow_bytes 0x8
 #define BitmapCache_service 0x0
 #define BitmapCache_resource_id 0x4
 #define BitmapCache_loaded 0x8

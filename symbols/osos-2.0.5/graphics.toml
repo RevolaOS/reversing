@@ -25,7 +25,6 @@ Font_Construct = { at = 0x0826c0f4, c = "void Font_Construct(uint32_t *font, con
 GraphicsContext_GetFontAscent = { at = 0x08298784, c = "int GraphicsContext_GetFontAscent(void *context)" }
 GraphicsContext_GetFontDescent = { at = 0x082987b8, c = "int GraphicsContext_GetFontDescent(void *context)" }
 Surface_FillRect = { at = 0x08069a5c, c = "void Surface_FillRect(void *surface, const int32_t *rect, const uint8_t *rgba, uint32_t mode, void *clip)" }
-GLES_ClearColorx = { at = 0x082c7820, c = "void GLES_ClearColorx(int red, int green, int blue, int alpha)" }
 RGB565_BlendFixed = { at = 0x0826a9a8, c = "uint32_t RGB565_BlendFixed(uint32_t first, uint32_t second, int weight)" }
 ArtworkReflection_GenerateRGB565 = { at = 0x0826a7c0 }
 # A BitmapCache_bytes record: service and BMap resource id, loaded into a graphics context on
