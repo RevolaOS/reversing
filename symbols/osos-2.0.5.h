@@ -2992,6 +2992,13 @@ extern void *MediaArtworkProvider;
 #define GameFileRequest_Complete 0x64
 #define GameSave_MaxSlots 0x4
 #define GameSave_MaxBytes 0x19000
+#define GameSound_VolumeMax 0x7fff
+#define GameSound_PanMax 0x7fff
+#define GameSound_SpeedMin 0x1f4
+#define GameSound_SpeedMax 0x7d0
+#define GameSound_SampleRateMin 0x1f40
+#define GameSound_SampleRateMax 0xbb80
+#define AudioMixer_VoiceCount 0x8
 #define GameSoundState_Playing 0x1
 #define GameSoundState_Paused 0x2
 #define GameSoundState_Stopped 0x3

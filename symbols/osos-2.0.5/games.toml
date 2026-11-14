@@ -429,6 +429,15 @@ GameFileRequest_ListDirectory = 10
 GameFileRequest_Complete = 100
 GameSave_MaxSlots = 4
 GameSave_MaxBytes = 0x19000
+# GameSound limits: volume and gain 0..VolumeMax, pan -PanMax..PanMax, speed per mille, the
+# sample rates the voice accepts (FUN_08118720), and the mixer's voice count.
+GameSound_VolumeMax = 0x7fff
+GameSound_PanMax = 0x7fff
+GameSound_SpeedMin = 500
+GameSound_SpeedMax = 2000
+GameSound_SampleRateMin = 8000
+GameSound_SampleRateMax = 48000
+AudioMixer_VoiceCount = 8
 # GameSound_state.
 GameSoundState_Playing = 1
 GameSoundState_Paused = 2
