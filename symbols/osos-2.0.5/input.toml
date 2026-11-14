@@ -23,12 +23,12 @@ WheelController = { at = 0x3c200000, c = "volatile uint32_t WheelController[]" }
 WheelState = { at = 0x089d2b8c, c = "uint8_t WheelState[]" }
 ButtonKeyCodes = { at = 0x089d2ec5, c = "const uint8_t ButtonKeyCodes[5]" }
 # Zero-terminated UIKeyName pairs, one table per event source, read by InputEvent_BuildName.
-UIKeyNames_Button = { at = 0x083e46d0, c = "const struct UIKeyName UIKeyNames_Button[]" }
-UIKeyNames_Remote = { at = 0x083e4710, c = "const struct UIKeyName UIKeyNames_Remote[]" }
-UIKeyNames_Video = { at = 0x083e47f8, c = "const struct UIKeyName UIKeyNames_Video[]" }
-UIKeyNames_Image = { at = 0x083e4868, c = "const struct UIKeyName UIKeyNames_Image[]" }
-UIKeyNames_Audio = { at = 0x083e48b0, c = "const struct UIKeyName UIKeyNames_Audio[]" }
-UIKeyNames_Mikey = { at = 0x083e4958, c = "const struct UIKeyName UIKeyNames_Mikey[]" }
+UIKeyNames_Button = { at = 0x083e46d0, c = "const uint8_t UIKeyNames_Button[]" }
+UIKeyNames_Remote = { at = 0x083e4710, c = "const uint8_t UIKeyNames_Remote[]" }
+UIKeyNames_Video = { at = 0x083e47f8, c = "const uint8_t UIKeyNames_Video[]" }
+UIKeyNames_Image = { at = 0x083e4868, c = "const uint8_t UIKeyNames_Image[]" }
+UIKeyNames_Audio = { at = 0x083e48b0, c = "const uint8_t UIKeyNames_Audio[]" }
+UIKeyNames_Mikey = { at = 0x083e4958, c = "const uint8_t UIKeyNames_Mikey[]" }
 # The words of an event name: button, up, down, pressandhold, longpressandhold, doubleclick,
 # doubleclickandhold, tripleclick, remote, video, image, audio, mikey, wheel.
 InputEventNameWords = { at = 0x089d2e48, c = "const char *const InputEventNameWords[14]" }
