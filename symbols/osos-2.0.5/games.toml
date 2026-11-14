@@ -151,20 +151,25 @@ GameSound_GetVoicePosition = { at = 0x082c0508, c = "uint32_t GameSound_GetVoice
 GameSound_GetNext = { at = 0x082c068c, c = "int GameSound_GetNext(int sound)" } # SoundEffect 40
 GameSound_IsPlaying = { at = 0x082c082c, c = "int GameSound_IsPlaying(int sound)" } # SoundEffect 41
 # Audio: the music player. Setters post a games-service event that the dispatcher applies on the
-# UI task; the Get functions read the bridge's prediction when one is pending. Repeat modes are
-# 0 off, 1 one, 2 all; speed is 500..2000; gain -32767..32767; volume 0..255. SetEQMenuIndex keeps
-# the index, SetEQMenuIndexTemporary restores the old one when the game ends. The scan functions
-# are the press-and-hold fast forward and rewind. SetListOption writes bit 2 of the playback list
-# flags, SetPendingItem fills the player's pending-item record, GetPlayerFlag93F reads player byte
-# 0x93f and GetCurrentEntryFlag bit 6 of the current entry's byte 0x18d; their meanings are
-# unverified. GetMixerLevel and SetMixerLevel are the music level the duck restores. GetVersion
-# writes 4 and 1. RequestPowerHold posts power message 6 as begin, then end after 10 s.
+# UI task; while events are queued the bridge predicts the playback state (GamePlaybackState_*),
+# the entry count and the last volume payload, and GetPlaybackState and GetEntryCount read that
+# prediction, while GetCurrentIndex, GetPosition and the Is* queries read the player directly and
+# lag a queued command. Repeat modes GameRepeatMode_*, orders GamePlaybackOrder_* (3 asks the
+# preference), speed 500..2000, gain -32767..32767, volume 0..GameAudio_VolumeMax; positions are
+# milliseconds. SetEQMenuIndex keeps the index, SetEQMenuIndexTemporary restores the old one when
+# the game ends; the scan functions are the press-and-hold fast forward and rewind.
+# SetShuffleOrderBuilt writes MediaListFlags_ShuffleOrderBuilt (0 reshuffles at the next wrap),
+# SetItemStartPosition tells the audio source where to start item index the next time it starts,
+# IsPlayingOnTheGo says the playback list is the On-The-Go playlist, and
+# IsPlaybackListUnrestricted is 1 unless the list carries MediaListOrderFlags_Restricted.
+# GetMixerLevel and SetMixerLevel are the music level the duck restores. GetVersion writes 4 and 1.
+# RequestPowerHold posts power message 6 as begin, then end after 10 s.
 GameAudio_GetRepeatMode = { at = 0x082bd5b4, c = "uint32_t GameAudio_GetRepeatMode(void)" } # Audio 0
 GameAudio_SetRepeatMode = { at = 0x082bd828, c = "void GameAudio_SetRepeatMode(uint8_t mode)" } # Audio 1
 GameAudio_GetPlaybackOrder = { at = 0x082bd5c4, c = "uint32_t GameAudio_GetPlaybackOrder(void)" } # Audio 2
 GameAudio_SetPlaybackOrder = { at = 0x082bd840, c = "void GameAudio_SetPlaybackOrder(uint8_t order)" } # Audio 3
 GameAudio_RefreshCurrentEntry = { at = 0x082bd708, c = "void GameAudio_RefreshCurrentEntry(void)" } # Audio 4
-GameAudio_SetListOption = { at = 0x082bd758, c = "void GameAudio_SetListOption(uint8_t enabled)" } # Audio 5
+GameAudio_SetShuffleOrderBuilt = { at = 0x082bd758, c = "void GameAudio_SetShuffleOrderBuilt(uint8_t built)" } # Audio 5
 GameAudio_SetEQMenuIndexTemporary = { at = 0x082bd7ac, c = "void GameAudio_SetEQMenuIndexTemporary(uint32_t index)" } # Audio 6
 GameAudio_SetEQMenuIndex = { at = 0x082bd7d4, c = "void GameAudio_SetEQMenuIndex(uint32_t index)" } # Audio 7
 GameAudio_GetEQMenuIndex = { at = 0x082bd574, c = "uint32_t GameAudio_GetEQMenuIndex(void)" } # Audio 8
@@ -184,7 +189,7 @@ GameAudio_StartScanForward = { at = 0x082bd868, c = "void GameAudio_StartScanFor
 GameAudio_StartScanBackward = { at = 0x082bd878, c = "void GameAudio_StartScanBackward(void)" } # Audio 22
 GameAudio_StopScan = { at = 0x082bd898, c = "void GameAudio_StopScan(void)" } # Audio 23
 GameAudio_Seek = { at = 0x082bd728, c = "void GameAudio_Seek(uint32_t milliseconds)" } # Audio 24
-GameAudio_SetPendingItem = { at = 0x082bd78c, c = "void GameAudio_SetPendingItem(uint32_t index, uint32_t value)" } # Audio 25
+GameAudio_SetItemStartPosition = { at = 0x082bd78c, c = "void GameAudio_SetItemStartPosition(uint32_t index, uint32_t position_ms)" } # Audio 25
 GameAudio_NextTrack = { at = 0x082bd634, c = "void GameAudio_NextTrack(void)" } # Audio 26
 GameAudio_PreviousTrack = { at = 0x082bd6c0, c = "void GameAudio_PreviousTrack(void)" } # Audio 27
 GameAudio_GetCurrentIndex = { at = 0x082bd4fc, c = "uint32_t GameAudio_GetCurrentIndex(void)" } # Audio 28
@@ -203,8 +208,8 @@ GameAudio_IsShuffleEnabled = { at = 0x082bd858, c = "int GameAudio_IsShuffleEnab
 GameAudio_IsRepeatOne = { at = 0x082bd6f8, c = "int GameAudio_IsRepeatOne(void)" } # Audio 41
 GameAudio_IsRepeatAll = { at = 0x082bd6e8, c = "int GameAudio_IsRepeatAll(void)" } # Audio 42
 GameAudio_IsPlaybackOrderReversed = { at = 0x082bd718, c = "int GameAudio_IsPlaybackOrderReversed(void)" } # Audio 43
-GameAudio_GetPlayerFlag93F = { at = 0x082bd66c, c = "uint8_t GameAudio_GetPlayerFlag93F(void)" } # Audio 44
-GameAudio_GetCurrentEntryFlag = { at = 0x082bd494, c = "uint8_t GameAudio_GetCurrentEntryFlag(void)" } # Audio 45
+GameAudio_IsPlayingOnTheGo = { at = 0x082bd66c, c = "uint8_t GameAudio_IsPlayingOnTheGo(void)" } # Audio 44
+GameAudio_IsPlaybackListUnrestricted = { at = 0x082bd494, c = "uint8_t GameAudio_IsPlaybackListUnrestricted(void)" } # Audio 45
 GameAudio_HasPlaybackList = { at = 0x082bd8f0, c = "int GameAudio_HasPlaybackList(void)" } # Audio 46
 GameAudio_GetVolume = { at = 0x082bd50c, c = "uint32_t GameAudio_GetVolume(void)" } # Audio 47
 GameAudio_GetVolumeLimit = { at = 0x082bd534, c = "uint32_t GameAudio_GetVolumeLimit(void)" } # Audio 48
@@ -235,8 +240,8 @@ GameSaveTable_Close = { at = 0x0813eee0, c = "int GameSaveTable_Close(void *tabl
 GameUserList_Add = { at = 0x0812bb00, c = "struct GameUser *GameUserList_Add(void *users, const char *name)" }
 GameAudio_GetCachedSpeed = { at = 0x0817f7ec, c = "int GameAudio_GetCachedSpeed(void *bridge)" }
 GameAudio_QueuePreviousTrack = { at = 0x0817f528, c = "void GameAudio_QueuePreviousTrack(void *bridge)" }
-GameAudio_ReadPlayerFlag93F = { at = 0x0817eb70, c = "uint8_t GameAudio_ReadPlayerFlag93F(void *bridge)" }
-GameAudio_ReadCurrentEntryFlag = { at = 0x0817f054, c = "uint8_t GameAudio_ReadCurrentEntryFlag(void *bridge)" }
+GameAudio_ReadPlayingOnTheGo = { at = 0x0817eb70, c = "uint8_t GameAudio_ReadPlayingOnTheGo(void *bridge)" }
+GameAudio_ReadPlaybackListUnrestricted = { at = 0x0817f054, c = "uint8_t GameAudio_ReadPlaybackListUnrestricted(void *bridge)" }
 GameAudio_ReadMixerLevel = { at = 0x0817f09c, c = "uint32_t GameAudio_ReadMixerLevel(void)" }
 AudioMixer_GetMusicLevel = { at = 0x081a6b78, c = "uint32_t AudioMixer_GetMusicLevel(void)" }
 # The AsyncFileIO worker (task eAppAsyncIO, GameRuntime_file_service). Append links a queue entry
@@ -446,6 +451,15 @@ GameSoundState_Stopped = 3
 GamePlaybackState_Stopped = 0
 GamePlaybackState_Playing = 1
 GamePlaybackState_Paused = 2
+# GameAudio_SetRepeatMode and GetRepeatMode (the player stores One and All swapped).
+GameRepeatMode_Off = 0
+GameRepeatMode_One = 1
+GameRepeatMode_All = 2
+# GameAudio_SetPlaybackOrder and GetPlaybackOrder.
+GamePlaybackOrder_Off = 0
+GamePlaybackOrder_Songs = 1
+GamePlaybackOrder_Albums = 2
+GameAudio_VolumeMax = 0xff
 GameSettings_Count = 3
 # GameDirectory_GetStatus and GameDirectory_ReadEntry when the list is healthy; otherwise a
 # FileStatus_* value.

@@ -158,7 +158,7 @@ void GameAudio_SetRepeatMode(uint8_t mode);
 uint32_t GameAudio_GetPlaybackOrder(void);
 void GameAudio_SetPlaybackOrder(uint8_t order);
 void GameAudio_RefreshCurrentEntry(void);
-void GameAudio_SetListOption(uint8_t enabled);
+void GameAudio_SetShuffleOrderBuilt(uint8_t built);
 void GameAudio_SetEQMenuIndexTemporary(uint32_t index);
 void GameAudio_SetEQMenuIndex(uint32_t index);
 uint32_t GameAudio_GetEQMenuIndex(void);
@@ -178,7 +178,7 @@ void GameAudio_StartScanForward(void);
 void GameAudio_StartScanBackward(void);
 void GameAudio_StopScan(void);
 void GameAudio_Seek(uint32_t milliseconds);
-void GameAudio_SetPendingItem(uint32_t index, uint32_t value);
+void GameAudio_SetItemStartPosition(uint32_t index, uint32_t position_ms);
 void GameAudio_NextTrack(void);
 void GameAudio_PreviousTrack(void);
 uint32_t GameAudio_GetCurrentIndex(void);
@@ -197,8 +197,8 @@ int GameAudio_IsShuffleEnabled(void);
 int GameAudio_IsRepeatOne(void);
 int GameAudio_IsRepeatAll(void);
 int GameAudio_IsPlaybackOrderReversed(void);
-uint8_t GameAudio_GetPlayerFlag93F(void);
-uint8_t GameAudio_GetCurrentEntryFlag(void);
+uint8_t GameAudio_IsPlayingOnTheGo(void);
+uint8_t GameAudio_IsPlaybackListUnrestricted(void);
 int GameAudio_HasPlaybackList(void);
 uint32_t GameAudio_GetVolume(void);
 uint32_t GameAudio_GetVolumeLimit(void);
@@ -224,8 +224,8 @@ int GameSaveTable_Close(void *table, uint32_t slot);
 struct GameUser *GameUserList_Add(void *users, const char *name);
 int GameAudio_GetCachedSpeed(void *bridge);
 void GameAudio_QueuePreviousTrack(void *bridge);
-uint8_t GameAudio_ReadPlayerFlag93F(void *bridge);
-uint8_t GameAudio_ReadCurrentEntryFlag(void *bridge);
+uint8_t GameAudio_ReadPlayingOnTheGo(void *bridge);
+uint8_t GameAudio_ReadPlaybackListUnrestricted(void *bridge);
 uint32_t GameAudio_ReadMixerLevel(void);
 uint32_t AudioMixer_GetMusicLevel(void);
 void GameFileService_TaskEntry(void *service);
@@ -990,7 +990,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameAudio_GetPlaybackOrder 0x082bd5c4
 #define ADDR_GameAudio_SetPlaybackOrder 0x082bd840
 #define ADDR_GameAudio_RefreshCurrentEntry 0x082bd708
-#define ADDR_GameAudio_SetListOption 0x082bd758
+#define ADDR_GameAudio_SetShuffleOrderBuilt 0x082bd758
 #define ADDR_GameAudio_SetEQMenuIndexTemporary 0x082bd7ac
 #define ADDR_GameAudio_SetEQMenuIndex 0x082bd7d4
 #define ADDR_GameAudio_GetEQMenuIndex 0x082bd574
@@ -1010,7 +1010,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameAudio_StartScanBackward 0x082bd878
 #define ADDR_GameAudio_StopScan 0x082bd898
 #define ADDR_GameAudio_Seek 0x082bd728
-#define ADDR_GameAudio_SetPendingItem 0x082bd78c
+#define ADDR_GameAudio_SetItemStartPosition 0x082bd78c
 #define ADDR_GameAudio_NextTrack 0x082bd634
 #define ADDR_GameAudio_PreviousTrack 0x082bd6c0
 #define ADDR_GameAudio_GetCurrentIndex 0x082bd4fc
@@ -1029,8 +1029,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameAudio_IsRepeatOne 0x082bd6f8
 #define ADDR_GameAudio_IsRepeatAll 0x082bd6e8
 #define ADDR_GameAudio_IsPlaybackOrderReversed 0x082bd718
-#define ADDR_GameAudio_GetPlayerFlag93F 0x082bd66c
-#define ADDR_GameAudio_GetCurrentEntryFlag 0x082bd494
+#define ADDR_GameAudio_IsPlayingOnTheGo 0x082bd66c
+#define ADDR_GameAudio_IsPlaybackListUnrestricted 0x082bd494
 #define ADDR_GameAudio_HasPlaybackList 0x082bd8f0
 #define ADDR_GameAudio_GetVolume 0x082bd50c
 #define ADDR_GameAudio_GetVolumeLimit 0x082bd534
@@ -1056,8 +1056,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_GameUserList_Add 0x0812bb00
 #define ADDR_GameAudio_GetCachedSpeed 0x0817f7ec
 #define ADDR_GameAudio_QueuePreviousTrack 0x0817f528
-#define ADDR_GameAudio_ReadPlayerFlag93F 0x0817eb70
-#define ADDR_GameAudio_ReadCurrentEntryFlag 0x0817f054
+#define ADDR_GameAudio_ReadPlayingOnTheGo 0x0817eb70
+#define ADDR_GameAudio_ReadPlaybackListUnrestricted 0x0817f054
 #define ADDR_GameAudio_ReadMixerLevel 0x0817f09c
 #define ADDR_AudioMixer_GetMusicLevel 0x081a6b78
 #define ADDR_GameFileService_TaskEntry 0x081e459c
@@ -3005,6 +3005,13 @@ extern void *MediaArtworkProvider;
 #define GamePlaybackState_Stopped 0x0
 #define GamePlaybackState_Playing 0x1
 #define GamePlaybackState_Paused 0x2
+#define GameRepeatMode_Off 0x0
+#define GameRepeatMode_One 0x1
+#define GameRepeatMode_All 0x2
+#define GamePlaybackOrder_Off 0x0
+#define GamePlaybackOrder_Songs 0x1
+#define GamePlaybackOrder_Albums 0x2
+#define GameAudio_VolumeMax 0xff
 #define GameSettings_Count 0x3
 #define GameDirectoryStatus_More 0x0
 #define GameDirectoryStatus_Last 0x1
@@ -3129,8 +3136,11 @@ extern void *MediaArtworkProvider;
 #define MediaOrderMode_Shuffle 0x2
 #define MediaOrderMode_Playback 0x33
 #define MediaListFlags_Shuffled 0x1
+#define MediaListFlags_ShuffleAlbums 0x2
+#define MediaListFlags_ShuffleOrderBuilt 0x4
 #define MediaListFlags_PlaybackList 0x80
 #define MediaListOrderFlags_Reversed 0x4
+#define MediaListOrderFlags_Restricted 0x40
 #define MediaEntryFlags_Group 0x100
 #define MediaRepeat_All 0x1
 #define MediaRepeat_One 0x2

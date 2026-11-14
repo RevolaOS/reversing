@@ -390,8 +390,13 @@ MediaOrderMode_Database = 1
 MediaOrderMode_Shuffle = 2
 MediaOrderMode_Playback = 0x33
 MediaListFlags_Shuffled = 0x1
+MediaListFlags_ShuffleAlbums = 0x2
+# Set once the shuffle order is built; cleared at the end of the list so the next pass reshuffles.
+MediaListFlags_ShuffleOrderBuilt = 0x4
 MediaListFlags_PlaybackList = 0x80
 MediaListOrderFlags_Reversed = 0x4
+# Disables repeat, shuffle and auto-advance for the list; no 2.0.5 code sets it.
+MediaListOrderFlags_Restricted = 0x40
 MediaEntryFlags_Group = 0x100
 MediaRepeat_All = 1
 MediaRepeat_One = 2
