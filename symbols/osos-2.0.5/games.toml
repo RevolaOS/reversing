@@ -47,8 +47,9 @@ GamesService_RequestSelectedGameLaunch = { at = 0x080f6708, c = "void GamesServi
 # GameBacklight record: SetBacklightLevel takes 0..GameBacklight_LevelMax and answers 0,
 # SetBacklightEnabled answers 0 or 0xb when the PMU path is unavailable, SetBacklightDimmed caps
 # the level at GameBacklight_DimmedLevel while dimmed. Sleep blocks the game task for milliseconds
-# (0 yields) through Scheduler_YieldOrDelay. GetDateTime fills second, minute, hour, day, month,
-# year from the RTC, or 1 January of DateTime_DefaultYear when the RTC has never been set.
+# (0 yields) through Scheduler_YieldOrDelay. GetDateTime fills second, minute, hour 0..23, day
+# 1..31, month 1..12 and the full year from the RTC in local time (checked in the emulator), or
+# 1 January of DateTime_DefaultYear when the RTC has never been set.
 # GetHostStatusValue reads App member +0x430 through vtable +0xd0 and negates values above 22;
 # its meaning is unverified. IsExternalPowerConnected is the check the sleep timer uses. GetPath
 # and GetGameName copy into the caller's buffer and return the length, or -1 for a null buffer or
