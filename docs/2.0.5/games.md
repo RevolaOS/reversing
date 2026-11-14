@@ -17,7 +17,7 @@ A `GameAPIModule` record is the 32-byte name, counts, `next`, the function point
 | Settings | 1 | `GameSettings_GetValue` |
 | AsyncFileIO | 17 | `GameFile_*`, `GameDirectory_*`, `GameSaveFile_*` |
 | SoundEffect | 42 | `GameSound_*` |
-| OpenGLES | 170 | GL ES, then EGL and `GameGraphics_*` (TODO: name the GL table) |
+| OpenGLES | 170 | `gl*` (139), `egl*` (29), two `gl*APPLE` |
 | Audio | 54 | `GameAudio_*` |
 | Metadata | 169 | `GameMetadata_*` (TODO: name the table) |
 | Users | 10 | `GameUser_*` |
@@ -46,6 +46,14 @@ A `GameSound` is a PCM buffer (`data`, `byte_count`, `sample_rate` `GameSound_Sa
 
 `Play` takes one of `AudioMixer_VoiceCount` voices, stealing the oldest when none is free, and answers 1 for any valid handle. `lead_in_ms` plus `duck_ms` are silence before the sound, during which the music level drops to `duck_level`; with `flags` bit 1 set `Play` queues a 500 ms tone instead of the audio clock hold. `state` is `GameSoundState_*`: `Play`, `Pause`, `Resume` and `Stop` write it along the `next` ring. A sound that ends by itself clears `attached` and `voice` but leaves `state` at Playing, so `IsPlaying` (attached and Playing) is the test for completion and `GetState` is not. `GetVoicePosition` is the voice's frame cursor of the current pass. Nothing is required per frame. `Destroy` detaches the voices and deletes only the object. At game end the runtime teardown resets every voice and destroys every remaining sound before the game heap goes.
 
+## Graphics
+
+The OpenGLES module is Apple's software OpenGL ES-CM 1.1 (`glGetString` answers "Software", "OpenGL ES-CM 1.1" and the OES fixed-point, single-precision, read-format, query-matrix, point-size-array, point-sprite and paletted-texture extensions plus `GL_APPLE_binary_shader`) with an EGL 1.1 front end; nothing drives hardware. The 139 GL entries follow the Khronos header order, the 29 EGL entries the egl.h 1.1 order; see the games.toml comment for the omissions and stubs. `eglGetProcAddress` is not in the table; `EGL_ProcedureTable` holds the five extension names, among them `glPointSizePointerOES`, which is reachable only that way.
+
+The host owns the context. `GameRuntime_CreateGraphicsContext` runs when the runtime enters its active state, after the game's init entry: it saves the current context and surfaces, calls `eglChooseConfig`, `eglCreateWindowSurface` for a 320 by 240 `EGLNativeWindow` (the RGB565 colour mode comes from the chosen config), `eglCreateContext`, stores the game heap pointer in the context and `eglMakeCurrent`. `GameRuntime_DestroyGraphicsContext` undoes it before the shutdown entry. A game therefore has a current context in every frame callback and need not call EGL itself; `eglGetCurrentSurface` and `eglSwapBuffers` suffice.
+
+`GameGraphics_ConstructWindowSurface` builds two 320 by 240 display buffers (`GameSurface_pixels` points at the second). `eglSwapBuffers` goes to `GameGraphics_PresentAndSwapSurface`: it submits the back buffer to the display layer, swaps the two descriptors and repoints the pixel pointer, so it flips rather than copies. `GameFrameInput_pixels` is refreshed from `GameGraphics_GetCurrentPixelBuffer` before every frame callback and is the buffer the next `eglSwapBuffers` presents. Cover Flow and the Now Playing art use the same GL natively (`glClear`, `glClearColorx`).
+
 ## Music
 
 `GameAudio_*` controls the media player: playback list (`InitPlaybackList`, `AppendMediaSelection`, `RemoveEntryAtIndex`, `ClearPlaybackList`), transport (`PlayIndex`, `TogglePlayPause`, `Stop`, `NextTrack`, `PreviousTrack`, `Seek`, the scan functions), settings (repeat `GameRepeatMode_*`, order `GamePlaybackOrder_*`, EQ, speed, gain, volume 0..`GameAudio_VolumeMax`) and queries. Positions are milliseconds. Setters post a games-service event; the UI task applies it (`FUN_080f5d94`) and the bridge predicts the playback state, the entry count and the last volume payload until the queue drains, so `GetPlaybackState` and `GetEntryCount` answer the prediction while the other queries read the player and lag a queued command. `TogglePlayPause` with `wait` set delays 150 ms after pausing. `GameInput_ForwardButtonEvent` acts on releases only: Menu leaves the game, Next and Previous skip, Play toggles. `GameAudio_SnapshotPlayerSettings` runs at launch and `GameAudio_RestorePlayerSettings` at game end: repeat and order come back, speed returns to 1000, the EQ only when set through `SetEQMenuIndexTemporary`, gain to 0, and the playback list is rebuilt when the game changed it; volume is not restored.
@@ -53,4 +61,4 @@ A `GameSound` is a PCM buffer (`data`, `byte_count`, `sample_rate` `GameSound_Sa
 ## Open points
 
 - `GameSystem_GetHostStatusValue` and `GameSound_SetFlagC` are named after what they touch; their purpose is unverified.
-- TODO: name the OpenGLES and Metadata tables.
+- TODO: name the Metadata table.
