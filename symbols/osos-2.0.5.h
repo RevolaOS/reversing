@@ -23,7 +23,6 @@ struct MediaTrack;
 struct NativePath;
 struct NativeString;
 struct ThreeBandEQ;
-struct UIKeyName;
 
 int ArtworkDatabase_ReadImageThumbs(void *reader, void *image, uint32_t count, uint32_t flags);
 void *ArtworkDatabase_FindById(void *database, uint32_t artwork_id);
@@ -779,12 +778,12 @@ extern uint8_t Palette_Black[4];
 extern volatile uint32_t WheelController[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
-extern const struct UIKeyName UIKeyNames_Button[];
-extern const struct UIKeyName UIKeyNames_Remote[];
-extern const struct UIKeyName UIKeyNames_Video[];
-extern const struct UIKeyName UIKeyNames_Image[];
-extern const struct UIKeyName UIKeyNames_Audio[];
-extern const struct UIKeyName UIKeyNames_Mikey[];
+extern const uint8_t UIKeyNames_Button[];
+extern const uint8_t UIKeyNames_Remote[];
+extern const uint8_t UIKeyNames_Video[];
+extern const uint8_t UIKeyNames_Image[];
+extern const uint8_t UIKeyNames_Audio[];
+extern const uint8_t UIKeyNames_Mikey[];
 extern const char *const InputEventNameWords[14];
 extern void *const MediaPlayer_vtable[];
 extern uint8_t BrowserRegistry[];
@@ -2652,6 +2651,10 @@ extern void *MediaArtworkProvider;
 #define View_linked_view_method 0xfc
 #define View_has_event_target_method 0x18
 #define View_flags 0x48
+#define View_show_method 0xa0
+#define View_parent_shown_method 0xa4
+#define View_enable_method 0xc0
+#define View_parent_enabled_method 0xc4
 #define View_children 0xa8
 #define View_child_count 0xac
 #define View_child_items 0xb0

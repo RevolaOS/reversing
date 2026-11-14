@@ -423,7 +423,19 @@ linked_view_method = 0xfc
 # Returns 1 when the responder target at +0xc is set; UI_InitializeViewTemplates passes the owner as
 # event target of a new template only then.
 has_event_target_method = 0x18
+# flags keeps two three-state machines: 0x1800 hidden, 0x1000 shown while the parent is not,
+# 0x800 visible; 0x600 disabled, 0x400 enabled while the parent is not, 0x200 enabled. A view
+# attached under a parent in the pending states is completed by that parent's own pass.
 flags = 0x48
+# (view, shown): the view goes hidden or visible and its children are told through their
+# parent_shown_method; the template owner's walks its templates.
+show_method = 0xa0
+# (view, shown): the parent became visible or hidden; a view waiting on it completes the change
+# and tells its own children.
+parent_shown_method = 0xa4
+# (view, enabled) and its parent counterpart, as the two above.
+enable_method = 0xc0
+parent_enabled_method = 0xc4
 # Only container views (those whose View_find_view_method is View_FindViewById) have these: an
 # embedded array object whose vtable sits at children, with child_count View pointers at
 # child_items. A plain view ends at View_bytes, and TextView_context overlaps these offsets.
