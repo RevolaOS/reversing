@@ -7,6 +7,22 @@ PMU_WriteMemory = { at = 0x082dc5e4, c = "int PMU_WriteMemory(uint32_t offset, u
 Power_EnterLightSleep = { at = 0x0805d0c0, c = "uint32_t Power_EnterLightSleep(int mode)" }
 PowerController_HandleIdleSleep = { at = 0x0819b28c }
 PowerController_HandleRequestedSleep = { at = 0x0819bb18 }
+# The power controller (UI service 0x8c00) runs a per-event handler table; PostEvent queues an
+# event id (PowerEvent_*). Its backlight timer runs out to a backlight-off event, its idle timer
+# to HandleIdleTimeout, which posts the idle sleep only when no game runs (PowerController_game_running,
+# set by NotifyGameStarted at launch and cleared by the games service at game end) and no music
+# plays; with a game running the idle timeout posts event 0x27, which has no handler.
+PowerController_Get = { at = 0x0819aeec, c = "void *PowerController_Get(void)" }
+PowerController_PostEvent = { at = 0x081d41a0, c = "void PowerController_PostEvent(void *controller, uint32_t event)" }
+PowerController_NotifyGameStarted = { at = 0x0819ae98, c = "void PowerController_NotifyGameStarted(void *controller)" }
+PowerController_HandleGameStarted = { at = 0x0819c6fc, c = "void PowerController_HandleGameStarted(void *controller)" }
+PowerController_HandleIdleTimeout = { at = 0x0819c62c, c = "void PowerController_HandleIdleTimeout(void *controller)" }
+# Begin and EndAfter post mailbox records (kind 0 and kind 2 with a timeout in ms) to task 1 for a
+# client id: 1 the library load, 0x22 a directory scan, 0x3c the iTunesDB import, 6 the eApp Audio
+# module (GameAudio_RequestPowerHold). The receiving task is not identified; it is neither the
+# power controller nor the backlight path.
+PowerHold_Begin = { at = 0x0803d124, c = "void PowerHold_Begin(uint32_t client, uint32_t flag)" }
+PowerHold_EndAfter = { at = 0x0803d064, c = "void PowerHold_EndAfter(uint32_t client, int milliseconds)" }
 System_SaveAll = { at = 0x080638d8 }
 Disk_GetPowerState = { at = 0x082b3630, c = "int Disk_GetPowerState(uint32_t *out_powered)" }
 StorageArbiter_Get = { at = 0x0807bf3c, c = "void *StorageArbiter_Get(void)" }
@@ -62,6 +78,11 @@ disk_mode_requested = 0x4cc
 library_load_started = 0x4d2
 in_disk_mode = 0x4d3
 
+[offsets.PowerController]
+backlight_timer = 0x6c
+idle_timer = 0x98
+game_running = 0xd7
+
 [offsets.StorageArbiter]
 active = 0x10
 clients = 0x14
@@ -74,6 +95,10 @@ wanted = 0xc
 state = 0xd
 
 [constants]
+# PowerController_PostEvent ids.
+PowerEvent_GameStarted = 0x6
+PowerEvent_IdleSleep = 0xb
+PowerEvent_RequestedSleep = 0xc
 # PMU_SetBacklightEnabled and I2C0 write/IRQ paths; controller bit meanings
 # agree with Rockbox firmware/export/s5l87xx.h and i2c-s5l8702.c.
 PMU_I2CWriteAddress = 0xe6

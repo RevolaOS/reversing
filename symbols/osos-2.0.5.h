@@ -463,6 +463,13 @@ void PMU_SetBacklightEnabled(int enabled);
 int PMU_ReadMemory(uint32_t offset, uint32_t count, void *buffer);
 int PMU_WriteMemory(uint32_t offset, uint32_t count, const void *buffer);
 uint32_t Power_EnterLightSleep(int mode);
+void *PowerController_Get(void);
+void PowerController_PostEvent(void *controller, uint32_t event);
+void PowerController_NotifyGameStarted(void *controller);
+void PowerController_HandleGameStarted(void *controller);
+void PowerController_HandleIdleTimeout(void *controller);
+void PowerHold_Begin(uint32_t client, uint32_t flag);
+void PowerHold_EndAfter(uint32_t client, int milliseconds);
 int Disk_GetPowerState(uint32_t *out_powered);
 void *StorageArbiter_Get(void);
 void StorageArbiter_Activate(void *arbiter, void *owner);
@@ -1314,6 +1321,13 @@ extern void *MediaArtworkProvider;
 #define ADDR_Power_EnterLightSleep 0x0805d0c0
 #define ADDR_PowerController_HandleIdleSleep 0x0819b28c
 #define ADDR_PowerController_HandleRequestedSleep 0x0819bb18
+#define ADDR_PowerController_Get 0x0819aeec
+#define ADDR_PowerController_PostEvent 0x081d41a0
+#define ADDR_PowerController_NotifyGameStarted 0x0819ae98
+#define ADDR_PowerController_HandleGameStarted 0x0819c6fc
+#define ADDR_PowerController_HandleIdleTimeout 0x0819c62c
+#define ADDR_PowerHold_Begin 0x0803d124
+#define ADDR_PowerHold_EndAfter 0x0803d064
 #define ADDR_System_SaveAll 0x080638d8
 #define ADDR_Disk_GetPowerState 0x082b3630
 #define ADDR_StorageArbiter_Get 0x0807bf3c
@@ -2522,6 +2536,9 @@ extern void *MediaArtworkProvider;
 #define App_disk_mode_requested 0x4cc
 #define App_library_load_started 0x4d2
 #define App_in_disk_mode 0x4d3
+#define PowerController_backlight_timer 0x6c
+#define PowerController_idle_timer 0x98
+#define PowerController_game_running 0xd7
 #define StorageArbiter_active 0x10
 #define StorageArbiter_clients 0x14
 #define StorageArbiter_owner 0x20
@@ -3158,6 +3175,9 @@ extern void *MediaArtworkProvider;
 #define MP4_SampleToChunkWindow 0x8000
 #define MP4_ChunkOffsetWindow 0x4000
 #define MP4_TimeToSampleWindow 0x8000
+#define PowerEvent_GameStarted 0x6
+#define PowerEvent_IdleSleep 0xb
+#define PowerEvent_RequestedSleep 0xc
 #define PMU_I2CWriteAddress 0xe6
 #define PMU_BacklightEnableRegister 0x29
 #define PMU_BacklightEnabled 0x1
