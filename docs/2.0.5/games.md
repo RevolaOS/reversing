@@ -30,7 +30,7 @@ Most entries are shims. miscTBD and the file services go through the game runtim
 
 ## Settings
 
-`GameSettings_GetValue` looks the name up in `GameSettings_Table` (`GameSetting` records): `TimeFormat` and `Language` read the preference first, `HoldSwitch` calls `HoldSwitch_ReadSetting`. Unknown names answer -0x32, a null buffer -0x31.
+`GameSettings_GetValue` looks the name up in `GameSettings_Table` (`GameSetting` records): `TimeFormat` reads its preference and maps it through `GameSettings_TimeFormatTable` to "12" or "24", `Language` writes the index of the current language from `Preference_LanguageFirst` as a 4-byte int, `HoldSwitch` calls `HoldSwitch_ReadSetting` for one byte. Errors are `GameSettingsStatus_*`.
 
 ## Files
 
