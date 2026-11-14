@@ -10,6 +10,10 @@ Event_Signal = { at = 0x0802cfa8, c = "void Event_Signal(uint32_t event)" }
 IRQ_RestoreState = { at = 0x083924d8, c = "void IRQ_RestoreState(uint32_t cpsr)" }
 IRQ_DisableSave = { at = 0x083924e0, c = "uint32_t IRQ_DisableSave(void)" }
 InputWheel_AccumulateMotion = { at = 0x08093718 }
+# Builds the "<source>.<key>.<kind>" name ScreenController_DispatchNamedEvent dispatches: the key code
+# (bits 16 to 23 of InputEvent_key) is looked up in the UIKeyNames tables, the kind becomes the suffix
+# (down, up, pressandhold, ...).
+InputEvent_BuildName = { at = 0x0826c1b8 }
 
 [sites]
 HoldSwitch_NotifyRawChange_call = { at = 0x08055b44, kind = "call" }
@@ -18,6 +22,21 @@ HoldSwitch_NotifyRawChange_call = { at = 0x08055b44, kind = "call" }
 WheelController = { at = 0x3c200000, c = "volatile uint32_t WheelController[]" }
 WheelState = { at = 0x089d2b8c, c = "uint8_t WheelState[]" }
 ButtonKeyCodes = { at = 0x089d2ec5, c = "const uint8_t ButtonKeyCodes[5]" }
+# Zero-terminated UIKeyName pairs, one table per event source, read by InputEvent_BuildName.
+UIKeyNames_Button = { at = 0x083e46d0, c = "const struct UIKeyName UIKeyNames_Button[]" }
+UIKeyNames_Remote = { at = 0x083e4710, c = "const struct UIKeyName UIKeyNames_Remote[]" }
+UIKeyNames_Video = { at = 0x083e47f8, c = "const struct UIKeyName UIKeyNames_Video[]" }
+UIKeyNames_Image = { at = 0x083e4868, c = "const struct UIKeyName UIKeyNames_Image[]" }
+UIKeyNames_Audio = { at = 0x083e48b0, c = "const struct UIKeyName UIKeyNames_Audio[]" }
+UIKeyNames_Mikey = { at = 0x083e4958, c = "const struct UIKeyName UIKeyNames_Mikey[]" }
+# The words of an event name: button, up, down, pressandhold, longpressandhold, doubleclick,
+# doubleclickandhold, tripleclick, remote, video, image, audio, mikey, wheel.
+InputEventNameWords = { at = 0x089d2e48, c = "const char *const InputEventNameWords[14]" }
+
+[offsets.UIKeyName]
+code = 0x0
+name = 0x4
+bytes = 0x8
 
 [offsets.WheelState]
 notify_pending = 0x0
@@ -55,11 +74,93 @@ InputEvent_ButtonDoubleClickAndHold = 0xb
 InputEvent_ButtonTripleClick = 0xc
 InputEvent_ButtonUp = 0xd
 InputEvent_Wheel = 0x15
+# One key-code space for every input source; the source only picks the UIKeyNames table and the
+# first word of the event name. The physical keys (UIKeyNames_Button) stay bare.
 UIKey_Play = 0x10
+UIKey_UpArrow = 0x57
+UIKey_DownArrow = 0x58
 UIKey_Previous = 0x59
 UIKey_Next = 0x5a
 UIKey_Menu = 0x6e
 UIKey_Center = 0x6f
+# Wired and dock remotes (UIKeyNames_Remote).
+UIKey_RemotePlayPause = 0x1c
+UIKey_RemotePrevious = 0x1d
+UIKey_RemoteNext = 0x1e
+UIKey_RemoteVolumeDown = 0x1f
+UIKey_RemoteVolumeUp = 0x20
+UIKey_RemoteEvent = 0x30
+UIKey_RemoteNextAlbum = 0x38
+UIKey_RemotePreviousAlbum = 0x39
+UIKey_RemoteStop = 0x3a
+UIKey_RemotePlay = 0x3b
+UIKey_RemotePause = 0x3c
+UIKey_RemoteMute = 0x3d
+UIKey_RemoteNextChapter = 0x3e
+UIKey_RemotePreviousChapter = 0x3f
+UIKey_RemoteNextPlaylist = 0x40
+UIKey_RemotePreviousPlaylist = 0x41
+UIKey_RemoteShuffle = 0x42
+UIKey_RemoteRepeat = 0x43
+UIKey_RemoteOn = 0x44
+UIKey_RemoteOff = 0x45
+UIKey_RemoteBacklight = 0x46
+UIKey_RemoteFastForward = 0x47
+UIKey_RemoteRewind = 0x48
+UIKey_RemoteMenu = 0x49
+UIKey_RemoteCenter = 0x4a
+UIKey_RemoteUpArrow = 0x4b
+UIKey_RemoteDownArrow = 0x4c
+UIKey_RemoteBacklightOff = 0x4d
+# Image playback transport (UIKeyNames_Image).
+UIKey_ImagePlayPause = 0x1
+UIKey_ImageNext = 0x2
+UIKey_ImagePrevious = 0x3
+UIKey_ImageStop = 0x4
+UIKey_ImagePlay = 0x5
+UIKey_ImagePause = 0x6
+UIKey_ImageShuffle = 0x7
+UIKey_ImageRepeat = 0x8
+# Video playback transport (UIKeyNames_Video).
+UIKey_VideoPlayPause = 0x9
+UIKey_VideoNext = 0xa
+UIKey_VideoPrevious = 0xb
+UIKey_VideoStop = 0xc
+UIKey_VideoPlay = 0xd
+UIKey_VideoPause = 0xe
+UIKey_VideoFastForward = 0xf
+UIKey_VideoRewind = 0x11
+UIKey_VideoNextChapter = 0x12
+UIKey_VideoPreviousChapter = 0x13
+UIKey_VideoNextFrame = 0x14
+UIKey_VideoPreviousFrame = 0x15
+UIKey_VideoCaption = 0x16
+# Audio playback transport (UIKeyNames_Audio).
+UIKey_AudioPlayPause = 0x17
+UIKey_AudioVolumeUp = 0x18
+UIKey_AudioVolumeDown = 0x19
+UIKey_AudioNext = 0x1a
+UIKey_AudioPrevious = 0x1b
+UIKey_AudioNextAlbum = 0x21
+UIKey_AudioPreviousAlbum = 0x22
+UIKey_AudioStop = 0x23
+UIKey_AudioPlay = 0x24
+UIKey_AudioPause = 0x25
+UIKey_AudioMute = 0x26
+UIKey_AudioNextChapter = 0x27
+UIKey_AudioPreviousChapter = 0x28
+UIKey_AudioNextPlaylist = 0x29
+UIKey_AudioPreviousPlaylist = 0x2a
+UIKey_AudioShuffle = 0x2b
+UIKey_AudioRepeat = 0x2c
+UIKey_AudioFastForward = 0x2d
+UIKey_AudioRewind = 0x2e
+UIKey_AudioRecord = 0x2f
+# Three-button headset remote, "mikey" in the firmware (UIKeyNames_Mikey).
+UIKey_MikeyCenter = 0x79
+UIKey_MikeyVolumeDown = 0x7a
+UIKey_MikeyVolumeUp = 0x7b
+UIKey_MikeyAll = 0x7e
 WheelPositions = 96
 WheelTouch_Down = 0x40000000
 WheelEvent_Signal = 5

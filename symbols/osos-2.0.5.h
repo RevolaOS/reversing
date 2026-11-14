@@ -23,6 +23,7 @@ struct MediaTrack;
 struct NativePath;
 struct NativeString;
 struct ThreeBandEQ;
+struct UIKeyName;
 
 int ArtworkDatabase_ReadImageThumbs(void *reader, void *image, uint32_t count, uint32_t flags);
 void *ArtworkDatabase_FindById(void *database, uint32_t artwork_id);
@@ -778,6 +779,13 @@ extern uint8_t Palette_Black[4];
 extern volatile uint32_t WheelController[];
 extern uint8_t WheelState[];
 extern const uint8_t ButtonKeyCodes[5];
+extern const struct UIKeyName UIKeyNames_Button[];
+extern const struct UIKeyName UIKeyNames_Remote[];
+extern const struct UIKeyName UIKeyNames_Video[];
+extern const struct UIKeyName UIKeyNames_Image[];
+extern const struct UIKeyName UIKeyNames_Audio[];
+extern const struct UIKeyName UIKeyNames_Mikey[];
+extern const char *const InputEventNameWords[14];
 extern void *const MediaPlayer_vtable[];
 extern uint8_t BrowserRegistry[];
 extern void *BlockCache;
@@ -1130,6 +1138,7 @@ extern void *MediaArtworkProvider;
 #define ADDR_IRQ_RestoreState 0x083924d8
 #define ADDR_IRQ_DisableSave 0x083924e0
 #define ADDR_InputWheel_AccumulateMotion 0x08093718
+#define ADDR_InputEvent_BuildName 0x0826c1b8
 #define ADDR_MediaListModel_GetIndexedProperty 0x0816a04c
 #define ADDR_MediaListModel_Destroy 0x0816d508
 #define ADDR_MediaPlayer_GetPosition 0x0816f704
@@ -1685,6 +1694,13 @@ extern void *MediaArtworkProvider;
 #define ADDR_WheelController 0x3c200000
 #define ADDR_WheelState 0x089d2b8c
 #define ADDR_ButtonKeyCodes 0x089d2ec5
+#define ADDR_UIKeyNames_Button 0x083e46d0
+#define ADDR_UIKeyNames_Remote 0x083e4710
+#define ADDR_UIKeyNames_Video 0x083e47f8
+#define ADDR_UIKeyNames_Image 0x083e4868
+#define ADDR_UIKeyNames_Audio 0x083e48b0
+#define ADDR_UIKeyNames_Mikey 0x083e4958
+#define ADDR_InputEventNameWords 0x089d2e48
 #define ADDR_MediaPlayer_vtable 0x08990da4
 #define ADDR_BrowserRegistry 0x08a1a6dc
 #define ADDR_BlockCache 0x089d380c
@@ -2247,6 +2263,9 @@ extern void *MediaArtworkProvider;
 #define Surface_bytes_per_pixel 0xc
 #define Surface_format 0x10
 #define Surface_bounds 0x14
+#define UIKeyName_code 0x0
+#define UIKeyName_name 0x4
+#define UIKeyName_bytes 0x8
 #define WheelState_notify_pending 0x0
 #define WheelState_reported_buttons 0x18
 #define WheelState_buttons 0x20
@@ -3013,10 +3032,85 @@ extern void *MediaArtworkProvider;
 #define InputEvent_ButtonUp 0xd
 #define InputEvent_Wheel 0x15
 #define UIKey_Play 0x10
+#define UIKey_UpArrow 0x57
+#define UIKey_DownArrow 0x58
 #define UIKey_Previous 0x59
 #define UIKey_Next 0x5a
 #define UIKey_Menu 0x6e
 #define UIKey_Center 0x6f
+#define UIKey_RemotePlayPause 0x1c
+#define UIKey_RemotePrevious 0x1d
+#define UIKey_RemoteNext 0x1e
+#define UIKey_RemoteVolumeDown 0x1f
+#define UIKey_RemoteVolumeUp 0x20
+#define UIKey_RemoteEvent 0x30
+#define UIKey_RemoteNextAlbum 0x38
+#define UIKey_RemotePreviousAlbum 0x39
+#define UIKey_RemoteStop 0x3a
+#define UIKey_RemotePlay 0x3b
+#define UIKey_RemotePause 0x3c
+#define UIKey_RemoteMute 0x3d
+#define UIKey_RemoteNextChapter 0x3e
+#define UIKey_RemotePreviousChapter 0x3f
+#define UIKey_RemoteNextPlaylist 0x40
+#define UIKey_RemotePreviousPlaylist 0x41
+#define UIKey_RemoteShuffle 0x42
+#define UIKey_RemoteRepeat 0x43
+#define UIKey_RemoteOn 0x44
+#define UIKey_RemoteOff 0x45
+#define UIKey_RemoteBacklight 0x46
+#define UIKey_RemoteFastForward 0x47
+#define UIKey_RemoteRewind 0x48
+#define UIKey_RemoteMenu 0x49
+#define UIKey_RemoteCenter 0x4a
+#define UIKey_RemoteUpArrow 0x4b
+#define UIKey_RemoteDownArrow 0x4c
+#define UIKey_RemoteBacklightOff 0x4d
+#define UIKey_ImagePlayPause 0x1
+#define UIKey_ImageNext 0x2
+#define UIKey_ImagePrevious 0x3
+#define UIKey_ImageStop 0x4
+#define UIKey_ImagePlay 0x5
+#define UIKey_ImagePause 0x6
+#define UIKey_ImageShuffle 0x7
+#define UIKey_ImageRepeat 0x8
+#define UIKey_VideoPlayPause 0x9
+#define UIKey_VideoNext 0xa
+#define UIKey_VideoPrevious 0xb
+#define UIKey_VideoStop 0xc
+#define UIKey_VideoPlay 0xd
+#define UIKey_VideoPause 0xe
+#define UIKey_VideoFastForward 0xf
+#define UIKey_VideoRewind 0x11
+#define UIKey_VideoNextChapter 0x12
+#define UIKey_VideoPreviousChapter 0x13
+#define UIKey_VideoNextFrame 0x14
+#define UIKey_VideoPreviousFrame 0x15
+#define UIKey_VideoCaption 0x16
+#define UIKey_AudioPlayPause 0x17
+#define UIKey_AudioVolumeUp 0x18
+#define UIKey_AudioVolumeDown 0x19
+#define UIKey_AudioNext 0x1a
+#define UIKey_AudioPrevious 0x1b
+#define UIKey_AudioNextAlbum 0x21
+#define UIKey_AudioPreviousAlbum 0x22
+#define UIKey_AudioStop 0x23
+#define UIKey_AudioPlay 0x24
+#define UIKey_AudioPause 0x25
+#define UIKey_AudioMute 0x26
+#define UIKey_AudioNextChapter 0x27
+#define UIKey_AudioPreviousChapter 0x28
+#define UIKey_AudioNextPlaylist 0x29
+#define UIKey_AudioPreviousPlaylist 0x2a
+#define UIKey_AudioShuffle 0x2b
+#define UIKey_AudioRepeat 0x2c
+#define UIKey_AudioFastForward 0x2d
+#define UIKey_AudioRewind 0x2e
+#define UIKey_AudioRecord 0x2f
+#define UIKey_MikeyCenter 0x79
+#define UIKey_MikeyVolumeDown 0x7a
+#define UIKey_MikeyVolumeUp 0x7b
+#define UIKey_MikeyAll 0x7e
 #define WheelPositions 0x60
 #define WheelTouch_Down 0x40000000
 #define WheelEvent_Signal 0x5
