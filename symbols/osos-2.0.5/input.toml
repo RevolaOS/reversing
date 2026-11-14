@@ -45,6 +45,14 @@ WheelButton_Previous = 0x4
 WheelButton_Play = 0x8
 WheelButton_Menu = 0x10
 InputEvent_ButtonDown = 0x6
+# The further button phases, named after the suffix the event name builder behind
+# ScreenController_DispatchNamedEvent appends ("pressandhold", "longpressandhold", ...); a held button
+# raises ButtonDown, then ButtonPressAndHold, and no ButtonUp. Every other kind is named "up".
+InputEvent_ButtonPressAndHold = 0x8
+InputEvent_ButtonLongPressAndHold = 0x9
+InputEvent_ButtonDoubleClick = 0xa
+InputEvent_ButtonDoubleClickAndHold = 0xb
+InputEvent_ButtonTripleClick = 0xc
 InputEvent_ButtonUp = 0xd
 InputEvent_Wheel = 0x15
 UIKey_Play = 0x10

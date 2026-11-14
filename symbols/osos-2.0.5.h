@@ -3005,6 +3005,11 @@ extern void *MediaArtworkProvider;
 #define WheelButton_Play 0x8
 #define WheelButton_Menu 0x10
 #define InputEvent_ButtonDown 0x6
+#define InputEvent_ButtonPressAndHold 0x8
+#define InputEvent_ButtonLongPressAndHold 0x9
+#define InputEvent_ButtonDoubleClick 0xa
+#define InputEvent_ButtonDoubleClickAndHold 0xb
+#define InputEvent_ButtonTripleClick 0xc
 #define InputEvent_ButtonUp 0xd
 #define InputEvent_Wheel 0x15
 #define UIKey_Play 0x10
