@@ -163,7 +163,7 @@ GameSound_IsPlaying = { at = 0x082c082c, c = "int GameSound_IsPlaying(int sound)
 # IsPlayingOnTheGo says the playback list is the On-The-Go playlist, and
 # IsPlaybackListUnrestricted is 1 unless the list carries MediaListOrderFlags_Restricted.
 # GetMixerLevel and SetMixerLevel are the music level the duck restores. GetVersion writes 4 and 1.
-# RequestPowerHold posts power message 6 as begin, then end after 10 s.
+# RequestPowerHold calls TaskMessage_PostBegin(6, 0), then TaskMessage_PostEndAfter(6, 10000).
 GameAudio_GetRepeatMode = { at = 0x082bd5b4, c = "uint32_t GameAudio_GetRepeatMode(void)" } # Audio 0
 GameAudio_SetRepeatMode = { at = 0x082bd828, c = "void GameAudio_SetRepeatMode(uint8_t mode)" } # Audio 1
 GameAudio_GetPlaybackOrder = { at = 0x082bd5c4, c = "uint32_t GameAudio_GetPlaybackOrder(void)" } # Audio 2

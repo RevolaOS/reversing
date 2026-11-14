@@ -468,8 +468,8 @@ void PowerController_PostEvent(void *controller, uint32_t event);
 void PowerController_NotifyGameStarted(void *controller);
 void PowerController_HandleGameStarted(void *controller);
 void PowerController_HandleIdleTimeout(void *controller);
-void PowerHold_Begin(uint32_t client, uint32_t flag);
-void PowerHold_EndAfter(uint32_t client, int milliseconds);
+void TaskMessage_PostBegin(uint32_t client, uint32_t flag);
+void TaskMessage_PostEndAfter(uint32_t client, int milliseconds);
 int Disk_GetPowerState(uint32_t *out_powered);
 void *StorageArbiter_Get(void);
 void StorageArbiter_Activate(void *arbiter, void *owner);
@@ -1326,8 +1326,8 @@ extern void *MediaArtworkProvider;
 #define ADDR_PowerController_NotifyGameStarted 0x0819ae98
 #define ADDR_PowerController_HandleGameStarted 0x0819c6fc
 #define ADDR_PowerController_HandleIdleTimeout 0x0819c62c
-#define ADDR_PowerHold_Begin 0x0803d124
-#define ADDR_PowerHold_EndAfter 0x0803d064
+#define ADDR_TaskMessage_PostBegin 0x0803d124
+#define ADDR_TaskMessage_PostEndAfter 0x0803d064
 #define ADDR_System_SaveAll 0x080638d8
 #define ADDR_Disk_GetPowerState 0x082b3630
 #define ADDR_StorageArbiter_Get 0x0807bf3c
