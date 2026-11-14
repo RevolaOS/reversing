@@ -48,9 +48,9 @@ A `GameSound` is a PCM buffer (`data`, `byte_count`, `sample_rate` `GameSound_Sa
 
 ## Music
 
-`GameAudio_*` controls the media player: playback list (`InitPlaybackList`, `AppendMediaSelection`, `RemoveEntryAtIndex`, `ClearPlaybackList`), transport (`PlayIndex`, `TogglePlayPause`, `Stop`, `NextTrack`, `PreviousTrack`, `Seek`, the scan functions), settings (repeat, order, EQ, speed, gain, volume 0..255) and queries. `GetPlaybackState` answers `GamePlaybackState_*`, predicted from queued commands when one is pending. `SetEQMenuIndexTemporary` is undone when the game ends; `GameAudio_RestorePlayerSettings` restores everything the bridge saved at launch.
+`GameAudio_*` controls the media player: playback list (`InitPlaybackList`, `AppendMediaSelection`, `RemoveEntryAtIndex`, `ClearPlaybackList`), transport (`PlayIndex`, `TogglePlayPause`, `Stop`, `NextTrack`, `PreviousTrack`, `Seek`, the scan functions), settings (repeat `GameRepeatMode_*`, order `GamePlaybackOrder_*`, EQ, speed, gain, volume 0..`GameAudio_VolumeMax`) and queries. Positions are milliseconds. Setters post a games-service event; the UI task applies it (`FUN_080f5d94`) and the bridge predicts the playback state, the entry count and the last volume payload until the queue drains, so `GetPlaybackState` and `GetEntryCount` answer the prediction while the other queries read the player and lag a queued command. `TogglePlayPause` with `wait` set delays 150 ms after pausing. `GameInput_ForwardButtonEvent` acts on releases only: Menu leaves the game, Next and Previous skip, Play toggles. `GameAudio_SnapshotPlayerSettings` runs at launch and `GameAudio_RestorePlayerSettings` at game end: repeat and order come back, speed returns to 1000, the EQ only when set through `SetEQMenuIndexTemporary`, gain to 0, and the playback list is rebuilt when the game changed it; volume is not restored.
 
 ## Open points
 
-- `GameSystem_GetHostStatusValue`, `GameAudio_SetListOption`, `GameAudio_SetPendingItem`, `GameAudio_GetPlayerFlag93F`, `GameAudio_GetCurrentEntryFlag` and `GameSound_SetFlagC` are named after what they touch; their purpose is unverified.
+- `GameSystem_GetHostStatusValue` and `GameSound_SetFlagC` are named after what they touch; their purpose is unverified.
 - TODO: name the OpenGLES and Metadata tables.
